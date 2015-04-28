@@ -13,6 +13,7 @@ class HybridModelContext: NSObject {
     // Declarations -
     var gene_expression_control_matrix:Matrix?
     var gene_expression_effector_array:[String]?
+    var gene_expression_output_array:[String]?
     var state_symbol_array:[String]
     var state_model_dictionary:Dictionary<String,HybridStateModel>?
     

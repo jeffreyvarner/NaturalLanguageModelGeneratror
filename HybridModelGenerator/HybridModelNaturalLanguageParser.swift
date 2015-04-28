@@ -95,9 +95,6 @@ class HybridModelNaturalLanguageParser: NSObject {
         // Extract gene expression control table -
         var (gene_expression_control_table, effector_array) = extractGeneExpressionControlTableFromModelStatementArray(_listOfStatements: local_model_commands,listOfOutputSymbols: mRNA_array)
         
-        // Populate the model context -
-        model_context.gene_expression_control_matrix = gene_expression_control_table
-        model_context.gene_expression_effector_array = effector_array
         
         // build the state array -
         var state_array = mRNA_array+protein_array+infrastructure_and_parameter_array+effector_array
@@ -107,6 +104,11 @@ class HybridModelNaturalLanguageParser: NSObject {
         
         // Grab the *unique* state array -
         let unique_state_symbol_array = model_context.state_symbol_array
+        
+        // Populate the model context -
+        model_context.gene_expression_control_matrix = gene_expression_control_table
+        model_context.gene_expression_effector_array = effector_array
+        model_context.gene_expression_output_array = mRNA_array
         
         // Ok, what are the *roles* of these symbols, and their default values?
         let symbol_role_dictionary = extractSymbolRoleDictionaryFromModelStatementArray(_listOfStatements: local_model_commands, listOfSymbols: unique_state_symbol_array)

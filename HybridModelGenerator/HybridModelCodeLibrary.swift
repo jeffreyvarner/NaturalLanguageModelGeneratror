@@ -130,10 +130,57 @@ class DataFileOctaveMStrategy:CodeStrategy {
             let default_value:Double = state_model_object!.default_value!
             
             // write the record -
-            buffer+="\t\t\(default_value)\t%\t\(state_symbol)\t\(counter)\n"
+            buffer+="\t\t\(default_value)\t;\t%\t\(state_symbol)\t\(counter)\n"
             
             // update the counter -
             counter++
+        }
+        
+        buffer+="\n"
+        buffer+="\t% Setup the parameter array - \n"
+        buffer+="\tPARAMETER_ARRAY = [\n"
+        buffer+="\n"
+        
+        // Analyze the gene expession control matrix -
+        let gene_expression_control_matrix = modelContext.gene_expression_control_matrix!
+        let gene_expression_effector_array = modelContext.gene_expression_effector_array!
+        let gene_expression_output_array = modelContext.gene_expression_output_array!
+        
+        // How many effectors, and outputs do we have?
+        let number_of_effectors = gene_expression_control_matrix.rows
+        let number_of_outputs = gene_expression_control_matrix.columns
+        var parameter_counter = 1;
+        for var col_index = 0;col_index<number_of_outputs;col_index++ {
+            
+            // get output symbol -
+            let output_symbol = gene_expression_output_array[col_index]
+            
+            for var row_index = 0;row_index<number_of_effectors;row_index++ {
+                
+                // Get the effector symbol -
+                let effector_symbol = gene_expression_effector_array[row_index]
+                
+                // ok, do we have a connection?
+                let connection_code = gene_expression_control_matrix[row_index,col_index]
+                if (connection_code != 0){
+                    
+                    // ok, for each *non-zero* element we have a *two* parameters, and alpha and an order parameter -
+                    // Gain parameter -
+                    buffer+="\t\t0.1\t;\t%\t gain parameter => effector:\(effector_symbol)\touput_symbol:\(output_symbol)\t\(parameter_counter)\n"
+                    
+                    // update parameter counter -
+                    parameter_counter++
+                    
+                    // Reaction order parameter -
+                    buffer+="\t\t1.0\t;\t%\t reaction order parameter => effector:\(effector_symbol)\touput_symbol:\(output_symbol)\t\(parameter_counter)\n"
+                    
+                    // update parameter counter -
+                    parameter_counter++
+                    
+                    // Add a new line =
+                    buffer+="\n"
+                }
+            }
         }
         
         buffer+="\t];\n"
