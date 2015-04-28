@@ -63,8 +63,110 @@ class ControlOctaveMStrategy:CodeStrategy {
             state_index++
         }
         
+        buffer+="\n"
         
-        buffer+="return"
+        // Analyze the gene expession control matrix -
+        let gene_expression_control_matrix = modelContext.gene_expression_control_matrix!
+        let gene_expression_effector_array = modelContext.gene_expression_effector_array!
+        let gene_expression_output_array = modelContext.gene_expression_output_array!
+        
+        // How many effectors, and outputs do we have?
+        let number_of_effectors = gene_expression_control_matrix.rows
+        let number_of_outputs = gene_expression_control_matrix.columns
+        var parameter_counter = 1;
+        for var col_index = 0;col_index<number_of_outputs;col_index++ {
+            
+            // get output symbol -
+            let output_symbol = gene_expression_output_array[col_index]
+            var local_term_counter = 1
+            
+            // scan down the col - are *any* of the row neq 0?
+            for var scan_index = 0;scan_index<number_of_effectors;scan_index++ {
+                
+                let connection_code = gene_expression_control_matrix[scan_index,col_index]
+                
+                if (connection_code != 0){
+                    let effector_symbol = gene_expression_effector_array[scan_index]
+                    buffer+="\t% Control term  output:\(output_symbol) effector:\(effector_symbol)\n"
+                    
+                    break
+                }
+            }
+    
+            
+            for var row_index = 0;row_index<number_of_effectors;row_index++ {
+                
+                // Get the effector symbol -
+                let effector_symbol = gene_expression_effector_array[row_index]
+                
+                // ok, do we have a connection?
+                let connection_code = gene_expression_control_matrix[row_index,col_index]
+                
+                
+                
+                if (connection_code>0){
+                    
+                    // Generate the alpha string -
+                    let alpha_string = "\talpha_\(output_symbol)_\(effector_symbol) = parameter_vector(\(parameter_counter))"
+                    
+                    // update the parameter counter -
+                    parameter_counter++
+                    
+                    // Generate the order string -
+                    let order_string = "\torder_\(output_symbol)_\(effector_symbol) = parameter_vector(\(parameter_counter))"
+                    
+                    // Update the parameter counter -
+                    parameter_counter++
+                    
+                    // ok, we have a + term -
+                    // Write a comment -
+                    buffer+=alpha_string+";\n"
+                    buffer+=order_string+";\n"
+                    
+                    // Write the transfer function -
+                    buffer+="\tf_\(local_term_counter) = "
+                    buffer+="(alpha_\(output_symbol)_\(effector_symbol)*\(effector_symbol)^order_\(output_symbol)_\(effector_symbol))/("
+                    buffer+="1+alpha_\(output_symbol)_\(effector_symbol)*\(effector_symbol)^order_\(output_symbol)_\(effector_symbol));\n"
+                    
+                    // update the local counter -
+                    local_term_counter++
+                }
+                else if (connection_code<0){
+                 
+                    // Generate the alpha string -
+                    let alpha_string = "\talpha_\(output_symbol)_\(effector_symbol) = parameter_vector(\(parameter_counter))"
+                    
+                    // update the parameter counter -
+                    parameter_counter++
+                    
+                    // Generate the order string -
+                    let order_string = "\torder_\(output_symbol)_\(effector_symbol) = parameter_vector(\(parameter_counter))"
+                    
+                    // Update the parameter counter -
+                    parameter_counter++
+                    
+                    // ok, we have a + term -
+                    // Write a comment -
+                    
+                    buffer+=alpha_string+";\n"
+                    buffer+=order_string+";\n"
+                    
+                    // Write the transfer function -
+                    buffer+="\tf_\(local_term_counter) = 1 - "
+                    buffer+="alpha_\(output_symbol)_\(effector_symbol)*\(effector_symbol)^order_\(output_symbol)_\(effector_symbol)/("
+                    buffer+="1+alpha_\(output_symbol)_\(effector_symbol)*\(effector_symbol)^order_\(output_symbol)_\(effector_symbol));\n"
+                    
+                    // update the local counter -
+                    local_term_counter++
+                }
+            }
+            
+            // add a space -
+            buffer+="\n"
+        }
+
+        
+        buffer+="return\n"
         
         // return -
         return buffer
@@ -98,7 +200,24 @@ class SolveBalanceEquationsOctaveMStrategy:CodeStrategy {
         
         buffer+="function [TSIM,X] = SolveBalanceEquations(TSTART,TSTOP,Ts,DFIN)\n"
         buffer+="\n"
-        buffer+="return"
+        
+        buffer+="\tif (isempty(DF))\n"
+        buffer+="\t\tDFIN = DataFile(TSTART,TSTOP,Ts,[]);\n"
+        buffer+="\telse\n"
+        buffer+="\t\tDFIN = DF;\n"
+        buffer+="\tend\n"
+        buffer+="\n"
+        buffer+="\t% Simulation time scale - \n"
+        buffer+="\tTSIM = TSTART:Ts:TSTOP;\n"
+        buffer+="\n"
+        buffer+="\t% Grab the initial conditions -\n"
+        buffer+="\tinitial_condition_vector = DFIN.initial_condition_vector;\n"
+        buffer+="\n"
+        buffer+="\t% Setup call to ODE solver - \n"
+        buffer+="\tfbalances = @(x,t)Balances(x,t,DFIN);\n"
+        buffer+="\tX = lsode(fbalances,initial_condition_vector,TSIM);\n"
+        buffer+="\n"
+        buffer+="return\n"
         
         // return -
         return buffer
@@ -182,6 +301,8 @@ class DataFileOctaveMStrategy:CodeStrategy {
                 }
             }
         }
+        
+        
         
         buffer+="\t];\n"
         buffer+="\n"
