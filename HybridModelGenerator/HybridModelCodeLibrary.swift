@@ -139,6 +139,7 @@ class DataFileOctaveMStrategy:CodeStrategy {
         buffer+="\t];\n"
         buffer+="\n"
         buffer+="\t% - DO NOT EDIT BELOW THIS LINE ------------------------------ \n"
+        buffer+="\tDF.PARAMETER_VECTOR = PARAMETER_ARRAY;\n"
         buffer+="\tDF.INITIAL_CONDITION_VECTOR = IC_ARRAY;\n"
         buffer+="\t% - DO NOT EDIT ABOVE THIS LINE ------------------------------ \n"
         buffer+="return"
