@@ -76,7 +76,7 @@ class HybridModelGeneratorEngine: NSObject {
             // BalanceEquations.m -
             var balance_equations_object = HybridModelBalanceEquationsFileObject(context:hybrid_model_context, strategy:BalanceEquationsOctaveMStrategy())
             var balances_buffer:String = balance_equations_object.doExecute()
-            var balances_url = self.myModelOutputURL.URLByAppendingPathComponent("BalanceEquations.m")
+            var balances_url = self.myModelOutputURL.URLByAppendingPathComponent("Balances.m")
             balances_buffer.writeToURL(balances_url, atomically:true, encoding: NSUTF8StringEncoding, error: nil);
             
             // Control.m -

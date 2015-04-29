@@ -137,6 +137,9 @@ class ControlOctaveMStrategy:CodeStrategy {
         buffer+="\tnumber_of_rates = length(rate_vector);\n"
         buffer+="\tcontrol_vector = ones(number_of_rates,1);\n"
         buffer+="\n"
+        buffer+="\t% Get the parameter_vector - \n"
+        buffer+="\tparameter_vector = DF.CONTROL_PARAMETER_VECTOR;\n"
+        buffer+="\n"
         buffer+="\t% Alias the state vector - \n"
         
         // iterate through the model context -
@@ -318,7 +321,35 @@ class BalanceEquationsOctaveMStrategy:CodeStrategy {
         let state_symbol_array = modelContext.state_symbol_array
         let state_model_dictionary = modelContext.state_model_dictionary!
         
+        // Get data from the context -
+        var species_counter = 1
+        var rate_counter = 1
+        for state_symbol in state_symbol_array {
+            
+            // lookup state_model -
+            let state_model = state_model_dictionary[state_symbol]!
+            
+            // ok, is this a dynamic state, or a constant state -
+            if (state_model.state_role == RoleDescriptor.DYNAMIC){
+            
+                // ok, we have a dynamic species ... what type is it?
+                let state_type = state_model.state_type!
+                if (state_type == TypeDescriptor.mRNA){
+                    buffer+="\tdxdt_vector(\(species_counter++),1) = rate_vector(\(rate_counter++),1) - rate_vector(\(rate_counter++),1) - rate_vector(\(rate_counter++),1)\t;\t% \(state_symbol)\n"
+                }
+                else if (state_type == TypeDescriptor.PROTIEN){
+                    buffer+="\tdxdt_vector(\(species_counter++),1) = rate_vector(\(rate_counter++),1) - rate_vector(\(rate_counter++),1) - rate_vector(\(rate_counter++),1)\t;\t% \(state_symbol)\n"
+                }
+                else if (state_type == TypeDescriptor.OTHER){
+                    buffer+="\tdxdt_vector(\(species_counter++),1) = -rate_vector(\(rate_counter++),1)\t;\t% \(state_symbol)\n"
+                }
+            }
+            else if (state_model.state_role == RoleDescriptor.CONSTANT){
+                buffer+="\tdxdt_vector(\(species_counter++),1) = 0.0\t;\t% \(state_symbol)\n"
+            }
+        }
         
+        buffer+="\n"
         buffer+="return\n"
         
         // return -
