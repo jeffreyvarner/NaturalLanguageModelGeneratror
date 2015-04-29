@@ -131,7 +131,7 @@ class ControlOctaveMStrategy:CodeStrategy {
         // declarations -
         var buffer:String = ""
         
-        buffer+="function control_vector = Control(t,x,rate_vector,DFIN)\n"
+        buffer+="function control_vector = Control(t,x,rate_vector,DF)\n"
         buffer+="\n"
         buffer+="\t% Initialize control_vector - \n"
         buffer+="\tnumber_of_rates = length(rate_vector);\n"
@@ -295,7 +295,7 @@ class BalanceEquationsOctaveMStrategy:CodeStrategy {
         // declarations -
         var buffer:String = ""
         
-        buffer+="function dxdt_vector = Balances(x,t,DFIN)\n"
+        buffer+="function dxdt_vector = Balances(x,t,DF)\n"
         buffer+="\n"
         
         buffer+="\t% Initialize dxdt_vector - \n"
@@ -304,11 +304,11 @@ class BalanceEquationsOctaveMStrategy:CodeStrategy {
         buffer+="\n"
         
         buffer+="\t% Define the rate_vector - \n"
-        buffer+="\tbare_rate_vector = Kinetics(t,x,DFIN);\n"
+        buffer+="\tbare_rate_vector = Kinetics(t,x,DF);\n"
         buffer+="\n"
         
         buffer+="\t% Define the control_vector - \n"
-        buffer+="\tcontrol_vector = Control(t,x,bare_rate_vector,DFIN);\n"
+        buffer+="\tcontrol_vector = Control(t,x,bare_rate_vector,DF);\n"
         buffer+="\n"
         
         buffer+="\t% Correct the bare_rate_vector - \n"
@@ -365,7 +365,7 @@ class SolveBalanceEquationsOctaveMStrategy:CodeStrategy {
         // declarations -
         var buffer:String = ""
         
-        buffer+="function [TSIM,X] = SolveBalanceEquations(TSTART,TSTOP,Ts,DFIN)\n"
+        buffer+="function [TSIM,X] = SolveBalanceEquations(TSTART,TSTOP,Ts,DF)\n"
         buffer+="\n"
         
         buffer+="\tif (isempty(DF))\n"
@@ -378,7 +378,7 @@ class SolveBalanceEquationsOctaveMStrategy:CodeStrategy {
         buffer+="\tTSIM = TSTART:Ts:TSTOP;\n"
         buffer+="\n"
         buffer+="\t% Grab the initial conditions -\n"
-        buffer+="\tinitial_condition_vector = DFIN.initial_condition_vector;\n"
+        buffer+="\tinitial_condition_vector = DFIN.INITIAL_CONDITION_VECTOR;\n"
         buffer+="\n"
         buffer+="\t% Setup call to ODE solver - \n"
         buffer+="\tfbalances = @(x,t)Balances(x,t,DFIN);\n"

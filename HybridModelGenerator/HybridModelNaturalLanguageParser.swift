@@ -26,6 +26,7 @@ enum RoleDescriptor:String {
 
 enum TypeDescriptor:String {
     
+    case GENE = "GENE"
     case mRNA = "mRNA"
     case PROTIEN = "PROTIEN"
     case METABOLITE = "METABOLITE"
@@ -157,7 +158,19 @@ class HybridModelNaturalLanguageParser: NSObject {
             // Get the state_model -
             state_model.state_type = type_flag
         }
+        
+        // Ok, try to estimate the precursors for each
+        let precursor_symbol_dictionary = extractPrecursorSymbolsFromModelStatementArray(_listOfStatements: local_model_commands, listOfSymbols: unique_state_symbol_array)
+        for (state_symbol,state_model) in state_model_dictionary {
+            
+            // Lookup the role -
+            let precursor_array = precursor_symbol_dictionary[state_symbol]
+            
+            // Get the state_model -
+            state_model.state_precursor_symbol_array = precursor_array
+        }
 
+        
         // set the state model -
         model_context.state_model_dictionary = state_model_dictionary
         
@@ -168,6 +181,107 @@ class HybridModelNaturalLanguageParser: NSObject {
     
     
     // --- Extract * methods --
+    private func extractPrecursorSymbolsFromModelStatementArray(_listOfStatements listOfStatements:[String], listOfSymbols:[String]) -> Dictionary<String,[String]> {
+    
+        // Declarations -
+        var precursor_symbol_dictionary = Dictionary<String,[String]>()
+        
+        // initialize dictionary w/empty arrays -
+        for symbol in listOfSymbols {
+            
+            precursor_symbol_dictionary[symbol] = [String]()
+        }
+        
+        for symbol in listOfSymbols {
+            
+            for statement_text in listOfStatements {
+             
+                // does this statement contain a ->
+                if (containsString(statement_text, test_string: "->") == true &&
+                    containsString(statement_text, test_string: symbol) == true &&
+                    containsString(statement_text, test_string: ActionVerb.TRANSLATES.rawValue) == true){
+                        
+                    // ok, we have a translation context - do we have a list or just a single statement? -and- which side of the arrow are we sitting on?
+                    let arrow_split_fragment_array = statement_text.componentsSeparatedByString("->")
+                    let product_fragment = arrow_split_fragment_array.last
+                    var precursor_fragment = arrow_split_fragment_array.first
+                    let tmp = precursor_fragment?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).componentsSeparatedByString(" ")
+                    precursor_fragment = tmp?.last
+                    
+                    // Is the symbol a product -or- precursor?
+                    if (containsString(product_fragment!, test_string: symbol) == true){
+                        
+                        // ok, we are a product! We need to get the corresponding precursor -
+                        if (containsString(precursor_fragment!, test_string: "(") == true){
+                            
+                            // ok, we are in a list, need to find my order -
+                            let symbol_index_in_product_collection = findIndexOfSymbolInCollectionClause(product_fragment!, symbol:symbol)
+                            if (symbol_index_in_product_collection != -1){
+                                
+                                let value_clause = precursor_fragment!.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).stringByTrimmingCharactersInSet(NSCharacterSet.punctuationCharacterSet())
+                                let precursor_symbol_array = value_clause.componentsSeparatedByString(",")
+                                let precursor_symbol = precursor_symbol_array[symbol_index_in_product_collection]
+                                
+                                var tmp_array = precursor_symbol_dictionary[symbol]
+                                tmp_array?.append(precursor_symbol)
+                                precursor_symbol_dictionary[symbol] = tmp_array
+                            }
+                        }
+                        else {
+                            
+                            // our parents are *not* in a list ...
+                            var tmp_array = precursor_symbol_dictionary[symbol]
+                            tmp_array?.append(precursor_fragment!)
+                            precursor_symbol_dictionary[symbol] = tmp_array
+                        }
+                    }
+                }
+                else if (containsString(statement_text, test_string: "->") == true &&
+                    containsString(statement_text, test_string: symbol) == true &&
+                    containsString(statement_text, test_string: ActionVerb.TRANSCRIBES.rawValue) == true){
+                        
+                    // ok, we have a translation context - do we have a list or just a single statement? -and- which side of the arrow are we sitting on?
+                    let arrow_split_fragment_array = statement_text.componentsSeparatedByString("->")
+                    let product_fragment = arrow_split_fragment_array.last
+                    var precursor_fragment = arrow_split_fragment_array.first
+                    let tmp = precursor_fragment?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).componentsSeparatedByString(" ")
+                    precursor_fragment = tmp?.last
+                    
+                    // Is the symbol a product -or- precursor?
+                    if (containsString(product_fragment!, test_string: symbol) == true){
+                        
+                        // ok, we are a product! We need to get the corresponding precursor -
+                        if (containsString(precursor_fragment!, test_string: "(") == true){
+                            
+                            // ok, we are in a list, need to find my order -
+                            let symbol_index_in_product_collection = findIndexOfSymbolInCollectionClause(product_fragment!, symbol:symbol)
+                            if (symbol_index_in_product_collection != -1){
+                                
+                                let value_clause = precursor_fragment!.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).stringByTrimmingCharactersInSet(NSCharacterSet.punctuationCharacterSet())
+                                let precursor_symbol_array = value_clause.componentsSeparatedByString(",")
+                                let precursor_symbol = precursor_symbol_array[symbol_index_in_product_collection]
+                                
+                                var tmp_array = precursor_symbol_dictionary[symbol]
+                                tmp_array?.append(precursor_symbol)
+                                precursor_symbol_dictionary[symbol] = tmp_array
+                            }
+                        }
+                        else {
+                            
+                            // our parents are *not* in a list ...
+                            var tmp_array = precursor_symbol_dictionary[symbol]
+                            tmp_array?.append(precursor_fragment!)
+                            precursor_symbol_dictionary[symbol] = tmp_array
+                        }
+                    }
+                }
+            }
+        }
+        
+        // return -
+        return precursor_symbol_dictionary
+    }
+    
     private func extractSymbolTypeFromModelStatementArray(_listOfStatements listOfStatements:[String], listOfSymbols:[String]) -> Dictionary<String,TypeDescriptor> {
         
         // Declarations -
@@ -596,6 +710,23 @@ class HybridModelNaturalLanguageParser: NSObject {
 
     
     // --- Helper functions ---
+    private func findIndexOfSymbolInCollectionClause(collectionClause:String,symbol:String) -> Int {
+    
+        // Declarations -
+        var index_of_symbol = -1
+        
+        // remove spaces and ('
+        var value_clause = collectionClause.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).stringByTrimmingCharactersInSet(NSCharacterSet.punctuationCharacterSet())
+        var fragment_array = value_clause.componentsSeparatedByString(",")
+        if let local_index_of_symbol = find(fragment_array,symbol){
+            index_of_symbol = local_index_of_symbol
+        }
+        
+        // return -
+        return index_of_symbol
+    }
+    
+    
     private func extractNounSymbolForModelStatement(modelStatement:String,verbSymbol:ActionVerb) -> (nouns:[String],indexes:[Int]) {
     
         // Declarations -
