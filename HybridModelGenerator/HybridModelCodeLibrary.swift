@@ -8,6 +8,11 @@
 
 import Cocoa
 
+enum Direction {
+    case POSITIVE
+    case NEGATIVE
+}
+
 protocol CodeStrategy {
     
     func execute(modelContext:HybridModelContext) -> String
@@ -24,9 +29,94 @@ class KineticsOctaveMStrategy:CodeStrategy {
         // declarations -
         var buffer:String = ""
         
-        buffer+="function kinetics_vector = Kinetics(x,t,DFIN)\n"
+        let state_symbol_array = modelContext.state_symbol_array
+        let state_model_dictionary = modelContext.state_model_dictionary!
+        
+        buffer+="function rate_vector = Kinetics(t,x,DF)\n"
         buffer+="\n"
-        buffer+="return"
+        buffer+="\t% Initialize empty rate_vector - \n"
+        buffer+="\trate_vector = [];\n"
+        buffer+="\n"
+        buffer+="\t% Get the kinetic_parameter_vector - \n"
+        buffer+="\tkinetic_parameter_vector = DF.KINETIC_PARAMETER_VECTOR;\n"
+        buffer+="\n"
+        
+        buffer+="\t% Alias the state vector - \n"
+        
+        // iterate through the model context -
+        var state_index = 1
+        for state_symbol in state_symbol_array {
+            
+            buffer+="\t"
+            buffer+=state_symbol
+            buffer+="\t=\t"
+            buffer+="x(\(state_index));\n"
+            
+            // update the index -
+            state_index++
+        }
+        
+        buffer+="\n"
+
+        
+        // Get data from the context -
+        var parameter_counter = 1
+        var rate_counter = 1
+        for state_symbol in state_symbol_array {
+            
+            // lookup state_model - 
+            let state_model = state_model_dictionary[state_symbol]!
+            
+            // ok, is this a dynamic state, or a constant state -
+            if (state_model.state_role == RoleDescriptor.DYNAMIC){
+            
+                // put a comment line -
+                buffer+="\t% species_symbol: \(state_symbol) \n"
+                
+                // ok, we are a dyamic state, what type of state do we have?
+                let state_type = state_model.state_type!
+                if (state_type == TypeDescriptor.mRNA){
+                    
+                    // if we have an mRNA state, then we need to create expression, dilution, and degrdation rates -
+                    buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*RNAP;\n"
+                    buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*\(state_symbol);\n"
+                    buffer+="\trate_vector(\(rate_counter++),1) = growth_rate*\(state_symbol);\n"
+                    
+                    // new line -
+                    buffer+="\n"
+                }
+                else if (state_type == TypeDescriptor.PROTIEN){
+                    
+                    // if we have an protein state, then we need to create expression, dilution, and degrdation rates -
+                    buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*RIBOSOME;\n"
+                    buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*\(state_symbol);\n"
+                    buffer+="\trate_vector(\(rate_counter++),1) = growth_rate*\(state_symbol);\n"
+                    
+                    // new line -
+                    buffer+="\n"
+                }
+                else if (state_type == TypeDescriptor.METABOLITE) {
+                    
+                    // if we have a metabolite state, then we need to create expression, dilution, and degrdation rates -
+                    
+                    
+                    
+                    // new line -
+                    buffer+="\n"
+                    
+                }
+                else if (state_type == TypeDescriptor.OTHER) {
+                    
+                    // if we have a other state, and we are dynamic, this means we will add somehow and dilute -
+                    buffer+="\trate_vector(\(rate_counter++),1) = growth_rate*\(state_symbol);\n"
+                    
+                    // new line -
+                    buffer+="\n"
+                }
+            }
+        }
+        
+        buffer+="return\n"
         
         // return -
         return buffer
@@ -41,7 +131,7 @@ class ControlOctaveMStrategy:CodeStrategy {
         // declarations -
         var buffer:String = ""
         
-        buffer+="function control_vector = Control(x,t,rate_vector,DFIN)\n"
+        buffer+="function control_vector = Control(t,x,rate_vector,DFIN)\n"
         buffer+="\n"
         buffer+="\t% Initialize control_vector - \n"
         buffer+="\tnumber_of_rates = length(rate_vector);\n"
@@ -74,7 +164,11 @@ class ControlOctaveMStrategy:CodeStrategy {
         let number_of_effectors = gene_expression_control_matrix.rows
         let number_of_outputs = gene_expression_control_matrix.columns
         var parameter_counter = 1;
+        
         for var col_index = 0;col_index<number_of_outputs;col_index++ {
+            
+            // Lets assume by default we have a 'positive' TF -
+            var direction_flag:Direction = Direction.POSITIVE
             
             // get output symbol -
             let output_symbol = gene_expression_output_array[col_index]
@@ -87,8 +181,11 @@ class ControlOctaveMStrategy:CodeStrategy {
                 
                 if (connection_code != 0){
                     let effector_symbol = gene_expression_effector_array[scan_index]
-                    buffer+="\t% Control term  output:\(output_symbol) effector:\(effector_symbol)\n"
+                    buffer+="\t% Control term  output:\(output_symbol)\n"
                     
+                    // zero out f_vector -
+                    buffer+="\tf_vector = 0;\n"
+
                     break
                 }
             }
@@ -101,7 +198,6 @@ class ControlOctaveMStrategy:CodeStrategy {
                 
                 // ok, do we have a connection?
                 let connection_code = gene_expression_control_matrix[row_index,col_index]
-                
                 
                 
                 if (connection_code>0){
@@ -124,7 +220,7 @@ class ControlOctaveMStrategy:CodeStrategy {
                     buffer+=order_string+";\n"
                     
                     // Write the transfer function -
-                    buffer+="\tf_\(local_term_counter) = "
+                    buffer+="\tf_vector(\(local_term_counter),1) = "
                     buffer+="(alpha_\(output_symbol)_\(effector_symbol)*\(effector_symbol)^order_\(output_symbol)_\(effector_symbol))/("
                     buffer+="1+alpha_\(output_symbol)_\(effector_symbol)*\(effector_symbol)^order_\(output_symbol)_\(effector_symbol));\n"
                     
@@ -152,13 +248,28 @@ class ControlOctaveMStrategy:CodeStrategy {
                     buffer+=order_string+";\n"
                     
                     // Write the transfer function -
-                    buffer+="\tf_\(local_term_counter) = 1 - "
+                    buffer+="\tf_vector(\(local_term_counter),1) = 1 - "
                     buffer+="alpha_\(output_symbol)_\(effector_symbol)*\(effector_symbol)^order_\(output_symbol)_\(effector_symbol)/("
                     buffer+="1+alpha_\(output_symbol)_\(effector_symbol)*\(effector_symbol)^order_\(output_symbol)_\(effector_symbol));\n"
                     
                     // update the local counter -
                     local_term_counter++
+                    
+                    // direction is negative -
+                    direction_flag = Direction.NEGATIVE
                 }
+            }
+            
+            // ok, when I get here, I've constructed the transfer function terms
+            // apply the integration rule -
+            buffer+="\tcontrol_vector(\(col_index+1),1) = "
+            
+            // which direction do we have?
+            if (direction_flag == Direction.POSITIVE){
+                buffer+="max(f_vector);\n"
+            }
+            else {
+                buffer+="min(f_vector);\n"
             }
             
             // add a space -
@@ -181,9 +292,34 @@ class BalanceEquationsOctaveMStrategy:CodeStrategy {
         // declarations -
         var buffer:String = ""
         
-        buffer+="function DXDT = BalanceEquations(x,t,DFIN)\n"
+        buffer+="function dxdt_vector = Balances(x,t,DFIN)\n"
         buffer+="\n"
-        buffer+="return"
+        
+        buffer+="\t% Initialize dxdt_vector - \n"
+        buffer+="\tnumber_of_states = length(x);\n"
+        buffer+="\tdxdt_vector = zeros(number_of_states,1);\n"
+        buffer+="\n"
+        
+        buffer+="\t% Define the rate_vector - \n"
+        buffer+="\tbare_rate_vector = Kinetics(t,x,DFIN);\n"
+        buffer+="\n"
+        
+        buffer+="\t% Define the control_vector - \n"
+        buffer+="\tcontrol_vector = Control(t,x,bare_rate_vector,DFIN);\n"
+        buffer+="\n"
+        
+        buffer+="\t% Correct the bare_rate_vector - \n"
+        buffer+="\trate_vector = bare_rate_vector.*control_vector;\n"
+        buffer+="\n"
+        
+        buffer+="\t% Define the dxdt_vector - \n"
+        
+        // Get the symbol array -
+        let state_symbol_array = modelContext.state_symbol_array
+        let state_model_dictionary = modelContext.state_model_dictionary!
+        
+        
+        buffer+="return\n"
         
         // return -
         return buffer
@@ -254,10 +390,11 @@ class DataFileOctaveMStrategy:CodeStrategy {
             // update the counter -
             counter++
         }
+        buffer+="\t];\n"
         
         buffer+="\n"
-        buffer+="\t% Setup the parameter array - \n"
-        buffer+="\tPARAMETER_ARRAY = [\n"
+        buffer+="\t% Setup the *control* parameter array - \n"
+        buffer+="\tCONTROL_PARAMETER_VECTOR = [\n"
         buffer+="\n"
         
         // Analyze the gene expession control matrix -
@@ -302,12 +439,33 @@ class DataFileOctaveMStrategy:CodeStrategy {
             }
         }
         
+        buffer+="\t];\n"
+        buffer+="\n"
+        buffer+="\t% Setup the *kinetic* parameter array - \n"
+        buffer+="\tKINETIC_PARAMETER_VECTOR = [\n"
+        buffer+="\n"
+
+        // ok, so have gene expression processes, and potentially biochemical processes -
+        // mRNA parameters, (alpha,beta), protein (alpha,beta) for now -
+        let mRNA_array = modelContext.gene_expression_output_array!
+        let protein_array = modelContext.translation_output_array!
+        let central_dogma_array = mRNA_array+protein_array
         
+        // Reset the parameter counter, and generate default values for the expression, translation
+        // parameters -
+        parameter_counter = 1
+        for symbol in central_dogma_array {
+            
+            buffer+="\t\t0.1\t;\t%\t alpha_\(symbol) \(parameter_counter++)\n"
+            buffer+="\t\t0.01\t;\t%\t beta_\(symbol) \(parameter_counter++)\n"
+            buffer+="\n"
+        }
         
         buffer+="\t];\n"
         buffer+="\n"
         buffer+="\t% - DO NOT EDIT BELOW THIS LINE ------------------------------ \n"
-        buffer+="\tDF.PARAMETER_VECTOR = PARAMETER_ARRAY;\n"
+        buffer+="\tDF.KINETIC_PARAMETER_VECTOR = KINETIC_PARAMETER_VECTOR;\n"
+        buffer+="\tDF.CONTROL_PARAMETER_VECTOR = CONTROL_PARAMETER_VECTOR;\n"
         buffer+="\tDF.INITIAL_CONDITION_VECTOR = IC_ARRAY;\n"
         buffer+="\t% - DO NOT EDIT ABOVE THIS LINE ------------------------------ \n"
         buffer+="return"

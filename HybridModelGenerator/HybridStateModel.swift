@@ -14,6 +14,7 @@ class HybridStateModel: NSObject {
     var state_symbol_string:String
     var default_value:Double?
     var state_role:RoleDescriptor?
+    var state_type:TypeDescriptor?
     
     init(symbol:String){
         

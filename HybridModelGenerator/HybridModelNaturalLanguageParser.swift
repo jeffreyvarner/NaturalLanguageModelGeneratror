@@ -24,6 +24,14 @@ enum RoleDescriptor:String {
     case DYNAMIC = "dynamic"
 }
 
+enum TypeDescriptor:String {
+    
+    case mRNA = "mRNA"
+    case PROTIEN = "PROTIEN"
+    case METABOLITE = "METABOLITE"
+    case OTHER = "OTHER"
+}
+
 // Used to hold 'control' tables -
 struct Matrix {
     
@@ -109,6 +117,7 @@ class HybridModelNaturalLanguageParser: NSObject {
         model_context.gene_expression_control_matrix = gene_expression_control_table
         model_context.gene_expression_effector_array = effector_array
         model_context.gene_expression_output_array = mRNA_array
+        model_context.translation_output_array = protein_array
         
         // Ok, what are the *roles* of these symbols, and their default values?
         let symbol_role_dictionary = extractSymbolRoleDictionaryFromModelStatementArray(_listOfStatements: local_model_commands, listOfSymbols: unique_state_symbol_array)
@@ -138,6 +147,17 @@ class HybridModelNaturalLanguageParser: NSObject {
             state_model.state_role = role_flag
         }
         
+        // Ok, try to estimate the *type* of species that we have, is it a mRNA, protein or Metabolite?
+        let symbol_type_dictionary = extractSymbolTypeFromModelStatementArray(_listOfStatements: local_model_commands, listOfSymbols: unique_state_symbol_array)
+        for (state_symbol,state_model) in state_model_dictionary {
+            
+            // Lookup the role -
+            let type_flag = symbol_type_dictionary[state_symbol]
+            
+            // Get the state_model -
+            state_model.state_type = type_flag
+        }
+
         // set the state model -
         model_context.state_model_dictionary = state_model_dictionary
         
@@ -148,6 +168,58 @@ class HybridModelNaturalLanguageParser: NSObject {
     
     
     // --- Extract * methods --
+    private func extractSymbolTypeFromModelStatementArray(_listOfStatements listOfStatements:[String], listOfSymbols:[String]) -> Dictionary<String,TypeDescriptor> {
+        
+        // Declarations -
+        var symbol_type_dictionary = Dictionary<String,TypeDescriptor>()
+        
+        // ok, se need to estimate if a symbol is a mRNA, protein or Metabolite -
+        for symbol in listOfSymbols {
+            
+            // initialize to type other -
+            symbol_type_dictionary[symbol] = TypeDescriptor.OTHER
+            
+            for statement_text in listOfStatements {
+             
+                // ok, so let's run a series of checks to infer the symbol type -
+                // first, lets split around -> if its there ...
+                if (containsString(statement_text, test_string: "->") == true){
+                    
+                    // does this contain transcribes?
+                    if (containsString(statement_text, test_string: ActionVerb.TRANSCRIBES.rawValue) == true){
+                        
+                        // ok, we have a -> type statement! Grab the last element when we split around ->
+                        let arrow_split_fragment_array = statement_text.componentsSeparatedByString("->")
+                        let product_clause_string = arrow_split_fragment_array.last
+                        
+                        // Does the product_clause contain the symbol?
+                        if (containsString(product_clause_string!, test_string: symbol) == true){
+                         
+                            // ok, then this symbol is a mRNA -
+                            symbol_type_dictionary[symbol] = TypeDescriptor.mRNA
+                        }
+                    }
+                    else if (containsString(statement_text, test_string: ActionVerb.TRANSLATES.rawValue) == true) {
+                        
+                        // ok, we have a -> type statement! Grab the last element when we split around ->
+                        let arrow_split_fragment_array = statement_text.componentsSeparatedByString("->")
+                        let product_clause_string = arrow_split_fragment_array.last
+                        
+                        // Does the product_clause contain the symbol?
+                        if (containsString(product_clause_string!, test_string: symbol) == true){
+                            
+                            // ok, then this symbol is a mRNA -
+                            symbol_type_dictionary[symbol] = TypeDescriptor.PROTIEN
+                        }
+                    }
+                }
+            }
+        }
+        
+        // return -
+        return symbol_type_dictionary
+    }
+    
     private func extractDefaultParameterValuesFromModelStatementArray(_listOfStatements listOfStatements:[String], listOfSymbols:[String]) -> Dictionary<String,Double> {
         
         // Declarations -
