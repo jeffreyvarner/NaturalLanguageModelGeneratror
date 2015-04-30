@@ -112,9 +112,63 @@ class KineticsOctaveMStrategy:CodeStrategy {
                 }
                 else if (state_type == TypeDescriptor.METABOLITE) {
                     
-                    // if we have a metabolite state, then we need to create expression, dilution, and degrdation rates -
                     
+                    // if we have a metabolite state, then we need to production, and consumption rates and dilution due to growth -
+                    let list_of_metabolic_reactions = modelContext.metabolic_reaction_array!
+                    for reaction_model in list_of_metabolic_reactions {
                     
+                        // Is this symbol a *product*?
+                        if (reaction_model.isModelSymbolAProduct(state_symbol) == true){
+                            
+                            // before we do anything, is the substrate of this reaction the SYSTEM?
+                            if (reaction_model.isModelSymbolASubstrate(ActionVerb.SYSTEM.rawValue) == true){
+                                
+                                // ok, this is a *zero-order* input term -
+                                buffer+="\trate_vector(\(rate_counter++),1) = "
+                                buffer+="kinetic_parameter_vector(\(parameter_counter++),1);"
+                            }
+                            
+                            // add a newline -
+                            buffer+="\n"
+                        }
+                        
+                        // Is this symbol a substrate?
+                        if (reaction_model.isModelSymbolASubstrate(state_symbol) == true){
+                            
+                            // before we do anything, is the product of this reaction the SYSTEM?
+                            if (reaction_model.isModelSymbolAProduct(ActionVerb.SYSTEM.rawValue) == true){
+                                
+                                // ok, SYSTEM is a *product* of this reaction, this means we should use a first-order rate -
+                                buffer+="\trate_vector(\(rate_counter++),1) = "
+                                buffer+="kinetic_parameter_vector(\(parameter_counter++),1)*\(state_symbol);\n"
+                            }
+                            else
+                            {
+                                buffer+="\trate_vector(\(rate_counter++),1) = "
+                                buffer+="kinetic_parameter_vector(\(parameter_counter++),1)"
+                                
+                                // what is the enzyme symbol -
+                                if let enzyme_symbol = reaction_model.catalyst_symbol {
+                                    buffer+="*(\(enzyme_symbol))"
+                                }
+                                
+                                // get the substrate vector -
+                                if let local_substrate_vector = reaction_model.reactant_symbol_list {
+                                    
+                                    for substrate_symbol in local_substrate_vector {
+                                        
+                                        buffer+="*(\(substrate_symbol))/(kinetic_parameter_vector(\(parameter_counter++),1)+\(substrate_symbol))"
+                                    }
+                                }
+                                
+                                // add a newline -
+                                buffer+=";\n"
+                            }
+                        }
+                    }
+                    
+                    // need to add dilution due to growth line -
+                    buffer+="\trate_vector(\(rate_counter++),1) = growth_rate*\(state_symbol);\n"
                     
                     // new line -
                     buffer+="\n"
@@ -510,6 +564,52 @@ class DataFileOctaveMStrategy:CodeStrategy {
             buffer+="\t\t0.01\t;\t%\t beta_\(symbol) \(parameter_counter++)\n"
             buffer+="\n"
         }
+        
+        // ok, we need to put in the metabolic kinetic parameters if we have them -
+        if let metabolic_reaction_model_array = modelContext.metabolic_reaction_array {
+        
+            for state_symbol in ordered_state_symbol_array {
+                
+                for reaction_model in metabolic_reaction_model_array {
+                    
+                    // Is this symbol a *product*?
+                    if (reaction_model.isModelSymbolAProduct(state_symbol) == true){
+                        
+                        // before we do anything, is the substrate of this reaction the SYSTEM?
+                        if (reaction_model.isModelSymbolASubstrate(ActionVerb.SYSTEM.rawValue) == true){
+                            
+                            // ok, this is a *zero-order* input term -
+                            buffer+="\t\t0.1\t;\t%\t SYSTEM -> \(state_symbol) \(parameter_counter++)\n"
+                        }
+                    }
+                    
+                    // Is this symbol a substrate?
+                    if (reaction_model.isModelSymbolASubstrate(state_symbol) == true){
+                        
+                        // before we do anything, is the product of this reaction the SYSTEM?
+                        if (reaction_model.isModelSymbolAProduct(ActionVerb.SYSTEM.rawValue) == true){
+                            
+                            // ok, SYSTEM is a *product* of this reaction, this means we should use a first-order rate -
+                            buffer+="\t\t0.1\t;\t%\t \(state_symbol) -> SYSTEM \(parameter_counter++)\n"
+                        }
+                        else
+                        {
+                            buffer+="\t\t0.1\t;\t%\t kcat \(state_symbol) \(parameter_counter++)\n"
+                            
+                            // get the substrate vector -
+                            if let local_substrate_vector = reaction_model.reactant_symbol_list {
+                                
+                                for substrate_symbol in local_substrate_vector {
+                                    
+                                    buffer+="\t\t0.1\t;\t%\t KM \(substrate_symbol) \(parameter_counter++)\n"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         
         buffer+="\t];\n"
         buffer+="\n"

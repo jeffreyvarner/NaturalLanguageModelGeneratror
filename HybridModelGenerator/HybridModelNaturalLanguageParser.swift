@@ -17,6 +17,7 @@ enum ActionVerb:String {
     case PARAMETERS = "PARAMETERS"
     case PARAMETER = "PARAMETER"
     case CATALYZES = "CATALYZES"
+    case SYSTEM = "SYSTEM"
 }
 
 enum RoleDescriptor:String {
@@ -105,7 +106,8 @@ class HybridModelNaturalLanguageParser: NSObject {
         // Extract the metabolite symbol and reaction list -
         let metabolism_return = extractListOfMetabolitesFromModelStatementArray(_listOfStatements: local_model_commands)
         let metabolite_array = metabolism_return.symbols
-        let reaction_array = metabolism_return.reactions
+        let metabolic_reaction_array = metabolism_return.reactions
+        model_context.metabolic_reaction_array = metabolic_reaction_array
         
         // Extract gene expression control table -
         var (gene_expression_control_table, effector_array) = extractGeneExpressionControlTableFromModelStatementArray(_listOfStatements: local_model_commands,listOfOutputSymbols: mRNA_array)
@@ -229,6 +231,58 @@ class HybridModelNaturalLanguageParser: NSObject {
         
         // ok, we need to look for symbols that are involved with CATALYZE statements -
         for statement_text in listOfStatements {
+            
+            // check to see if this contains a SYSTEM statement -
+            if (containsString(statement_text, test_string:ActionVerb.SYSTEM.rawValue) == true){
+                
+                // ok, we have a SYSTEM line - is this going from or to SYSTEM?
+                if (containsString(statement_text,test_string:"transferred from") == true){
+                
+                    // ok, split along whitespace -
+                    let white_space_token_array = cutStatement(statement_text, text_delimiter: " ")
+                    
+                    // grab the first element -
+                    if let local_symbol = white_space_token_array.first {
+                        
+                        // explode the tuple -
+                        let local_symbol_array = parseCompoundStatement(local_symbol)
+                        
+                        for zero_order_symbol in local_symbol_array {
+                                
+                            // build reaction model -
+                            var model_object = HybridModelReactionModel()
+                            model_object.product_symbol_list = [zero_order_symbol]
+                            model_object.reactant_symbol_list = [ActionVerb.SYSTEM.rawValue]
+                            
+                            // add reaction model to list -
+                            list_of_reactions.append(model_object)
+                        }
+                    }
+                }
+                else if (containsString(statement_text,test_string:"transferred to") == true) {
+                    
+                    // ok, split along whitespace -
+                    let white_space_token_array = cutStatement(statement_text, text_delimiter: " ")
+                    
+                    // grab the first element -
+                    if let local_symbol = white_space_token_array.first {
+                        
+                        // explode the tuple -
+                        let local_symbol_array = parseCompoundStatement(local_symbol)
+                        
+                        for zero_order_symbol in local_symbol_array {
+                            
+                            // build reaction model -
+                            var model_object = HybridModelReactionModel()
+                            model_object.reactant_symbol_list = [zero_order_symbol]
+                            model_object.product_symbol_list = [ActionVerb.SYSTEM.rawValue]
+                            
+                            // add reaction model to list -
+                            list_of_reactions.append(model_object)
+                        }
+                    }
+                }
+            }
             
             // check, does this statement contain "catalyzes" or catalyze?
             if (containsString(statement_text, test_string: ActionVerb.CATALYZES.rawValue) == true){
@@ -414,6 +468,21 @@ class HybridModelNaturalLanguageParser: NSObject {
                             
                             // ok, then this symbol is a mRNA -
                             symbol_type_dictionary[symbol] = TypeDescriptor.PROTIEN
+                        }
+                    }
+                    else if (containsString(statement_text, test_string: ActionVerb.CATALYZES.rawValue) == true) {
+                        
+                        // ok, we have a -> type statement! Grab the last element when we split around ->
+                        let arrow_split_fragment_array = statement_text.componentsSeparatedByString("->")
+                        let source_clause_string = arrow_split_fragment_array.first!.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).componentsSeparatedByString(" ").last
+                        let product_clause_string = arrow_split_fragment_array.last
+                        
+                        // Does the product_clause contain the symbol?
+                        if (containsString(product_clause_string!, test_string: symbol) == true ||
+                            containsString(source_clause_string!,test_string:symbol) == true){
+                            
+                            // ok, then this symbol is a mRNA -
+                            symbol_type_dictionary[symbol] = TypeDescriptor.METABOLITE
                         }
                     }
                 }
@@ -898,7 +967,7 @@ class HybridModelNaturalLanguageParser: NSObject {
         var return_flag = false
         
         // do a string comparison -
-        if (text_statement.rangeOfString(test_string, options: NSStringCompareOptions.NSCaseInsensitiveSearch,
+        if (text_statement.rangeOfString(test_string, options: NSStringCompareOptions.CaseInsensitiveSearch,
             range: Range<String.Index>(start: text_statement.startIndex, end: text_statement.endIndex), locale:nil) != nil){
                 
                 // if we get here, then we contain the string -
@@ -915,7 +984,7 @@ class HybridModelNaturalLanguageParser: NSObject {
         var fragment_array:[String]
         
         // cut -
-        fragment_array = text_statement.componentsSeparatedByString(text_delimiter)
+        fragment_array = text_statement.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).componentsSeparatedByString(text_delimiter)
         
         // return -
         return fragment_array
