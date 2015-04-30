@@ -16,6 +16,7 @@ enum ActionVerb:String {
     case TRANSCRIBES = "transcribes"
     case PARAMETERS = "PARAMETERS"
     case PARAMETER = "PARAMETER"
+    case CATALYZES = "CATALYZES"
 }
 
 enum RoleDescriptor:String {
@@ -101,12 +102,16 @@ class HybridModelNaturalLanguageParser: NSObject {
         var protein_array = extractListOfProteinsFromModelStatementArray(_listOfStatements: local_model_commands)
         var infrastructure_and_parameter_array = extractListOfInfrastructureSymbolsFromModelStatementArray(_listOfStatements: local_model_commands)
         
+        // Extract the metabolite symbol and reaction list -
+        let metabolism_return = extractListOfMetabolitesFromModelStatementArray(_listOfStatements: local_model_commands)
+        let metabolite_array = metabolism_return.symbols
+        let reaction_array = metabolism_return.reactions
+        
         // Extract gene expression control table -
         var (gene_expression_control_table, effector_array) = extractGeneExpressionControlTableFromModelStatementArray(_listOfStatements: local_model_commands,listOfOutputSymbols: mRNA_array)
         
-        
         // build the state array -
-        var state_array = mRNA_array+protein_array+infrastructure_and_parameter_array+effector_array
+        var state_array = mRNA_array+protein_array+infrastructure_and_parameter_array+effector_array+metabolite_array
         for state_symbol in state_array {
             model_context.addStateSymbolsToModelContext(state_symbol)
         }
@@ -169,7 +174,6 @@ class HybridModelNaturalLanguageParser: NSObject {
             // Get the state_model -
             state_model.state_precursor_symbol_array = precursor_array
         }
-
         
         // set the state model -
         model_context.state_model_dictionary = state_model_dictionary
@@ -180,7 +184,93 @@ class HybridModelNaturalLanguageParser: NSObject {
     
     
     
-    // --- Extract * methods --
+    // MARK: Extract * methods
+    private func extractListOfMetabolitesFromModelStatementArray(_listOfStatements listOfStatements:[String]) -> (symbols:[String],reactions:[HybridModelReactionModel]) {
+    
+        // Declarations --
+        var list_of_symbols = [String]()
+        var list_of_reactions = [HybridModelReactionModel]()
+        
+        
+        // utility functions -
+        func parseCompoundStatement(compundStatement:String)-> [String] {
+            
+            // Declarations -
+            var list_of_symbols = [String]()
+            
+            // Do we have a compound statement in the target?
+            if (containsString(compundStatement, test_string: "(") == true){
+                
+                // split the compound target_fragment =
+                let tmp_comma_sep_list = compundStatement.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).stringByTrimmingCharactersInSet(NSCharacterSet.punctuationCharacterSet())
+                let target_symbol_array = tmp_comma_sep_list.componentsSeparatedByString(",")
+                
+                for symbol in target_symbol_array {
+                    
+                    if (contains(list_of_symbols, symbol) == false){
+                        list_of_symbols.append(symbol)
+                    }
+                }
+            }
+            else {
+                
+                let tmp_fragment = compundStatement.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+                
+                // ok, target fragment is *not* a compound list -
+                if (contains(list_of_symbols, tmp_fragment) == false){
+                    list_of_symbols.append(tmp_fragment)
+                }
+            }
+            
+            // return -
+            return list_of_symbols
+        }
+        
+        
+        // ok, we need to look for symbols that are involved with CATALYZE statements -
+        for statement_text in listOfStatements {
+            
+            // check, does this statement contain "catalyzes" or catalyze?
+            if (containsString(statement_text, test_string: ActionVerb.CATALYZES.rawValue) == true){
+            
+                // ok! we have a catalyzes statement -
+                // cut around -> 
+                let arrow_split_fragment_array = statement_text.componentsSeparatedByString("->")
+                
+                // cut around white space -
+                let target_fragment = arrow_split_fragment_array.last?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+                let source_fragment = arrow_split_fragment_array.first?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).componentsSeparatedByString(" ").last
+                
+                // parse the compound statements --
+                let source_symbol_list = parseCompoundStatement(source_fragment!)
+                let target_symbol_list = parseCompoundStatement(target_fragment!)
+                
+                // Add the target symbols to the list of symbols -
+                let tmp_array = source_symbol_list+target_symbol_list
+                for local_symbol in tmp_array {
+                    if (contains(list_of_symbols, local_symbol) == false){
+                        list_of_symbols.append(local_symbol)
+                    }
+                }
+                
+                // need to get enzyme symbol -
+                let enzyme_symbol = arrow_split_fragment_array.first?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).componentsSeparatedByString(" ").first
+                
+                // Build reaction model -
+                var local_reaction_model = HybridModelReactionModel()
+                local_reaction_model.reactant_symbol_list = source_symbol_list
+                local_reaction_model.product_symbol_list = target_symbol_list
+                local_reaction_model.catalyst_symbol = enzyme_symbol
+                
+                // add reaction model to list -
+                list_of_reactions.append(local_reaction_model)
+            }
+        }
+        
+        // return --
+        return (list_of_symbols, list_of_reactions)
+    }
+    
     private func extractPrecursorSymbolsFromModelStatementArray(_listOfStatements listOfStatements:[String], listOfSymbols:[String]) -> Dictionary<String,[String]> {
     
         // Declarations -
@@ -709,7 +799,7 @@ class HybridModelNaturalLanguageParser: NSObject {
     }
 
     
-    // --- Helper functions ---
+    // - MARK: Helper functions
     private func findIndexOfSymbolInCollectionClause(collectionClause:String,symbol:String) -> Int {
     
         // Declarations -
@@ -808,7 +898,7 @@ class HybridModelNaturalLanguageParser: NSObject {
         var return_flag = false
         
         // do a string comparison -
-        if (text_statement.rangeOfString(test_string, options: NSStringCompareOptions.CaseInsensitiveSearch,
+        if (text_statement.rangeOfString(test_string, options: NSStringCompareOptions.NSCaseInsensitiveSearch,
             range: Range<String.Index>(start: text_statement.startIndex, end: text_statement.endIndex), locale:nil) != nil){
                 
                 // if we get here, then we contain the string -

@@ -57,7 +57,6 @@ class KineticsOctaveMStrategy:CodeStrategy {
         }
         
         buffer+="\n"
-
         
         // Get data from the context -
         var parameter_counter = 1
@@ -78,7 +77,15 @@ class KineticsOctaveMStrategy:CodeStrategy {
                 if (state_type == TypeDescriptor.mRNA){
                     
                     // if we have an mRNA state, then we need to create expression, dilution, and degrdation rates -
-                    buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*RNAP;\n"
+                    
+                    // mRNA should have a gene precursor?
+                    if let precursor_symbol = state_model.state_precursor_symbol_array?.last {
+                        buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*RNAP*\(precursor_symbol);\n"
+                    }
+                    else {
+                        buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*RNAP;\n"
+                    }
+                    
                     buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*\(state_symbol);\n"
                     buffer+="\trate_vector(\(rate_counter++),1) = growth_rate*\(state_symbol);\n"
                     
@@ -88,7 +95,15 @@ class KineticsOctaveMStrategy:CodeStrategy {
                 else if (state_type == TypeDescriptor.PROTIEN){
                     
                     // if we have an protein state, then we need to create expression, dilution, and degrdation rates -
-                    buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*RIBOSOME;\n"
+                    
+                    // protein should have a mRNA precursor 
+                    if let precursor_symbol = state_model.state_precursor_symbol_array?.last {
+                        buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*RIBOSOME*\(precursor_symbol);\n"
+                    }
+                    else {
+                        buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*RIBOSOME;\n"
+                    }
+                    
                     buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*\(state_symbol);\n"
                     buffer+="\trate_vector(\(rate_counter++),1) = growth_rate*\(state_symbol);\n"
                     
@@ -167,6 +182,7 @@ class ControlOctaveMStrategy:CodeStrategy {
         let number_of_effectors = gene_expression_control_matrix.rows
         let number_of_outputs = gene_expression_control_matrix.columns
         var parameter_counter = 1;
+        var control_term_counter = 1;
         
         for var col_index = 0;col_index<number_of_outputs;col_index++ {
             
@@ -265,7 +281,10 @@ class ControlOctaveMStrategy:CodeStrategy {
             
             // ok, when I get here, I've constructed the transfer function terms
             // apply the integration rule -
-            buffer+="\tcontrol_vector(\(col_index+1),1) = "
+            buffer+="\tcontrol_vector(\(control_term_counter),1) = "
+            
+            // update the counter -
+            control_term_counter = control_term_counter + 3
             
             // which direction do we have?
             if (direction_flag == Direction.POSITIVE){
