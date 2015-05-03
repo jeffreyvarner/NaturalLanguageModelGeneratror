@@ -12,6 +12,7 @@ class HybridModelContext: NSObject {
     
     // Declarations -
     var gene_expression_control_matrix:Matrix?
+    var metabolic_stoichiometric_matrix:StoichiometricMatrix?
     var gene_expression_effector_array:[String]?
     var gene_expression_output_array:[String]?
     var translation_output_array:[String]?

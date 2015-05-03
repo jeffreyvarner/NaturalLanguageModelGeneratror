@@ -65,6 +65,36 @@ struct Matrix {
     }
 }
 
+struct StoichiometricMatrix {
+    
+    let rows: Int, columns: Int
+    var grid: [Double]
+    
+    init(rows: Int, columns: Int) {
+        self.rows = rows
+        self.columns = columns
+        grid = Array(count: rows * columns, repeatedValue: 0.0)
+    }
+    
+    func indexIsValidForRow(row: Int, column: Int) -> Bool {
+        return row >= 0 && row < rows && column >= 0 && column < columns
+    }
+    
+    subscript(row: Int, column: Int) -> Double {
+        
+        get {
+            assert(indexIsValidForRow(row, column: column), "Index out of range")
+            return grid[(row * columns) + column]
+        }
+        
+        set {
+            assert(indexIsValidForRow(row, column: column), "Index out of range")
+            grid[(row * columns) + column] = newValue
+        }
+    }
+}
+
+
 class HybridModelNaturalLanguageParser: NSObject {
     
     // declarations -
@@ -108,6 +138,10 @@ class HybridModelNaturalLanguageParser: NSObject {
         let metabolite_array = metabolism_return.symbols
         let metabolic_reaction_array = metabolism_return.reactions
         model_context.metabolic_reaction_array = metabolic_reaction_array
+        
+        // Formulate the stoichiometric matrix -
+        let stochiometric_matrix = constructStoichiometricMatrixForMetabolitesInReactionArray(metabolic_reaction_array,listOfMetabolites: metabolite_array)
+        model_context.metabolic_stoichiometric_matrix = stochiometric_matrix
         
         // Extract gene expression control table -
         var (gene_expression_control_table, effector_array) = extractGeneExpressionControlTableFromModelStatementArray(_listOfStatements: local_model_commands,listOfOutputSymbols: mRNA_array)
@@ -185,6 +219,41 @@ class HybridModelNaturalLanguageParser: NSObject {
     }
     
     
+    // MARK: Metabolic * methods
+    private func constructStoichiometricMatrixForMetabolitesInReactionArray(listOfReactions:[HybridModelReactionModel], listOfMetabolites:[String]) -> StoichiometricMatrix {
+    
+        // Declarations -
+        let number_of_metabolites = listOfMetabolites.count
+        let number_of_metabolic_reactions = listOfReactions.count
+        var stoichiometric_matrix = StoichiometricMatrix(rows: number_of_metabolites,columns: number_of_metabolic_reactions)
+        
+        // add values to the array -
+        var species_counter = 0
+        for metabolic_string in listOfMetabolites {
+        
+            var reaction_counter = 0
+            for reaction_object in listOfReactions {
+            
+                // is this metabolite a reactant or product of this reaction?
+                if (reaction_object.isModelSymbolAProduct(metabolic_string) == true){
+                    stoichiometric_matrix[species_counter,reaction_counter] = 1.0
+                }
+                else if (reaction_object.isModelSymbolASubstrate(metabolic_string) == true){
+                    stoichiometric_matrix[species_counter,reaction_counter] = -1.0
+                }
+                
+                
+                // update reaction counter -
+                reaction_counter++
+            }
+            
+            // update species counter -
+            species_counter++
+        }
+        
+        // return -
+        return stoichiometric_matrix
+    }
     
     // MARK: Extract * methods
     private func extractListOfMetabolitesFromModelStatementArray(_listOfStatements listOfStatements:[String]) -> (symbols:[String],reactions:[HybridModelReactionModel]) {

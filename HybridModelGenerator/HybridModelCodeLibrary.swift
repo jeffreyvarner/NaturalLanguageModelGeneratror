@@ -32,13 +32,15 @@ class KineticsOctaveMStrategy:CodeStrategy {
         let state_symbol_array = modelContext.state_symbol_array
         let state_model_dictionary = modelContext.state_model_dictionary!
         
-        buffer+="function rate_vector = Kinetics(t,x,DF)\n"
+        buffer+="function [gene_expression_rate_vector,metabolic_rate_vector] = Kinetics(t,x,DF)\n"
         buffer+="\n"
-        buffer+="\t% Initialize empty rate_vector - \n"
-        buffer+="\trate_vector = [];\n"
+        buffer+="\t% Initialize empty *_rate_vectors - \n"
+        buffer+="\tgene_expression_rate_vector = [];\n"
+        buffer+="\tmetabolic_rate_vector = [];\n"
         buffer+="\n"
         buffer+="\t% Get the kinetic_parameter_vector - \n"
-        buffer+="\tkinetic_parameter_vector = DF.KINETIC_PARAMETER_VECTOR;\n"
+        buffer+="\tgene_expression_parameter_vector = DF.GENE_EXPRESSION_PARAMETER_VECTOR;\n"
+        buffer+="\tmetabolic_parameter_vector = DF.METABOLIC_PARAMETER_VECTOR;\n"
         buffer+="\n"
         
         buffer+="\t% Alias the state vector - \n"
@@ -69,112 +71,52 @@ class KineticsOctaveMStrategy:CodeStrategy {
             // ok, is this a dynamic state, or a constant state -
             if (state_model.state_role == RoleDescriptor.DYNAMIC){
             
-                // put a comment line -
-                buffer+="\t% species_symbol: \(state_symbol) \n"
-                
                 // ok, we are a dyamic state, what type of state do we have?
                 let state_type = state_model.state_type!
                 if (state_type == TypeDescriptor.mRNA){
+                    
+                    // put a comment line -
+                    buffer+="\t% species_symbol: \(state_symbol) \n"
                     
                     // if we have an mRNA state, then we need to create expression, dilution, and degrdation rates -
                     
                     // mRNA should have a gene precursor?
                     if let precursor_symbol = state_model.state_precursor_symbol_array?.last {
-                        buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*RNAP*\(precursor_symbol);\n"
+                        buffer+="\tgene_expression_rate_vector(\(rate_counter++),1) = gene_expression_parameter_vector(\(parameter_counter++),1)*RNAP*\(precursor_symbol);\n"
                     }
                     else {
-                        buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*RNAP;\n"
+                        buffer+="\tgene_expression_rate_vector(\(rate_counter++),1) = gene_expression_parameter_vector(\(parameter_counter++),1)*RNAP;\n"
                     }
                     
-                    buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*\(state_symbol);\n"
-                    buffer+="\trate_vector(\(rate_counter++),1) = growth_rate*\(state_symbol);\n"
+                    buffer+="\tgene_expression_rate_vector(\(rate_counter++),1) = gene_expression_parameter_vector(\(parameter_counter++),1)*\(state_symbol);\n"
                     
                     // new line -
                     buffer+="\n"
                 }
                 else if (state_type == TypeDescriptor.PROTIEN){
                     
+                    // put a comment line -
+                    buffer+="\t% species_symbol: \(state_symbol) \n"
+                    
                     // if we have an protein state, then we need to create expression, dilution, and degrdation rates -
                     
                     // protein should have a mRNA precursor 
                     if let precursor_symbol = state_model.state_precursor_symbol_array?.last {
-                        buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*RIBOSOME*\(precursor_symbol);\n"
+                        buffer+="\tgene_expression_rate_vector(\(rate_counter++),1) = gene_expression_parameter_vector(\(parameter_counter++),1)*RIBOSOME*\(precursor_symbol);\n"
                     }
                     else {
-                        buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*RIBOSOME;\n"
+                        buffer+="\tgene_expression_rate_vector(\(rate_counter++),1) = gene_expression_parameter_vector(\(parameter_counter++),1)*RIBOSOME;\n"
                     }
                     
-                    buffer+="\trate_vector(\(rate_counter++),1) = kinetic_parameter_vector(\(parameter_counter++),1)*\(state_symbol);\n"
-                    buffer+="\trate_vector(\(rate_counter++),1) = growth_rate*\(state_symbol);\n"
+                    buffer+="\tgene_expression_rate_vector(\(rate_counter++),1) = gene_expression_parameter_vector(\(parameter_counter++),1)*\(state_symbol);\n"
                     
                     // new line -
                     buffer+="\n"
-                }
-                else if (state_type == TypeDescriptor.METABOLITE) {
-                    
-                    
-                    // if we have a metabolite state, then we need to production, and consumption rates and dilution due to growth -
-                    let list_of_metabolic_reactions = modelContext.metabolic_reaction_array!
-                    for reaction_model in list_of_metabolic_reactions {
-                    
-                        // Is this symbol a *product*?
-                        if (reaction_model.isModelSymbolAProduct(state_symbol) == true){
-                            
-                            // before we do anything, is the substrate of this reaction the SYSTEM?
-                            if (reaction_model.isModelSymbolASubstrate(ActionVerb.SYSTEM.rawValue) == true){
-                                
-                                // ok, this is a *zero-order* input term -
-                                buffer+="\trate_vector(\(rate_counter++),1) = "
-                                buffer+="kinetic_parameter_vector(\(parameter_counter++),1);"
-                            }
-                            
-                            // add a newline -
-                            buffer+="\n"
-                        }
-                        
-                        // Is this symbol a substrate?
-                        if (reaction_model.isModelSymbolASubstrate(state_symbol) == true){
-                            
-                            // before we do anything, is the product of this reaction the SYSTEM?
-                            if (reaction_model.isModelSymbolAProduct(ActionVerb.SYSTEM.rawValue) == true){
-                                
-                                // ok, SYSTEM is a *product* of this reaction, this means we should use a first-order rate -
-                                buffer+="\trate_vector(\(rate_counter++),1) = "
-                                buffer+="kinetic_parameter_vector(\(parameter_counter++),1)*\(state_symbol);\n"
-                            }
-                            else
-                            {
-                                buffer+="\trate_vector(\(rate_counter++),1) = "
-                                buffer+="kinetic_parameter_vector(\(parameter_counter++),1)"
-                                
-                                // what is the enzyme symbol -
-                                if let enzyme_symbol = reaction_model.catalyst_symbol {
-                                    buffer+="*(\(enzyme_symbol))"
-                                }
-                                
-                                // get the substrate vector -
-                                if let local_substrate_vector = reaction_model.reactant_symbol_list {
-                                    
-                                    for substrate_symbol in local_substrate_vector {
-                                        
-                                        buffer+="*(\(substrate_symbol))/(kinetic_parameter_vector(\(parameter_counter++),1)+\(substrate_symbol))"
-                                    }
-                                }
-                                
-                                // add a newline -
-                                buffer+=";\n"
-                            }
-                        }
-                    }
-                    
-                    // need to add dilution due to growth line -
-                    buffer+="\trate_vector(\(rate_counter++),1) = growth_rate*\(state_symbol);\n"
-                    
-                    // new line -
-                    buffer+="\n"
-                    
                 }
                 else if (state_type == TypeDescriptor.OTHER) {
+                    
+                    // put a comment line -
+                    buffer+="\t% species_symbol: \(state_symbol) \n"
                     
                     // if we have a other state, and we are dynamic, this means we will add somehow and dilute -
                     buffer+="\trate_vector(\(rate_counter++),1) = growth_rate*\(state_symbol);\n"
@@ -182,6 +124,84 @@ class KineticsOctaveMStrategy:CodeStrategy {
                     // new line -
                     buffer+="\n"
                 }
+            }
+        }
+        
+        buffer+="\n"
+        buffer+="\t% Define the metabolic reaction rates - \n"
+        
+        // ok, now lets do the metabolic rates -
+        parameter_counter = 1
+        rate_counter = 1
+        for state_symbol in state_symbol_array {
+            
+            // lookup state_model -
+            let state_model = state_model_dictionary[state_symbol]!
+            let state_type = state_model.state_type!
+            
+            if (state_type == TypeDescriptor.METABOLITE &&
+                state_model.state_role == RoleDescriptor.DYNAMIC) {
+                
+                // put a comment line -
+                buffer+"\n"
+                buffer+="\t% species_symbol: \(state_symbol)\n"
+                    
+                // if we have a metabolite state, then we need to production, and consumption rates and dilution due to growth -
+                let list_of_metabolic_reactions = modelContext.metabolic_reaction_array!
+                for reaction_model in list_of_metabolic_reactions {
+                    
+                    // Is this symbol a *product*?
+                    if (reaction_model.isModelSymbolAProduct(state_symbol) == true){
+                        
+                        // before we do anything, is the substrate of this reaction the SYSTEM?
+                        if (reaction_model.isModelSymbolASubstrate(ActionVerb.SYSTEM.rawValue) == true){
+                            
+                            // ok, this is a *zero-order* input term -
+                            buffer+="\tmetabolic_rate_vector(\(rate_counter++),1) = "
+                            buffer+="metabolic_parameter_vector(\(parameter_counter++),1);"
+                            
+                            // add a newline -
+                            buffer+="\n"
+                        }
+                    }
+                    
+                    // Is this symbol a substrate?
+                    if (reaction_model.isModelSymbolASubstrate(state_symbol) == true){
+                        
+                        // before we do anything, is the product of this reaction the SYSTEM?
+                        if (reaction_model.isModelSymbolAProduct(ActionVerb.SYSTEM.rawValue) == true){
+                            
+                            // ok, SYSTEM is a *product* of this reaction, this means we should use a first-order rate -
+                            buffer+="\tmetabolic_rate_vector(\(rate_counter++),1) = "
+                            buffer+="metabolic_parameter_vector(\(parameter_counter++),1)*\(state_symbol);\n"
+                        }
+                        else
+                        {
+                            buffer+="\tmetabolic_rate_vector(\(rate_counter++),1) = "
+                            buffer+="metabolic_parameter_vector(\(parameter_counter++),1)"
+                            
+                            // what is the enzyme symbol -
+                            if let enzyme_symbol = reaction_model.catalyst_symbol {
+                                buffer+="*(\(enzyme_symbol))"
+                            }
+                            
+                            // get the substrate vector -
+                            if let local_substrate_vector = reaction_model.reactant_symbol_list {
+                                
+                                for substrate_symbol in local_substrate_vector {
+                                    
+                                    buffer+="*(\(substrate_symbol))/(metabolic_parameter_vector(\(parameter_counter++),1)+\(substrate_symbol))"
+                                }
+                            }
+                            
+                            // add a newline -
+                            buffer+=";\n"
+                        }
+                    }
+                }
+            
+                // add a newline -
+                buffer+="\n"
             }
         }
         
@@ -376,8 +396,27 @@ class BalanceEquationsOctaveMStrategy:CodeStrategy {
         buffer+="\tdxdt_vector = zeros(number_of_states,1);\n"
         buffer+="\n"
         
+        buffer+="\n"
+        buffer+="\t% Alias the state vector - \n"
+        
+        // iterate through the model context -
+        let state_array = modelContext.state_symbol_array
+        var state_index = 1
+        for state_symbol in state_array {
+            
+            buffer+="\t"
+            buffer+=state_symbol
+            buffer+="\t=\t"
+            buffer+="x(\(state_index));\n"
+            
+            // update the index -
+            state_index++
+        }
+        
+        buffer+="\n"
+        
         buffer+="\t% Define the rate_vector - \n"
-        buffer+="\tbare_rate_vector = Kinetics(t,x,DF);\n"
+        buffer+="\t[gene_expression_rate_vector, metabolic_rate_vector] = Kinetics(t,x,DF);\n"
         buffer+="\n"
         
         buffer+="\t% Define the control_vector - \n"
@@ -385,7 +424,7 @@ class BalanceEquationsOctaveMStrategy:CodeStrategy {
         buffer+="\n"
         
         buffer+="\t% Correct the bare_rate_vector - \n"
-        buffer+="\trate_vector = bare_rate_vector.*control_vector;\n"
+        buffer+="\tgene_expression_rate_vector = gene_expression_rate_vector.*control_vector;\n"
         buffer+="\n"
         
         buffer+="\t% Define the dxdt_vector - \n"
@@ -393,14 +432,17 @@ class BalanceEquationsOctaveMStrategy:CodeStrategy {
         // Get the symbol array -
         let state_symbol_array = modelContext.state_symbol_array
         let state_model_dictionary = modelContext.state_model_dictionary!
+        let stoichiometric_matrix = modelContext.metabolic_stoichiometric_matrix!
         
         // Get data from the context -
         var species_counter = 1
         var rate_counter = 1
+        var metabolite_counter = 0
         for state_symbol in state_symbol_array {
             
             // lookup state_model -
             let state_model = state_model_dictionary[state_symbol]!
+            
             
             // ok, is this a dynamic state, or a constant state -
             if (state_model.state_role == RoleDescriptor.DYNAMIC){
@@ -408,13 +450,44 @@ class BalanceEquationsOctaveMStrategy:CodeStrategy {
                 // ok, we have a dynamic species ... what type is it?
                 let state_type = state_model.state_type!
                 if (state_type == TypeDescriptor.mRNA){
-                    buffer+="\tdxdt_vector(\(species_counter++),1) = rate_vector(\(rate_counter++),1) - rate_vector(\(rate_counter++),1) - rate_vector(\(rate_counter++),1)\t;\t% \(state_symbol)\n"
+                    buffer+="\tdxdt_vector(\(species_counter++),1) = gene_expression_rate_vector(\(rate_counter++),1) - gene_expression_rate_vector(\(rate_counter++),1) - growth_rate*\(state_symbol)\t;\t% \(state_symbol)\n"
                 }
                 else if (state_type == TypeDescriptor.PROTIEN){
-                    buffer+="\tdxdt_vector(\(species_counter++),1) = rate_vector(\(rate_counter++),1) - rate_vector(\(rate_counter++),1) - rate_vector(\(rate_counter++),1)\t;\t% \(state_symbol)\n"
+                    buffer+="\tdxdt_vector(\(species_counter++),1) = gene_expression_rate_vector(\(rate_counter++),1) - gene_expression_rate_vector(\(rate_counter++),1) - growth_rate*\(state_symbol)\t;\t% \(state_symbol)\n"
                 }
                 else if (state_type == TypeDescriptor.OTHER){
-                    buffer+="\tdxdt_vector(\(species_counter++),1) = -rate_vector(\(rate_counter++),1)\t;\t% \(state_symbol)\n"
+                    buffer+="\tdxdt_vector(\(species_counter++),1) = -growth_rate*\(state_symbol)\t;\t% \(state_symbol)\n"
+                }
+                else if (state_type == TypeDescriptor.METABOLITE){
+                    
+                    // Get the state symbol -
+                    let state_symbol = state_model.state_symbol_string
+                    
+                    // species line -
+                    buffer+="\tdxdt_vector(\(species_counter++),1) = "
+                    
+                    // ok, so we have a legit symbol, go through the st matrix -
+                    let number_of_reactions = stoichiometric_matrix.columns
+                    for var reaction_index = 0;reaction_index<number_of_reactions;reaction_index++ {
+                        
+                        // get stcoeff -
+                        let stcoeff = stoichiometric_matrix[metabolite_counter,reaction_index]
+                        if (stcoeff != 0.0){
+                            
+                            // Add a leading +
+                            if (reaction_index>0 && stcoeff>0){
+                                buffer+="+"
+                            }
+                            
+                            buffer+="\(stcoeff)*metabolic_rate_vector(\(reaction_index+1),1)"
+                        }
+                    }
+                    
+                    // add new line -
+                    buffer+="-growth_rate*\(state_symbol)\t;\t% \(state_symbol)\n"
+                    
+                    // update the metabolite counter -
+                    metabolite_counter++
                 }
             }
             else if (state_model.state_role == RoleDescriptor.CONSTANT){
