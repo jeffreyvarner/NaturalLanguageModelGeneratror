@@ -15,6 +15,7 @@ class HybridModelReactionModel: NSObject {
     var reactant_symbol_list:[String]?
     var product_symbol_list:[String]?
     var catalyst_symbol:String?
+    var reaction_index:Int = 0
     
     override init(){
         
@@ -65,5 +66,106 @@ class HybridModelReactionModel: NSObject {
         
         // return -
         return return_flag
+    }
+    
+    func generateParameterSymbolArray() -> [String] {
+        
+        // declarations -
+        var parameter_array = [String]()
+        
+        if let local_enzyme_symbol = catalyst_symbol {
+            
+            // ok, we have a catalyst, so this is a an enzyme catalyzed reaction -
+            
+            // build the rate -
+            let rate_constant="k_\(reaction_index)"
+            
+            // add rate constant to array -
+            parameter_array.append(rate_constant)
+            
+            // do we have a reactant list?
+            if let local_reactant_list = reactant_symbol_list {
+                
+                for local_symbol in local_reactant_list {
+                    
+                    var tmp = "KM_\(reaction_index)_\(local_symbol)"
+                    parameter_array.append(tmp)
+                }
+            }
+        }
+        else {
+            
+            // we could have a SYSTEM transfer
+            // From system -
+            if let local_reactant_list = reactant_symbol_list {
+                
+                for local_symbol in local_reactant_list {
+                    
+                    if (local_symbol != "SYSTEM"){
+                        
+                        // we are going *to* the system -
+                        var tmp="k_\(reaction_index)_\(local_symbol)_system"
+                        parameter_array.append(tmp)
+                    }
+                    else {
+                        var tmp = "k_\(reaction_index)_from_system"
+                        parameter_array.append(tmp)
+                    }
+                }
+            }
+        }
+
+        
+        // return -
+        return parameter_array
+    }
+    
+    
+    func generateReactionString() -> String {
+        
+        // declarations -
+        var buffer = ""
+        
+        if let local_enzyme_symbol = catalyst_symbol {
+            
+            // ok, we have a catalyst, so this is a an enzyme catalyzed reaction -
+            
+            // build the rate -
+            buffer+="k_\(reaction_index)*\(local_enzyme_symbol)"
+            
+            // do we have a reactant list?
+            if let local_reactant_list = reactant_symbol_list {
+                
+                for local_symbol in local_reactant_list {
+                    
+                    buffer+="*((\(local_symbol))/(\(local_symbol)+KM_\(reaction_index)_\(local_symbol)))"
+                }
+            }
+            
+            // add a new line;
+            buffer+=";\n"
+        }
+        else {
+            
+            // we could have a SYSTEM transfer
+            // From system -
+            if let local_reactant_list = reactant_symbol_list {
+                
+                for local_symbol in local_reactant_list {
+                    
+                    if (local_symbol != "SYSTEM"){
+                    
+                        // we are going *to* the system -
+                        buffer+="k_\(reaction_index)_\(local_symbol)_system*(\(local_symbol));\n"
+                    }
+                    else {
+                        buffer+="k_\(reaction_index)_from_system;\n"
+                    }
+                }
+            }
+        }
+        
+        // return -
+        return buffer
     }
 }

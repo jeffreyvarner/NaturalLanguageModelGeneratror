@@ -299,6 +299,7 @@ class HybridModelNaturalLanguageParser: NSObject {
         
         
         // ok, we need to look for symbols that are involved with CATALYZE statements -
+        var reaction_index = 0
         for statement_text in listOfStatements {
             
             // check to see if this contains a SYSTEM statement -
@@ -323,6 +324,9 @@ class HybridModelNaturalLanguageParser: NSObject {
                             model_object.product_symbol_list = [zero_order_symbol]
                             model_object.reactant_symbol_list = [ActionVerb.SYSTEM.rawValue]
                             
+                            // set the reaction index -
+                            model_object.reaction_index = reaction_index++
+                            
                             // add reaction model to list -
                             list_of_reactions.append(model_object)
                         }
@@ -345,6 +349,9 @@ class HybridModelNaturalLanguageParser: NSObject {
                             var model_object = HybridModelReactionModel()
                             model_object.reactant_symbol_list = [zero_order_symbol]
                             model_object.product_symbol_list = [ActionVerb.SYSTEM.rawValue]
+                            
+                            // set the reaction index -
+                            model_object.reaction_index = reaction_index++
                             
                             // add reaction model to list -
                             list_of_reactions.append(model_object)
@@ -384,6 +391,9 @@ class HybridModelNaturalLanguageParser: NSObject {
                 local_reaction_model.reactant_symbol_list = source_symbol_list
                 local_reaction_model.product_symbol_list = target_symbol_list
                 local_reaction_model.catalyst_symbol = enzyme_symbol
+                
+                // set the reaction index -
+                local_reaction_model.reaction_index = reaction_index++
                 
                 // add reaction model to list -
                 list_of_reactions.append(local_reaction_model)
@@ -695,7 +705,7 @@ class HybridModelNaturalLanguageParser: NSObject {
                                 // update the control_matrix -
                                 control_table[index_of_noun_symbol!,index_of_output_symbol!] = 1
                                 
-                                println("indcues ...")
+                                //println("indcues ...")
                             }
                             else {
                                 
@@ -705,7 +715,7 @@ class HybridModelNaturalLanguageParser: NSObject {
                                 // update the control_matrix -
                                 control_table[index_of_noun_symbol!,index_of_output_symbol!] = -1
                                 
-                                println("represses...")
+                                //println("represses...")
                                 
                             }
                         }

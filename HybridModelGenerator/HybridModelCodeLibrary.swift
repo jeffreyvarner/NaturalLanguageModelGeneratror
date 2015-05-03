@@ -43,6 +43,23 @@ class KineticsOctaveMStrategy:CodeStrategy {
         buffer+="\tmetabolic_parameter_vector = DF.METABOLIC_PARAMETER_VECTOR;\n"
         buffer+="\n"
         
+        buffer+="\t% Alias the metabolic parameters - \n"
+        var metabolic_parameter_counter = 1
+        if let metabolic_reaction_model_array = modelContext.metabolic_reaction_array {
+            
+            for rate_model in metabolic_reaction_model_array {
+                
+                // get parameter array -
+                let local_parameter_array = rate_model.generateParameterSymbolArray()
+                for parameter_symbol in local_parameter_array {
+                    
+                    // write the line -
+                    buffer+="\t\(parameter_symbol) = metabolic_parameter_vector(\(metabolic_parameter_counter++),1);\n"
+                }
+            }
+        }
+
+        buffer+="\n"
         buffer+="\t% Alias the state vector - \n"
         
         // iterate through the model context -
@@ -119,7 +136,7 @@ class KineticsOctaveMStrategy:CodeStrategy {
                     buffer+="\t% species_symbol: \(state_symbol) \n"
                     
                     // if we have a other state, and we are dynamic, this means we will add somehow and dilute -
-                    buffer+="\trate_vector(\(rate_counter++),1) = growth_rate*\(state_symbol);\n"
+                    buffer+="\tgene_expression_rate_vector(\(rate_counter++),1) = growth_rate*\(state_symbol);\n"
                     
                     // new line -
                     buffer+="\n"
@@ -131,80 +148,18 @@ class KineticsOctaveMStrategy:CodeStrategy {
         buffer+="\t% Define the metabolic reaction rates - \n"
         
         // ok, now lets do the metabolic rates -
-        parameter_counter = 1
-        rate_counter = 1
-        for state_symbol in state_symbol_array {
+        var metabolic_reaction_index = 1
+        if let metabolic_reaction_array = modelContext.metabolic_reaction_array {
             
-            // lookup state_model -
-            let state_model = state_model_dictionary[state_symbol]!
-            let state_type = state_model.state_type!
-            
-            if (state_type == TypeDescriptor.METABOLITE &&
-                state_model.state_role == RoleDescriptor.DYNAMIC) {
+            for metabolic_reaction in metabolic_reaction_array {
                 
-                // put a comment line -
-                buffer+"\n"
-                buffer+="\t% species_symbol: \(state_symbol)\n"
-                    
-                // if we have a metabolite state, then we need to production, and consumption rates and dilution due to growth -
-                let list_of_metabolic_reactions = modelContext.metabolic_reaction_array!
-                for reaction_model in list_of_metabolic_reactions {
-                    
-                    // Is this symbol a *product*?
-                    if (reaction_model.isModelSymbolAProduct(state_symbol) == true){
-                        
-                        // before we do anything, is the substrate of this reaction the SYSTEM?
-                        if (reaction_model.isModelSymbolASubstrate(ActionVerb.SYSTEM.rawValue) == true){
-                            
-                            // ok, this is a *zero-order* input term -
-                            buffer+="\tmetabolic_rate_vector(\(rate_counter++),1) = "
-                            buffer+="metabolic_parameter_vector(\(parameter_counter++),1);"
-                            
-                            // add a newline -
-                            buffer+="\n"
-                        }
-                    }
-                    
-                    // Is this symbol a substrate?
-                    if (reaction_model.isModelSymbolASubstrate(state_symbol) == true){
-                        
-                        // before we do anything, is the product of this reaction the SYSTEM?
-                        if (reaction_model.isModelSymbolAProduct(ActionVerb.SYSTEM.rawValue) == true){
-                            
-                            // ok, SYSTEM is a *product* of this reaction, this means we should use a first-order rate -
-                            buffer+="\tmetabolic_rate_vector(\(rate_counter++),1) = "
-                            buffer+="metabolic_parameter_vector(\(parameter_counter++),1)*\(state_symbol);\n"
-                        }
-                        else
-                        {
-                            buffer+="\tmetabolic_rate_vector(\(rate_counter++),1) = "
-                            buffer+="metabolic_parameter_vector(\(parameter_counter++),1)"
-                            
-                            // what is the enzyme symbol -
-                            if let enzyme_symbol = reaction_model.catalyst_symbol {
-                                buffer+="*(\(enzyme_symbol))"
-                            }
-                            
-                            // get the substrate vector -
-                            if let local_substrate_vector = reaction_model.reactant_symbol_list {
-                                
-                                for substrate_symbol in local_substrate_vector {
-                                    
-                                    buffer+="*(\(substrate_symbol))/(metabolic_parameter_vector(\(parameter_counter++),1)+\(substrate_symbol))"
-                                }
-                            }
-                            
-                            // add a newline -
-                            buffer+=";\n"
-                        }
-                    }
-                }
-            
-                // add a newline -
-                buffer+="\n"
+                buffer+="\tmetabolic_rate_vector(\(metabolic_reaction_index++),1) = "
+                buffer+=metabolic_reaction.generateReactionString()
             }
         }
         
+        // add final return -
+        buffer+="\n"
         buffer+="return\n"
         
         // return -
@@ -358,7 +313,7 @@ class ControlOctaveMStrategy:CodeStrategy {
             buffer+="\tcontrol_vector(\(control_term_counter),1) = "
             
             // update the counter -
-            control_term_counter = control_term_counter + 3
+            control_term_counter = control_term_counter + 2
             
             // which direction do we have?
             if (direction_flag == Direction.POSITIVE){
@@ -420,7 +375,7 @@ class BalanceEquationsOctaveMStrategy:CodeStrategy {
         buffer+="\n"
         
         buffer+="\t% Define the control_vector - \n"
-        buffer+="\tcontrol_vector = Control(t,x,bare_rate_vector,DF);\n"
+        buffer+="\tcontrol_vector = Control(t,x,gene_expression_rate_vector,DF);\n"
         buffer+="\n"
         
         buffer+="\t% Correct the bare_rate_vector - \n"
@@ -618,8 +573,8 @@ class DataFileOctaveMStrategy:CodeStrategy {
         
         buffer+="\t];\n"
         buffer+="\n"
-        buffer+="\t% Setup the *kinetic* parameter array - \n"
-        buffer+="\tKINETIC_PARAMETER_VECTOR = [\n"
+        buffer+="\t% Setup the *gene expression* parameter array - \n"
+        buffer+="\tGENE_EXPRESSION_PARAMETER_VECTOR = [\n"
         buffer+="\n"
 
         // ok, so have gene expression processes, and potentially biochemical processes -
@@ -637,48 +592,23 @@ class DataFileOctaveMStrategy:CodeStrategy {
             buffer+="\t\t0.01\t;\t%\t beta_\(symbol) \(parameter_counter++)\n"
             buffer+="\n"
         }
+        buffer+="\t];\n"
+        buffer+="\n"
         
         // ok, we need to put in the metabolic kinetic parameters if we have them -
+        buffer+="\t% Setup the *metabolic* parameter array - \n"
+        buffer+="\tMETABOLIC_PARAMETER_VECTOR = [\n"
+        var metabolic_parameter_counter = 1
         if let metabolic_reaction_model_array = modelContext.metabolic_reaction_array {
-        
-            for state_symbol in ordered_state_symbol_array {
+            
+            for rate_model in metabolic_reaction_model_array {
                 
-                for reaction_model in metabolic_reaction_model_array {
+                // get parameter array -
+                let local_parameter_array = rate_model.generateParameterSymbolArray()
+                for parameter_symbol in local_parameter_array {
                     
-                    // Is this symbol a *product*?
-                    if (reaction_model.isModelSymbolAProduct(state_symbol) == true){
-                        
-                        // before we do anything, is the substrate of this reaction the SYSTEM?
-                        if (reaction_model.isModelSymbolASubstrate(ActionVerb.SYSTEM.rawValue) == true){
-                            
-                            // ok, this is a *zero-order* input term -
-                            buffer+="\t\t0.1\t;\t%\t SYSTEM -> \(state_symbol) \(parameter_counter++)\n"
-                        }
-                    }
-                    
-                    // Is this symbol a substrate?
-                    if (reaction_model.isModelSymbolASubstrate(state_symbol) == true){
-                        
-                        // before we do anything, is the product of this reaction the SYSTEM?
-                        if (reaction_model.isModelSymbolAProduct(ActionVerb.SYSTEM.rawValue) == true){
-                            
-                            // ok, SYSTEM is a *product* of this reaction, this means we should use a first-order rate -
-                            buffer+="\t\t0.1\t;\t%\t \(state_symbol) -> SYSTEM \(parameter_counter++)\n"
-                        }
-                        else
-                        {
-                            buffer+="\t\t0.1\t;\t%\t kcat \(state_symbol) \(parameter_counter++)\n"
-                            
-                            // get the substrate vector -
-                            if let local_substrate_vector = reaction_model.reactant_symbol_list {
-                                
-                                for substrate_symbol in local_substrate_vector {
-                                    
-                                    buffer+="\t\t0.1\t;\t%\t KM \(substrate_symbol) \(parameter_counter++)\n"
-                                }
-                            }
-                        }
-                    }
+                    // write the line -
+                    buffer+="\t\t1.0\t;\t%\t\(parameter_symbol) \(metabolic_parameter_counter++)\n"
                 }
             }
         }
@@ -687,7 +617,8 @@ class DataFileOctaveMStrategy:CodeStrategy {
         buffer+="\t];\n"
         buffer+="\n"
         buffer+="\t% - DO NOT EDIT BELOW THIS LINE ------------------------------ \n"
-        buffer+="\tDF.KINETIC_PARAMETER_VECTOR = KINETIC_PARAMETER_VECTOR;\n"
+        buffer+="\tDF.GENE_EXPRESSION_PARAMETER_VECTOR = GENE_EXPRESSION_PARAMETER_VECTOR;\n"
+        buffer+="\tDF.METABOLIC_PARAMETER_VECTOR = METABOLIC_PARAMETER_VECTOR;\n"
         buffer+="\tDF.CONTROL_PARAMETER_VECTOR = CONTROL_PARAMETER_VECTOR;\n"
         buffer+="\tDF.INITIAL_CONDITION_VECTOR = IC_ARRAY;\n"
         buffer+="\t% - DO NOT EDIT ABOVE THIS LINE ------------------------------ \n"

@@ -13,7 +13,6 @@
 		AD07E28F1AE9DDC600E74CBC /* HybridModelKineticsFileObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD07E28E1AE9DDC600E74CBC /* HybridModelKineticsFileObject.swift */; };
 		AD0903CC1AE6607F0078713B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0903CB1AE6607F0078713B /* AppDelegate.swift */; };
 		AD0903CE1AE6607F0078713B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0903CD1AE6607F0078713B /* ViewController.swift */; };
-		AD0903D01AE6607F0078713B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD0903CF1AE6607F0078713B /* Images.xcassets */; };
 		AD0903D31AE6607F0078713B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD0903D11AE6607F0078713B /* Main.storyboard */; };
 		AD0903DF1AE6607F0078713B /* HybridModelGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0903DE1AE6607F0078713B /* HybridModelGeneratorTests.swift */; };
 		AD0903EA1AE7B2250078713B /* HybridModelGeneratorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0903E91AE7B2250078713B /* HybridModelGeneratorEngine.swift */; };
@@ -22,6 +21,7 @@
 		AD32EF811AF2582900E4C433 /* HybridModelReactionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD32EF801AF2582900E4C433 /* HybridModelReactionModel.swift */; };
 		AD3E54881AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD3E54871AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift */; };
 		AD3E548A1AE8254000C12998 /* HybridModelContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD3E54891AE8254000C12998 /* HybridModelContext.swift */; };
+		ADC2FA091AF6C848004C1C8A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ADC2FA081AF6C848004C1C8A /* Images.xcassets */; };
 		ADD8D4641AEC301A00F60815 /* HybridStateModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */; };
 /* End PBXBuildFile section */
 
@@ -44,7 +44,6 @@
 		AD0903CA1AE6607F0078713B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AD0903CB1AE6607F0078713B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AD0903CD1AE6607F0078713B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		AD0903CF1AE6607F0078713B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		AD0903D21AE6607F0078713B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		AD0903D81AE6607F0078713B /* HybridModelGeneratorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HybridModelGeneratorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD0903DD1AE6607F0078713B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -55,6 +54,7 @@
 		AD32EF801AF2582900E4C433 /* HybridModelReactionModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelReactionModel.swift; sourceTree = "<group>"; };
 		AD3E54871AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelNaturalLanguageParser.swift; sourceTree = "<group>"; };
 		AD3E54891AE8254000C12998 /* HybridModelContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelContext.swift; sourceTree = "<group>"; };
+		ADC2FA081AF6C848004C1C8A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridStateModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -101,8 +101,8 @@
 				AD0903E81AE665290078713B /* engine */,
 				AD0903CB1AE6607F0078713B /* AppDelegate.swift */,
 				AD0903CD1AE6607F0078713B /* ViewController.swift */,
-				AD0903CF1AE6607F0078713B /* Images.xcassets */,
 				AD0903D11AE6607F0078713B /* Main.storyboard */,
+				ADC2FA081AF6C848004C1C8A /* Images.xcassets */,
 				AD0903C91AE6607F0078713B /* Supporting Files */,
 			);
 			path = HybridModelGenerator;
@@ -238,8 +238,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AD0903D01AE6607F0078713B /* Images.xcassets in Resources */,
 				AD0903D31AE6607F0078713B /* Main.storyboard in Resources */,
+				ADC2FA091AF6C848004C1C8A /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

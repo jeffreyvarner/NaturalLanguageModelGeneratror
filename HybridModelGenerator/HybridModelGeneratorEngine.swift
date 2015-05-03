@@ -42,6 +42,7 @@ class HybridModelGeneratorEngine: NSObject {
         var input_file_parser:HybridModelNaturalLanguageParser
         var model_context:HybridModelContext
         var message_dictionary:NSMutableDictionary = NSMutableDictionary()
+        let start_time = CFAbsoluteTimeGetCurrent()
         
         // parse the input file -> returns a HybridModelContext
         input_file_parser = HybridModelNaturalLanguageParser(_inputURL: self.myModelInputURL)
@@ -61,11 +62,19 @@ class HybridModelGeneratorEngine: NSObject {
             // ok, we have the model context, we need to write the associate data files to the outputURL
             // For octave-m, we need DataFile.m, ControlFile.m, Kinetics.m, BalanceEquations.m, and SolveBalanceEquations.m
             
+            
+            message_dictionary["MESSAGE_KEY"] = "Starting to build code ... \n"
+            statusUpdateBlock(message_dictionary)
+            
             // DataFile.m -
             var data_file_object = HybridModelDataFileObject(context: hybrid_model_context,strategy: DataFileOctaveMStrategy())
             var data_file_buffer:String = data_file_object.doExecute()
             var data_file_url = self.myModelOutputURL.URLByAppendingPathComponent("DataFile.m")
             data_file_buffer.writeToURL(data_file_url, atomically:true, encoding: NSUTF8StringEncoding, error: nil);
+            
+            message_dictionary["MESSAGE_KEY"] = "Wrote DataFile.m to \(data_file_url) \n"
+            statusUpdateBlock(message_dictionary)
+
             
             // SolveBalanceEquations.m -
             var solve_balance_equations_object = HybridModelSolveBalanceEquationsFileObject(context:hybrid_model_context, strategy:SolveBalanceEquationsOctaveMStrategy())
@@ -73,11 +82,17 @@ class HybridModelGeneratorEngine: NSObject {
             var solve_balances_url = self.myModelOutputURL.URLByAppendingPathComponent("SolveBalanceEquations.m")
             solve_balances_buffer.writeToURL(solve_balances_url, atomically:true, encoding: NSUTF8StringEncoding, error: nil);
             
+            message_dictionary["MESSAGE_KEY"] = "Wrote SolveBalanceEquations.m to \(solve_balances_url) \n"
+            statusUpdateBlock(message_dictionary)
+            
             // BalanceEquations.m -
             var balance_equations_object = HybridModelBalanceEquationsFileObject(context:hybrid_model_context, strategy:BalanceEquationsOctaveMStrategy())
             var balances_buffer:String = balance_equations_object.doExecute()
             var balances_url = self.myModelOutputURL.URLByAppendingPathComponent("Balances.m")
             balances_buffer.writeToURL(balances_url, atomically:true, encoding: NSUTF8StringEncoding, error: nil);
+            
+            message_dictionary["MESSAGE_KEY"] = "Wrote Balances.m to \(balances_url) \n"
+            statusUpdateBlock(message_dictionary)
             
             // Control.m -
             var control_equations_object = HybridModelControlFileObject(context:hybrid_model_context, strategy:ControlOctaveMStrategy())
@@ -85,11 +100,22 @@ class HybridModelGeneratorEngine: NSObject {
             var control_url = self.myModelOutputURL.URLByAppendingPathComponent("Control.m")
             control_buffer.writeToURL(control_url, atomically:true, encoding: NSUTF8StringEncoding, error: nil)
             
+            message_dictionary["MESSAGE_KEY"] = "Wrote Control.m to \(control_url) \n"
+            statusUpdateBlock(message_dictionary)
+            
             // Kinetics.m -
             var kinetic_equations_object = HybridModelKineticsFileObject(context:hybrid_model_context, strategy:KineticsOctaveMStrategy())
             var kinetic_buffer:String = kinetic_equations_object.doExecute()
             var kinetic_url = self.myModelOutputURL.URLByAppendingPathComponent("Kinetics.m")
             kinetic_buffer.writeToURL(kinetic_url, atomically:true, encoding: NSUTF8StringEncoding, error: nil)
+            
+            message_dictionary["MESSAGE_KEY"] = "Wrote Kinetics.m to \(kinetic_url) \n"
+            statusUpdateBlock(message_dictionary)
+            
+            // get elapsed time -
+            let elapsed_time = timeElapsedInSecondsWhenRunningCode(start_time)
+            message_dictionary["MESSAGE_KEY"] = "Completed code generation run in \(elapsed_time)s \n"
+            statusUpdateBlock(message_dictionary)
         }
         else
         {
@@ -97,5 +123,12 @@ class HybridModelGeneratorEngine: NSObject {
             message_dictionary["MESSAGE_KEY"] = "ERROR: Ooops! Model code type is not supported. Job terminated.\n"
             statusUpdateBlock(message_dictionary)
         }
+    }
+    
+    
+    // MARK: Helper functions
+    func timeElapsedInSecondsWhenRunningCode(startTime:CFAbsoluteTime) -> Double {
+        let timeElapsed = CFAbsoluteTimeGetCurrent() - startTime
+        return Double(timeElapsed)
     }
 }
