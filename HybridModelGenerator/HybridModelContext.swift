@@ -18,7 +18,11 @@ class HybridModelContext: NSObject {
     var translation_output_array:[String]?
     var state_symbol_array:[String]
     var state_model_dictionary:Dictionary<String,HybridStateModel>?
+    
     var metabolic_reaction_array:[HybridModelReactionModel]?
+    var metabolic_control_effector_symbol_array:[String]?
+    var metabolic_control_target_symbol_array:[String]?
+    var metabolic_control_table:Matrix?
     
     // init -
     override init(){

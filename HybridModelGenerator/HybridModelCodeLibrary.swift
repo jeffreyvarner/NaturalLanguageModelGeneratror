@@ -175,14 +175,17 @@ class ControlOctaveMStrategy:CodeStrategy {
         // declarations -
         var buffer:String = ""
         
-        buffer+="function control_vector = Control(t,x,rate_vector,DF)\n"
+        buffer+="function [control_vector_gene_expression, control_vector_metabolism] = Control(t,x,rate_vector,metabolic_rate_vector,DF)\n"
         buffer+="\n"
         buffer+="\t% Initialize control_vector - \n"
         buffer+="\tnumber_of_rates = length(rate_vector);\n"
-        buffer+="\tcontrol_vector = ones(number_of_rates,1);\n"
+        buffer+="\tnumber_of_metabolic_rates = length(rate_vector);\n"
+        buffer+="\tcontrol_vector_gene_expression = ones(number_of_rates,1);\n"
+        buffer+="\tcontrol_vector_metabolism = ones(number_of_metabolic_rates,1);\n"
         buffer+="\n"
         buffer+="\t% Get the parameter_vector - \n"
-        buffer+="\tparameter_vector = DF.CONTROL_PARAMETER_VECTOR;\n"
+        buffer+="\tgene_expression_parameter_vector = DF.CONTROL_GENE_EXPRESSION_PARAMETER_VECTOR;\n"
+        buffer+="\tmetabolic_parameter_vector = DF.CONTROL_METABOLIC_PARAMETER_VECTOR;\n"
         buffer+="\n"
         buffer+="\t% Alias the state vector - \n"
         
@@ -200,6 +203,8 @@ class ControlOctaveMStrategy:CodeStrategy {
             state_index++
         }
         
+        buffer+="\n"
+        buffer+="\t% ** Formulate the gene expression control vector - ** \n"
         buffer+="\n"
         
         // Analyze the gene expession control matrix -
@@ -251,13 +256,13 @@ class ControlOctaveMStrategy:CodeStrategy {
                 if (connection_code>0){
                     
                     // Generate the alpha string -
-                    let alpha_string = "\talpha_\(output_symbol)_\(effector_symbol) = parameter_vector(\(parameter_counter))"
+                    let alpha_string = "\talpha_\(output_symbol)_\(effector_symbol) = gene_expression_parameter_vector(\(parameter_counter))"
                     
                     // update the parameter counter -
                     parameter_counter++
                     
                     // Generate the order string -
-                    let order_string = "\torder_\(output_symbol)_\(effector_symbol) = parameter_vector(\(parameter_counter))"
+                    let order_string = "\torder_\(output_symbol)_\(effector_symbol) = gene_expression_parameter_vector(\(parameter_counter))"
                     
                     // Update the parameter counter -
                     parameter_counter++
@@ -278,13 +283,13 @@ class ControlOctaveMStrategy:CodeStrategy {
                 else if (connection_code<0){
                  
                     // Generate the alpha string -
-                    let alpha_string = "\talpha_\(output_symbol)_\(effector_symbol) = parameter_vector(\(parameter_counter))"
+                    let alpha_string = "\talpha_\(output_symbol)_\(effector_symbol) = gene_expression_parameter_vector(\(parameter_counter))"
                     
                     // update the parameter counter -
                     parameter_counter++
                     
                     // Generate the order string -
-                    let order_string = "\torder_\(output_symbol)_\(effector_symbol) = parameter_vector(\(parameter_counter))"
+                    let order_string = "\torder_\(output_symbol)_\(effector_symbol) = gene_expression_parameter_vector(\(parameter_counter))"
                     
                     // Update the parameter counter -
                     parameter_counter++
@@ -310,7 +315,7 @@ class ControlOctaveMStrategy:CodeStrategy {
             
             // ok, when I get here, I've constructed the transfer function terms
             // apply the integration rule -
-            buffer+="\tcontrol_vector(\(control_term_counter),1) = "
+            buffer+="\tcontrol_vector_gene_expression(\(control_term_counter),1) = "
             
             // update the counter -
             control_term_counter = control_term_counter + 2
@@ -323,10 +328,40 @@ class ControlOctaveMStrategy:CodeStrategy {
                 buffer+="min(f_vector);\n"
             }
             
+            
+            
             // add a space -
             buffer+="\n"
         }
 
+        
+        buffer+="\n"
+        buffer+="\t% ** Formulate the metabolic control vector - ** \n"
+        buffer+="\n"
+        
+        // get the metabolic control data from the context -
+        if let metabolic_control_array = modelContext.metabolic_control_table {
+            
+            // we have a table, get the effector and target arrays -
+            if let metabolic_control_target_array = modelContext.metabolic_control_target_symbol_array {
+                
+                if let metabolic_control_effector_array = modelContext.metabolic_control_effector_symbol_array {
+                    
+                    for local_target_symbol in metabolic_control_target_array {
+                        
+                        if let index_of_target_symbol = find(metabolic_control_target_array,local_target_symbol) {
+                            
+                            // Write the comment -
+                            buffer+="\t% Metabolic control term target:\(local_target_symbol)\n"
+                            
+                            
+                            
+                        }
+                    }
+                }
+            }
+        }
+        
         
         buffer+="return\n"
         
@@ -375,7 +410,7 @@ class BalanceEquationsOctaveMStrategy:CodeStrategy {
         buffer+="\n"
         
         buffer+="\t% Define the control_vector - \n"
-        buffer+="\tcontrol_vector = Control(t,x,gene_expression_rate_vector,DF);\n"
+        buffer+="\tcontrol_vector = Control(t,x,gene_expression_rate_vector,metabolic_rate_vector,DF);\n"
         buffer+="\n"
         
         buffer+="\t% Correct the bare_rate_vector - \n"

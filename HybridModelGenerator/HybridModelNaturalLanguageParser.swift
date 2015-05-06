@@ -17,7 +17,17 @@ enum ActionVerb:String {
     case PARAMETERS = "PARAMETERS"
     case PARAMETER = "PARAMETER"
     case CATALYZES = "CATALYZES"
+    case ACTIVATES = "ACTIVATES"
+    case ACTIVATE = "ACTIVATE"
+    case INACTIVATES = "INACTIVATES"
+    case INACTIVATE = "INACTIVATE"
+    case INHIBITS = "INHIBITS"
+    case INHIBIT = "INHIBIT"
     case SYSTEM = "SYSTEM"
+    
+    
+    // allows iteration -
+    static let allVerbs = [INDUCES,REPRESSES,TRANSLATES,TRANSCRIBES,PARAMETERS,PARAMETER,CATALYZES,ACTIVATES,ACTIVATE,INACTIVATES,INACTIVATE,INHIBITS,INHIBIT,SYSTEM]
 }
 
 enum RoleDescriptor:String {
@@ -211,6 +221,19 @@ class HybridModelNaturalLanguageParser: NSObject {
             state_model.state_precursor_symbol_array = precursor_array
         }
         
+        // ok, let's extract the metabolic control table from the list of statements -
+        let metabolic_control_results = extractMetabolicControlTableFromModelStatementArray(_listOfStatements:local_model_commands)
+        if let local_metabolic_control_table = metabolic_control_results.control_table {
+            
+            let effector_array = metabolic_control_results.actors
+            let target_array = metabolic_control_results.targets
+            
+            // update the model context -
+            model_context.metabolic_control_effector_symbol_array = effector_array
+            model_context.metabolic_control_target_symbol_array = target_array
+            model_context.metabolic_control_table = local_metabolic_control_table
+        }
+        
         // set the state model -
         model_context.state_model_dictionary = state_model_dictionary
         
@@ -220,6 +243,206 @@ class HybridModelNaturalLanguageParser: NSObject {
     
     
     // MARK: Metabolic * methods
+    private func extractMetabolicControlTableFromModelStatementArray(_listOfStatements listOfStatements:[String]) -> (control_table:Matrix?,actors:[String], targets:[String]) {
+        
+        // ok, we need to extract the statements associated with metabolic regulation -
+        var metabolic_regulation_statements = [String]()
+        var metabolic_effector_array = [String]()
+        var metabolic_target_array = [String]()
+        var metabolic_control_matrix:Matrix?
+        
+        // create wrapper struct -
+        struct MetabolicRegulationWrapper {
+            
+            let effect_symbol_array:[String]
+            let target_symbol_array:[String]
+            let action_verb:ActionVerb
+            
+            init (effectors:[String],targets:[String], action:ActionVerb)
+            {
+                effect_symbol_array = effectors
+                target_symbol_array = targets
+                action_verb = action
+            }
+            
+            
+            func regulationTypeForTargetEffectorPair(target:String,effector:String) -> Int {
+                
+                // default relationship is 0
+                var relationship_flag = 0
+                
+                if (contains(effect_symbol_array, effector) == true &&
+                    contains(target_symbol_array, target) == true){
+                        
+                    if (action_verb == ActionVerb.ACTIVATE ||
+                        action_verb == ActionVerb.ACTIVATES){
+                        
+                        // We have a +1 relationship -
+                        relationship_flag = 1
+                    }
+                    else {
+                        relationship_flag = -1
+                    }
+                }
+                
+                // return -
+                return relationship_flag
+            }
+        }
+        
+        // utility functions -
+        func extractActionTypeFromModelStatement(statementText:String) -> ActionVerb {
+        
+            // declarations -
+            var action_verb = ActionVerb.ACTIVATE
+            
+            for verb_symbol in ActionVerb.allVerbs {
+            
+                // does statement contain one of our verbs?
+                if (containsString(statementText, test_string: verb_symbol.rawValue) == true){
+                
+                    // Grab the verb -
+                    action_verb = verb_symbol
+                    
+                    // break out of the loop -
+                    break;
+                }
+            }
+            
+            
+            // return -
+            return action_verb
+        }
+        
+        func addSymbolToList(inout list:[String],symbol:String) -> Void {
+        
+            if (contains(list, symbol) == false){
+                list.append(symbol)
+            }
+        }
+        
+        
+        func parseCompoundStatement(compundStatement:String)-> [String] {
+            
+            // Declarations -
+            var list_of_symbols = [String]()
+            
+            // Do we have a compound statement in the target?
+            if (containsString(compundStatement, test_string: "(") == true){
+                
+                // split the compound target_fragment =
+                let tmp_comma_sep_list = compundStatement.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()).stringByTrimmingCharactersInSet(NSCharacterSet.punctuationCharacterSet())
+                let target_symbol_array = tmp_comma_sep_list.componentsSeparatedByString(",")
+                
+                for symbol in target_symbol_array {
+                    
+                    if (contains(list_of_symbols, symbol) == false){
+                        list_of_symbols.append(symbol)
+                    }
+                }
+            }
+            else {
+                
+                let tmp_fragment = compundStatement.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+                
+                // ok, target fragment is *not* a compound list -
+                if (contains(list_of_symbols, tmp_fragment) == false){
+                    list_of_symbols.append(tmp_fragment)
+                }
+            }
+            
+            // return -
+            return list_of_symbols
+        }
+        
+        
+        
+        // iterate through the listOfStatements and grab those that are associated with metabolic regulation -
+        for statement_text in listOfStatements {
+         
+            // does this statement contain any of the metabolic regulation terms?
+            if (containsString(statement_text,test_string:ActionVerb.ACTIVATES.rawValue) == true ||
+                containsString(statement_text,test_string:ActionVerb.INHIBITS.rawValue) == true ||
+                containsString(statement_text,test_string:ActionVerb.INHIBIT.rawValue) == true ||
+                containsString(statement_text,test_string:ActionVerb.INACTIVATES.rawValue) == true ||
+                containsString(statement_text,test_string:ActionVerb.INACTIVATE.rawValue) == true ||
+                containsString(statement_text,test_string:ActionVerb.ACTIVATE.rawValue) == true){
+             
+                // ok, we have a statement that contains our "action verb"
+                metabolic_regulation_statements.append(statement_text)
+            }
+        }
+        
+        // ok, so now let's go through the metabolic_regulation_statements 
+        var my_regulatory_wrapper_list = [MetabolicRegulationWrapper]()
+        for metabolic_regulation_statement in metabolic_regulation_statements {
+            
+            // tokenize on white space - the first position is the effector, the last is the target 
+            let split_on_whitespace_array = metabolic_regulation_statement.componentsSeparatedByString(" ")
+            
+            // grab the first -
+            if let effector_compound_statement:String = split_on_whitespace_array.first {
+            
+                if let target_compound_statement:String = split_on_whitespace_array.last {
+                 
+                    // split -
+                    let my_effector_symbol_array = parseCompoundStatement(effector_compound_statement)
+                    let my_target_symbol_array = parseCompoundStatement(target_compound_statement)
+                    
+                    // ok, we have targets, and effectors. However, we don't know *what* type of
+                    
+                    // of relationship we have ...
+                    for effector_symbol in my_effector_symbol_array {
+                        addSymbolToList(&metabolic_effector_array, effector_symbol)
+                    }
+                    
+                    for target_symbol in my_target_symbol_array {
+                        addSymbolToList(&metabolic_target_array, target_symbol)
+                    }
+                    
+                    // which type of interaction do we have?
+                    let action_verb = extractActionTypeFromModelStatement(metabolic_regulation_statement)
+                    
+                    // build the wrapper -
+                    let regulatory_wrapper = MetabolicRegulationWrapper(effectors: my_effector_symbol_array, targets: my_target_symbol_array, action: action_verb)
+                    
+                    // add to list -
+                    my_regulatory_wrapper_list.append(regulatory_wrapper)
+                }
+            }
+        }
+        
+        // ok, so we have a list of regulatory wrappers, list of targets, and effectors. Create the array -
+        metabolic_control_matrix = Matrix(rows: metabolic_effector_array.count, columns: metabolic_target_array.count)
+        for metabolic_wrapper in my_regulatory_wrapper_list {
+            
+            // get the effectors -
+            let local_effector_symbol_array = metabolic_wrapper.effect_symbol_array
+            for effector_symbol in local_effector_symbol_array {
+            
+                // what is the index of this effector?
+                if let index_of_effector = find(metabolic_effector_array,effector_symbol) {
+                 
+                    // what is the index of the target -
+                    let local_target_symbol_array = metabolic_wrapper.target_symbol_array
+                    for local_target_symbol in local_target_symbol_array {
+                    
+                        if let index_of_target = find(metabolic_target_array,local_target_symbol) {
+                            
+                            // ok, we have both the effector, and the target, what is the value of the interaction?
+                            let value_of_interaction = metabolic_wrapper.regulationTypeForTargetEffectorPair(local_target_symbol, effector: effector_symbol)
+                            
+                            // Add this to the metabolic array -
+                            metabolic_control_matrix![index_of_effector,index_of_target] = value_of_interaction
+                        }
+                    }
+                }
+            }
+        }
+        
+        return (metabolic_control_matrix,metabolic_effector_array,metabolic_target_array)
+    }
+    
     private func constructStoichiometricMatrixForMetabolitesInReactionArray(listOfReactions:[HybridModelReactionModel], listOfMetabolites:[String]) -> StoichiometricMatrix {
     
         // Declarations -
@@ -661,6 +884,7 @@ class HybridModelNaturalLanguageParser: NSObject {
         // return -
         return role_dictionary
     }
+    
     
     
     private func extractGeneExpressionControlTableFromModelStatementArray(_listOfStatements listOfStatements:[String], listOfOutputSymbols:[String]) -> (control:Matrix,actors:[String]) {
