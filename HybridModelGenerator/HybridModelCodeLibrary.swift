@@ -690,13 +690,13 @@ class DataFileOctaveMStrategy:CodeStrategy {
                     
                     // ok, for each *non-zero* element we have a *two* parameters, and alpha and an order parameter -
                     // Gain parameter -
-                    buffer+="\t\t0.1\t;\t%\t gain parameter => effector:\(effector_symbol)\touput_symbol:\(output_symbol)\t\(parameter_counter)\n"
+                    buffer+="\t\t0.1\t;\t%\t gain parameter => effector:\(effector_symbol)\touput_symbol:\(output_symbol)\t\(parameter_counter)\tconnection_code:\(connection_code)\n"
                     
                     // update parameter counter -
                     parameter_counter++
                     
                     // Reaction order parameter -
-                    buffer+="\t\t1.0\t;\t%\t reaction order parameter => effector:\(effector_symbol)\touput_symbol:\(output_symbol)\t\(parameter_counter)\n"
+                    buffer+="\t\t1.0\t;\t%\t reaction order parameter => effector:\(effector_symbol)\touput_symbol:\(output_symbol)\t\(parameter_counter)\tconnection_code:\(connection_code)\n"
                     
                     // update parameter counter -
                     parameter_counter++
@@ -777,13 +777,13 @@ class DataFileOctaveMStrategy:CodeStrategy {
                                 
                                 // ok, for each *non-zero* element we have a *two* parameters, and alpha and an order parameter -
                                 // Gain parameter -
-                                buffer+="\t\t0.1\t;\t%\t gain parameter => effector:\(local_effector_symbol)\touput_symbol:\(local_target_symbol)\t\(parameter_counter)\n"
+                                buffer+="\t\t0.1\t;\t%\t gain parameter => effector:\(local_effector_symbol)\touput_symbol:\(local_target_symbol)\t\(parameter_counter)\tconnection_code:\(connection_code)\n"
                                 
                                 // update parameter counter -
                                 parameter_counter++
                                 
                                 // Reaction order parameter -
-                                buffer+="\t\t1.0\t;\t%\t reaction order parameter => effector:\(local_effector_symbol)\touput_symbol:\(local_target_symbol)\t\(parameter_counter)\n"
+                                buffer+="\t\t1.0\t;\t%\t reaction order parameter => effector:\(local_effector_symbol)\touput_symbol:\(local_target_symbol)\t\(parameter_counter)\tconnection_code:\(connection_code)\n"
                                 
                                 // update parameter counter -
                                 parameter_counter++
