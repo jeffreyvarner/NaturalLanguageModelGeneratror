@@ -47,6 +47,22 @@ class HybridModelReactionModel: NSObject {
         return return_flag
     }
     
+    func isModelSymbolTheCatalyst(symbol:String) -> Bool {
+        
+        // declarations --
+        var return_flag = false
+        
+        if let local_catalyst_symbol = catalyst_symbol {
+        
+            if (symbol == local_catalyst_symbol){
+                return_flag = true
+            }
+        }
+        
+        // return -
+        return return_flag
+    }
+    
     func isModelSymbolAProduct(symbol:String) -> Bool {
         
         // declarations --

@@ -69,7 +69,7 @@ class ViewController: NSViewController {
             [weak self](status_dictionary:NSDictionary) -> Void in
             
             // get the message from the dictionary -
-            var message_string:NSString = status_dictionary["MESSAGE_KEY"] as NSString
+            var message_string:NSString = status_dictionary["MESSAGE_KEY"] as! NSString
             
             // update the text area -
             if let weak_self = self {
@@ -111,7 +111,7 @@ class ViewController: NSViewController {
                     // Set the text on text field -
                     let url_string:NSString? = myOpenFilePanel.URL?.absoluteString
                     if let local_url_string = url_string {
-                        weak_self.myModelOutputFilePathTextField?.stringValue = local_url_string
+                        weak_self.myModelOutputFilePathTextField?.stringValue = local_url_string as String
                         
                         // no edit -
                         weak_self.myModelOutputFilePathTextField?.editable = false
@@ -160,7 +160,7 @@ class ViewController: NSViewController {
                     // Set the text on text field -
                     let url_string:NSString? = myOpenFilePanel.URL?.absoluteString
                     if let local_url_string = url_string {
-                        weak_self.myModelFilePathTextField?.stringValue = local_url_string
+                        weak_self.myModelFilePathTextField?.stringValue = local_url_string as String
                         
                         // no edit -
                         weak_self.myModelFilePathTextField?.editable = false

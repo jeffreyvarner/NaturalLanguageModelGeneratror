@@ -39,8 +39,8 @@ class KineticsOctaveMStrategy:CodeStrategy {
         buffer+="\tmetabolic_rate_vector = [];\n"
         buffer+="\n"
         buffer+="\t% Get the kinetic_parameter_vector - \n"
-        buffer+="\tgene_expression_parameter_vector = DF.GENE_EXPRESSION_PARAMETER_VECTOR;\n"
-        buffer+="\tmetabolic_parameter_vector = DF.METABOLIC_PARAMETER_VECTOR;\n"
+        buffer+="\tgene_expression_parameter_vector = DF.GENE_EXPRESSION_KINETIC_PARAMETER_VECTOR;\n"
+        buffer+="\tmetabolic_parameter_vector = DF.METABOLIC_KINETIC_PARAMETER_VECTOR;\n"
         buffer+="\n"
         
         buffer+="\t% Alias the metabolic parameters - \n"
@@ -179,13 +179,13 @@ class ControlOctaveMStrategy:CodeStrategy {
         buffer+="\n"
         buffer+="\t% Initialize control_vector - \n"
         buffer+="\tnumber_of_rates = length(rate_vector);\n"
-        buffer+="\tnumber_of_metabolic_rates = length(rate_vector);\n"
+        buffer+="\tnumber_of_metabolic_rates = length(metabolic_rate_vector);\n"
         buffer+="\tcontrol_vector_gene_expression = ones(number_of_rates,1);\n"
         buffer+="\tcontrol_vector_metabolism = ones(number_of_metabolic_rates,1);\n"
         buffer+="\n"
         buffer+="\t% Get the parameter_vector - \n"
-        buffer+="\tgene_expression_parameter_vector = DF.CONTROL_GENE_EXPRESSION_PARAMETER_VECTOR;\n"
-        buffer+="\tmetabolic_parameter_vector = DF.CONTROL_METABOLIC_PARAMETER_VECTOR;\n"
+        buffer+="\tgene_expression_parameter_vector = DF.GENE_EXPRESSION_CONTROL_PARAMETER_VECTOR;\n"
+        buffer+="\tmetabolic_parameter_vector = DF.METABOLIC_CONTROL_PARAMETER_VECTOR;\n"
         buffer+="\n"
         buffer+="\t% Alias the state vector - \n"
         
@@ -340,27 +340,123 @@ class ControlOctaveMStrategy:CodeStrategy {
         buffer+="\n"
         
         // get the metabolic control data from the context -
-        if let metabolic_control_array = modelContext.metabolic_control_table {
-            
-            // we have a table, get the effector and target arrays -
-            if let metabolic_control_target_array = modelContext.metabolic_control_target_symbol_array {
+        parameter_counter = 1
+        if let metabolic_control_array:Matrix = modelContext.metabolic_control_table,
+            metabolic_control_target_array = modelContext.metabolic_control_target_symbol_array,
+            metabolic_control_effector_array = modelContext.metabolic_control_effector_symbol_array {
+        
+            // ok, we have all the required data, generate the metabolic control term -
+            for local_target_symbol in metabolic_control_target_array {
                 
-                if let metabolic_control_effector_array = modelContext.metabolic_control_effector_symbol_array {
-                    
-                    for local_target_symbol in metabolic_control_target_array {
+                // Lets assume by default we have a 'positive' TF -
+                var direction_flag:Direction = Direction.POSITIVE
+                
+                if let index_of_target_symbol = find(metabolic_control_target_array,local_target_symbol) {
                         
-                        if let index_of_target_symbol = find(metabolic_control_target_array,local_target_symbol) {
+                    // Write the comment -
+                    buffer+="\t% Metabolic control term target:\(local_target_symbol)\n"
+                    buffer+="\tf_vector = 0;\n"
+                    
+                    var local_control_term_counter = 1
+                    for local_effector_symbol in metabolic_control_effector_array {
+                        
+                        if let index_of_effector_symbol = find(metabolic_control_effector_array,local_effector_symbol) {
+                        
+                            // get the connection code -
+                            let connection_code = metabolic_control_array[index_of_effector_symbol,index_of_target_symbol]
+                            if (connection_code>0){
+                                
+                                // Generate the alpha string -
+                                let alpha_string = "\talpha_\(local_target_symbol)_\(local_effector_symbol) = metabolic_parameter_vector(\(parameter_counter))"
+                                
+                                // update the parameter counter -
+                                parameter_counter++
+                                
+                                // Generate the order string -
+                                let order_string = "\torder_\(local_target_symbol)_\(local_effector_symbol) = metabolic_parameter_vector(\(parameter_counter))"
+                                
+                                // Update the parameter counter -
+                                parameter_counter++
+                                
+                                // ok, we have a + term -
+                                // Write a comment -
+                                buffer+=alpha_string+";\n"
+                                buffer+=order_string+";\n"
+                                
+                                // Write the transfer function -
+                                buffer+="\tf_vector(\(local_control_term_counter),1) = "
+                                buffer+="(alpha_\(local_target_symbol)_\(local_effector_symbol)*\(local_effector_symbol)^order_\(local_target_symbol)_\(local_effector_symbol))/("
+                                buffer+="1+alpha_\(local_target_symbol)_\(local_effector_symbol)*\(local_effector_symbol)^order_\(local_target_symbol)_\(local_effector_symbol));\n"
+                                
+                                // update the local counter -
+                                local_control_term_counter++
+                                
+                            }
+                            else if (connection_code<0){
+                                
+                                // Generate the alpha string -
+                                let alpha_string = "\talpha_\(local_target_symbol)_\(local_effector_symbol) = metabolic_parameter_vector(\(parameter_counter))"
+                                
+                                // update the parameter counter -
+                                parameter_counter++
+                                
+                                // Generate the order string -
+                                let order_string = "\torder_\(local_target_symbol)_\(local_effector_symbol) = metabolic_parameter_vector(\(parameter_counter))"
+                                
+                                // Update the parameter counter -
+                                parameter_counter++
+                                
+                                // ok, we have a + term -
+                                // Write a comment -
+                                buffer+=alpha_string+";\n"
+                                buffer+=order_string+";\n"
+                                
+                                // Write the transfer function -
+                                buffer+="\tf_vector(\(local_control_term_counter),1) = 1 - "
+                                buffer+="(alpha_\(local_target_symbol)_\(local_effector_symbol)*\(local_effector_symbol)^order_\(local_target_symbol)_\(local_effector_symbol))/("
+                                buffer+="1+alpha_\(local_target_symbol)_\(local_effector_symbol)*\(local_effector_symbol)^order_\(local_target_symbol)_\(local_effector_symbol));\n"
+                                
+                                // update the local counter -
+                                local_control_term_counter++
+                                
+                                // we have a negative term -
+                                direction_flag = Direction.NEGATIVE
+                            }
+                        } // find effector find
+                    } // end effector for
+                } // end target find
+                
+                // need to figure out the order ...
+                var reaction_index = 1
+                if let local_metabolic_reaction_array = modelContext.metabolic_reaction_array {
+                    
+                    for reaction_wrapper in local_metabolic_reaction_array {
+                        
+                        // get the catalyst symbol -
+                        if let local_catalyst_symbol = reaction_wrapper.catalyst_symbol where (reaction_wrapper.isModelSymbolTheCatalyst(local_target_symbol))  {
                             
-                            // Write the comment -
-                            buffer+="\t% Metabolic control term target:\(local_target_symbol)\n"
+                            // get the reaction index -
+                            reaction_index = reaction_wrapper.reaction_index + 1
                             
-                            
-                            
+                            // write the control line -
+                            buffer+="\tcontrol_vector_metabolism(\(reaction_index),1) = "
                         }
                     }
                 }
-            }
+                
+                // which direction do we have?
+                if (direction_flag == Direction.POSITIVE){
+                    buffer+="\tmax(f_vector);\n"
+                }
+                else {
+                    buffer+="\tmin(f_vector);\n"
+                }
+                
+                // add a new line -
+                buffer+="\n"
+            } // end target for
         }
+        
         
         
         buffer+="return\n"
@@ -410,13 +506,18 @@ class BalanceEquationsOctaveMStrategy:CodeStrategy {
         buffer+="\n"
         
         buffer+="\t% Define the control_vector - \n"
-        buffer+="\tcontrol_vector = Control(t,x,gene_expression_rate_vector,metabolic_rate_vector,DF);\n"
+        buffer+="\t[gene_expression_control_vector, metabolic_control_vector] = Control(t,x,gene_expression_rate_vector,metabolic_rate_vector,DF);\n"
         buffer+="\n"
         
-        buffer+="\t% Correct the bare_rate_vector - \n"
-        buffer+="\tgene_expression_rate_vector = gene_expression_rate_vector.*control_vector;\n"
+        buffer+="\t% Correct the gene expression rate vector - \n"
+        buffer+="\tgene_expression_rate_vector = gene_expression_rate_vector.*gene_expression_control_vector;\n"
         buffer+="\n"
         
+        buffer+="\t% Correct the metabolic rate vector - \n"
+        buffer+="\tmetabolic_rate_vector = metabolic_rate_vector.*metabolic_control_vector;\n"
+        buffer+="\n"
+
+    
         buffer+="\t% Define the dxdt_vector - \n"
         
         // Get the symbol array -
@@ -561,7 +662,7 @@ class DataFileOctaveMStrategy:CodeStrategy {
         
         buffer+="\n"
         buffer+="\t% Setup the *control* parameter array - \n"
-        buffer+="\tCONTROL_PARAMETER_VECTOR = [\n"
+        buffer+="\tGENE_EXPRESSION_CONTROL_PARAMETER_VECTOR = [\n"
         buffer+="\n"
         
         // Analyze the gene expession control matrix -
@@ -609,7 +710,7 @@ class DataFileOctaveMStrategy:CodeStrategy {
         buffer+="\t];\n"
         buffer+="\n"
         buffer+="\t% Setup the *gene expression* parameter array - \n"
-        buffer+="\tGENE_EXPRESSION_PARAMETER_VECTOR = [\n"
+        buffer+="\tGENE_EXPRESSION_KINETIC_PARAMETER_VECTOR = [\n"
         buffer+="\n"
 
         // ok, so have gene expression processes, and potentially biochemical processes -
@@ -631,8 +732,8 @@ class DataFileOctaveMStrategy:CodeStrategy {
         buffer+="\n"
         
         // ok, we need to put in the metabolic kinetic parameters if we have them -
-        buffer+="\t% Setup the *metabolic* parameter array - \n"
-        buffer+="\tMETABOLIC_PARAMETER_VECTOR = [\n"
+        buffer+="\t% Setup the *metabolic* kinetic parameter array - \n"
+        buffer+="\tMETABOLIC_KINETIC_PARAMETER_VECTOR = [\n"
         var metabolic_parameter_counter = 1
         if let metabolic_reaction_model_array = modelContext.metabolic_reaction_array {
             
@@ -648,13 +749,62 @@ class DataFileOctaveMStrategy:CodeStrategy {
             }
         }
         
+        buffer+="\t];\n"
+        buffer+="\n"
+        
+        // ok, so we need to generate the *control parameters* for metabolism -\
+        buffer+="\t% Setup the *metabolic* control parameter array - \n"
+        buffer+="\tMETABOLIC_CONTROL_PARAMETER_VECTOR = [\n"
+        buffer+="\n"
+        // get the metabolism control information -
+        parameter_counter = 1
+        if let metabolic_control_array:Matrix = modelContext.metabolic_control_table,
+            metabolic_control_target_array = modelContext.metabolic_control_target_symbol_array,
+            metabolic_control_effector_array = modelContext.metabolic_control_effector_symbol_array {
+        
+            // ok, we have all the required data, generate the metabolic control term -
+            for local_target_symbol in metabolic_control_target_array {
+                
+                if let index_of_target_symbol = find(metabolic_control_target_array,local_target_symbol) {
+                    
+                    for local_effector_symbol in metabolic_control_effector_array {
+                            
+                        if let index_of_effector_symbol = find(metabolic_control_effector_array,local_effector_symbol) {
+                                
+                            // get the connection code -
+                            let connection_code = metabolic_control_array[index_of_effector_symbol,index_of_target_symbol]
+                            if (connection_code != 0){
+                                
+                                // ok, for each *non-zero* element we have a *two* parameters, and alpha and an order parameter -
+                                // Gain parameter -
+                                buffer+="\t\t0.1\t;\t%\t gain parameter => effector:\(local_effector_symbol)\touput_symbol:\(local_target_symbol)\t\(parameter_counter)\n"
+                                
+                                // update parameter counter -
+                                parameter_counter++
+                                
+                                // Reaction order parameter -
+                                buffer+="\t\t1.0\t;\t%\t reaction order parameter => effector:\(local_effector_symbol)\touput_symbol:\(local_target_symbol)\t\(parameter_counter)\n"
+                                
+                                // update parameter counter -
+                                parameter_counter++
+                                
+                                // Add a new line =
+                                buffer+="\n"
+                            }
+                        }
+                    }
+                }
+            }
+        }
         
         buffer+="\t];\n"
         buffer+="\n"
+        
         buffer+="\t% - DO NOT EDIT BELOW THIS LINE ------------------------------ \n"
-        buffer+="\tDF.GENE_EXPRESSION_PARAMETER_VECTOR = GENE_EXPRESSION_PARAMETER_VECTOR;\n"
-        buffer+="\tDF.METABOLIC_PARAMETER_VECTOR = METABOLIC_PARAMETER_VECTOR;\n"
-        buffer+="\tDF.CONTROL_PARAMETER_VECTOR = CONTROL_PARAMETER_VECTOR;\n"
+        buffer+="\tDF.GENE_EXPRESSION_KINETIC_PARAMETER_VECTOR = GENE_EXPRESSION_KINETIC_PARAMETER_VECTOR;\n"
+        buffer+="\tDF.METABOLIC_KINETIC_PARAMETER_VECTOR = METABOLIC_KINETIC_PARAMETER_VECTOR;\n"
+        buffer+="\tDF.GENE_EXPRESSION_CONTROL_PARAMETER_VECTOR = GENE_EXPRESSION_CONTROL_PARAMETER_VECTOR;\n"
+        buffer+="\tDF.METABOLIC_CONTROL_PARAMETER_VECTOR = METABOLIC_CONTROL_PARAMETER_VECTOR;\n"
         buffer+="\tDF.INITIAL_CONDITION_VECTOR = IC_ARRAY;\n"
         buffer+="\t% - DO NOT EDIT ABOVE THIS LINE ------------------------------ \n"
         buffer+="return"
