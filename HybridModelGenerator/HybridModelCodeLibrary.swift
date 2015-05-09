@@ -252,7 +252,6 @@ class ControlOctaveMStrategy:CodeStrategy {
                 // ok, do we have a connection?
                 let connection_code = gene_expression_control_matrix[row_index,col_index]
                 
-                
                 if (connection_code>0){
                     
                     // Generate the alpha string -
@@ -313,22 +312,23 @@ class ControlOctaveMStrategy:CodeStrategy {
                 }
             }
             
-            // ok, when I get here, I've constructed the transfer function terms
-            // apply the integration rule -
-            buffer+="\tcontrol_vector_gene_expression(\(control_term_counter),1) = "
+            if (gene_expression_control_matrix.isColumnAllZeros(col_index) == false) {
+            
+                // ok, when I get here, I've constructed the transfer function terms
+                // apply the integration rule -
+                buffer+="\tcontrol_vector_gene_expression(\(control_term_counter),1) = "
+                
+                // which direction do we have?
+                if (direction_flag == Direction.POSITIVE){
+                    buffer+="max(f_vector);\n"
+                }
+                else {
+                    buffer+="min(f_vector);\n"
+                }
+            }
             
             // update the counter -
             control_term_counter = control_term_counter + 2
-            
-            // which direction do we have?
-            if (direction_flag == Direction.POSITIVE){
-                buffer+="max(f_vector);\n"
-            }
-            else {
-                buffer+="min(f_vector);\n"
-            }
-            
-            
             
             // add a space -
             buffer+="\n"

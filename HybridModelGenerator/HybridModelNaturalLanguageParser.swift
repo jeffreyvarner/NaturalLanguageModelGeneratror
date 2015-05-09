@@ -23,6 +23,8 @@ enum ActionVerb:String {
     case INACTIVATE = "INACTIVATE"
     case INHIBITS = "INHIBITS"
     case INHIBIT = "INHIBIT"
+    case BINDS = "BINDS"
+    case BIND = "BIND"
     case SYSTEM = "SYSTEM"
     
     
@@ -59,6 +61,24 @@ struct Matrix {
     
     func indexIsValidForRow(row: Int, column: Int) -> Bool {
         return row >= 0 && row < rows && column >= 0 && column < columns
+    }
+    
+    func isColumnAllZeros(column:Int) -> Bool {
+        
+        // declarations -
+        var return_flag = true
+        
+        for var row_index = 0;row_index<rows;row_index++ {
+            
+            let value = grid[(row_index * columns) + column]
+            if (value != 0)
+            {
+                return_flag = false
+                break
+            }
+        }
+        
+        return return_flag
     }
     
     subscript(row: Int, column: Int) -> Int {

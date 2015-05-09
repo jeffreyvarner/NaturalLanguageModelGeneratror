@@ -111,23 +111,32 @@ class HybridModelReactionModel: NSObject {
         }
         else {
             
-            // we could have a SYSTEM transfer
-            // From system -
-            if let local_reactant_list = reactant_symbol_list {
+            if (isModelSymbolASubstrate("SYSTEM") == true ||
+                isModelSymbolAProduct("SYSTEM") == true) {
                 
-                for local_symbol in local_reactant_list {
-                    
-                    if (local_symbol != "SYSTEM"){
+                // we could have a SYSTEM transfer
+                // From system -
+                if let local_reactant_list = reactant_symbol_list {
                         
-                        // we are going *to* the system -
-                        var tmp="k_\(reaction_index)_\(local_symbol)_system"
-                        parameter_array.append(tmp)
-                    }
-                    else {
-                        var tmp = "k_\(reaction_index)_from_system"
-                        parameter_array.append(tmp)
+                    for local_symbol in local_reactant_list {
+                            
+                        if (local_symbol != "SYSTEM"){
+                                
+                            // we are going *to* the system -
+                            var tmp="k_\(reaction_index)_\(local_symbol)_system"
+                            parameter_array.append(tmp)
+                        }
+                        else {
+                            var tmp = "k_\(reaction_index)_from_system"
+                            parameter_array.append(tmp)
+                        }
                     }
                 }
+            }
+            else {
+             
+                var tmp="k_\(reaction_index)_bind"
+                parameter_array.append(tmp)
             }
         }
 
@@ -141,6 +150,7 @@ class HybridModelReactionModel: NSObject {
         
         // declarations -
         var buffer = ""
+        
         
         if let local_enzyme_symbol = catalyst_symbol {
             
@@ -163,20 +173,40 @@ class HybridModelReactionModel: NSObject {
         }
         else {
             
-            // we could have a SYSTEM transfer
-            // From system -
-            if let local_reactant_list = reactant_symbol_list {
-                
-                for local_symbol in local_reactant_list {
+            // we could have a SYSTEM rule, or a BIND rule (we do not have a catalyst)
+            if (isModelSymbolASubstrate("SYSTEM") == true ||
+                isModelSymbolAProduct("SYSTEM") == true) {
                     
-                    if (local_symbol != "SYSTEM"){
+                // we could have a SYSTEM transfer
+                // From system -
+                if let local_reactant_list = reactant_symbol_list {
                     
-                        // we are going *to* the system -
-                        buffer+="k_\(reaction_index)_\(local_symbol)_system*(\(local_symbol));\n"
+                    for local_symbol in local_reactant_list {
+                            
+                        if (local_symbol != "SYSTEM"){
+                                
+                            // we are going *to* the system -
+                            buffer+="k_\(reaction_index)_\(local_symbol)_system*(\(local_symbol));\n"
+                        }
+                        else {
+                            buffer+="k_\(reaction_index)_from_system;\n"
+                        }
                     }
-                    else {
-                        buffer+="k_\(reaction_index)_from_system;\n"
+                }
+            }
+            else {
+             
+                // ok, we do *not* have a SYSTEM or an enzyme. We must be a BIND step -
+                buffer+="k_\(reaction_index)"
+                if let local_reactant_list = reactant_symbol_list {
+                    for local_symbol in local_reactant_list {
+                        
+                        // build the rate -
+                        buffer+="*\(local_symbol)"
                     }
+                    
+                    // add a new line;
+                    buffer+=";\n"
                 }
             }
         }
