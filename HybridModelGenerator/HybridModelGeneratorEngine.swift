@@ -14,6 +14,7 @@ enum ModelCodeLanguage {
     case LANGUAGE_OCATVE_M
     case LANGUAGE_OCTAVE_C
     case LANGUAGE_MATLAB_M
+    case LANGUAGE_JULIA
 }
 
 
@@ -34,6 +35,36 @@ class HybridModelGeneratorEngine: NSObject {
         self.myModelOutputURL = outputURL
         self.myModelCodeLanguage = language
     }
+    
+    // MARK: Factor method -
+    func executeCodeGenerationStrategyStrategy(context:HybridModelContext,strategy:CodeStrategy) -> String {
+        
+        // return -
+        return strategy.execute(context)
+    }
+    
+    func processStrategyModelFileDictionary(hybridModelContext:HybridModelContext,modelDictionary:Dictionary<String,CodeStrategy>,statusUpdateBlock:codeGenerationJobStatusUpdateBlock) -> Void {
+        
+        var message_dictionary = Dictionary<String,String>()
+        
+        // process the files in the dictionary -
+        for (model_file_name,strategy_impl) in modelDictionary {
+            
+            // build the URL -
+            var model_file_url = self.myModelOutputURL.URLByAppendingPathComponent(model_file_name)
+            
+            // get the code buffer -
+            var code_buffer = executeCodeGenerationStrategyStrategy(hybridModelContext, strategy: strategy_impl) as String
+            
+            // write the buffre to disk -
+            code_buffer.writeToURL(model_file_url, atomically:true, encoding: NSUTF8StringEncoding, error: nil)
+            
+            // update the GUI
+            message_dictionary["MESSAGE_KEY"] = "Wrote \(model_file_name) to \(model_file_url) \n"
+            statusUpdateBlock(message_dictionary)
+        }
+    }
+    
     
     // main method -
     func doExecute(statusUpdateBlock:codeGenerationJobStatusUpdateBlock)-> Void {
@@ -116,6 +147,19 @@ class HybridModelGeneratorEngine: NSObject {
             let elapsed_time = timeElapsedInSecondsWhenRunningCode(start_time)
             message_dictionary["MESSAGE_KEY"] = "Completed code generation run in \(elapsed_time)s \n"
             statusUpdateBlock(message_dictionary)
+        }
+        else if (ModelCodeLanguage.LANGUAGE_JULIA == self.myModelCodeLanguage){
+            
+            // read the input file, create model_context -
+            let hybrid_model_context = input_file_parser.parse()
+            
+            // Array for files we need to generate -
+            var dictionary_of_model_files = Dictionary<String,CodeStrategy>()
+            dictionary_of_model_files["Kinetics.jl"] = KineticsJuliaStrategy()
+            dictionary_of_model_files["DataFile.jl"] = DataFileJuliaStrategy()
+            
+            // process the dictionary -
+            processStrategyModelFileDictionary(hybrid_model_context,modelDictionary: dictionary_of_model_files,statusUpdateBlock: statusUpdateBlock)
         }
         else
         {

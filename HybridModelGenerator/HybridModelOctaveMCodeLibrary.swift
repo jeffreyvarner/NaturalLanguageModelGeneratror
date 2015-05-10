@@ -18,7 +18,7 @@ protocol CodeStrategy {
     func execute(modelContext:HybridModelContext) -> String
 }
 
-class HybridModelCodeLibrary: NSObject {
+class HybridModelOctaveMCodeLibrary: NSObject {
 
 }
 

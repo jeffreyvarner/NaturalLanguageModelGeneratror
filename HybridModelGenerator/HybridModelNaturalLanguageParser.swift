@@ -1153,7 +1153,7 @@ class HybridModelNaturalLanguageParser: NSObject {
         for raw_statement in listOfStatements {
             
             // Does this statement contain 'transcribes'?
-            if (containsString(raw_statement, test_string: "transcribes")) {
+            if (containsString(raw_statement, test_string:ActionVerb.TRANSCRIBES.rawValue) == true ) {
                 
                 // ok, we have a transcribes, right of the -> gives the mRNA list -
                 var fragment_array = cutStatement(raw_statement, text_delimiter: "->")
@@ -1177,12 +1177,6 @@ class HybridModelNaturalLanguageParser: NSObject {
                     // we have a single mRNA?
                     list_of_mRNAs.append(fragment_array[1].stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()))
                 }
-            }
-            else if (raw_statement.rangeOfString("transcription", options:NSStringCompareOptions.CaseInsensitiveSearch,
-                range:Range<String.Index>(start: raw_statement.startIndex, end: raw_statement.endIndex), locale:nil) != nil){
-                
-                // ok, we have a transcription statements, to the right of -> gives mRNA
-                    
             }
         }
         

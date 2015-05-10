@@ -8,6 +8,7 @@
 
 import Cocoa
 
+
 class ViewController: NSViewController {
     
     // instance variables -
@@ -22,6 +23,7 @@ class ViewController: NSViewController {
     @IBOutlet var myModelOutputFilePathTextField:NSTextField?
     @IBOutlet var myModelOutputOpenFileActionButton:NSButton?
     @IBOutlet var myModelStatusTextView:NSTextView?
+    @IBOutlet var myModelLanguagePopUpMenu:NSPopUpButton?
     
     // engines -
     
@@ -60,9 +62,20 @@ class ViewController: NSViewController {
         // ok -- if we get here, both URLs are populated. We to need to load the data into the engine, and start the code 
         // generation process
         
+        // what is my model type?
+        let index_language_type = myModelLanguagePopUpMenu?.indexOfSelectedItem
+        var my_language_type = ModelCodeLanguage.LANGUAGE_OCATVE_M
+        if (index_language_type == 0){
+            
+            my_language_type = ModelCodeLanguage.LANGUAGE_OCATVE_M
+        }
+        else {
+            my_language_type = ModelCodeLanguage.LANGUAGE_JULIA
+        }
+        
         // build the engine -
         var model_generation_engine = HybridModelGeneratorEngine(inputURL: self.myInputFileURL!,
-            outputURL: self.myOutputFileURL!,language: ModelCodeLanguage.LANGUAGE_OCATVE_M)
+            outputURL: self.myOutputFileURL!,language: my_language_type)
         
         // specify the completion status block -
         var completion_handler = {
