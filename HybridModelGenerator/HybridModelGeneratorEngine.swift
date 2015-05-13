@@ -157,6 +157,9 @@ class HybridModelGeneratorEngine: NSObject {
             var dictionary_of_model_files = Dictionary<String,CodeStrategy>()
             dictionary_of_model_files["Kinetics.jl"] = KineticsJuliaStrategy()
             dictionary_of_model_files["DataFile.jl"] = DataFileJuliaStrategy()
+            dictionary_of_model_files["Balances.jl"] = BalanceEquationsJuliaStrategy()
+            dictionary_of_model_files["SolveBalanceEquations.jl"] = SolveBalanceEquationsJuliaStrategy()
+            dictionary_of_model_files["Control.jl"] = ControlJuliaStrategy()
             
             // process the dictionary -
             processStrategyModelFileDictionary(hybrid_model_context,modelDictionary: dictionary_of_model_files,statusUpdateBlock: statusUpdateBlock)

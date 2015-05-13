@@ -169,7 +169,7 @@ class HybridModelReactionModel: NSObject {
             }
             
             // add a new line;
-            buffer+=";\n"
+            //buffer+=";\n"
         }
         else {
             
@@ -186,10 +186,10 @@ class HybridModelReactionModel: NSObject {
                         if (local_symbol != "SYSTEM"){
                                 
                             // we are going *to* the system -
-                            buffer+="k_\(reaction_index)_\(local_symbol)_system*(\(local_symbol));\n"
+                            buffer+="k_\(reaction_index)_\(local_symbol)_system*(\(local_symbol))"
                         }
                         else {
-                            buffer+="k_\(reaction_index)_from_system;\n"
+                            buffer+="k_\(reaction_index)_from_system"
                         }
                     }
                 }
@@ -206,7 +206,7 @@ class HybridModelReactionModel: NSObject {
                     }
                     
                     // add a new line;
-                    buffer+=";\n"
+                    //buffer+=";\n"
                 }
             }
         }
