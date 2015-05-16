@@ -94,7 +94,7 @@ class HybridModelReactionModel: NSObject {
             // ok, we have a catalyst, so this is a an enzyme catalyzed reaction -
             
             // build the rate -
-            let rate_constant="k_\(reaction_index)"
+            let rate_constant="k_R\(reaction_index)_cat"
             
             // add rate constant to array -
             parameter_array.append(rate_constant)
@@ -104,7 +104,7 @@ class HybridModelReactionModel: NSObject {
                 
                 for local_symbol in local_reactant_list {
                     
-                    var tmp = "KM_\(reaction_index)_\(local_symbol)"
+                    var tmp = "KM_R\(reaction_index)_\(local_symbol)"
                     parameter_array.append(tmp)
                 }
             }
@@ -123,11 +123,24 @@ class HybridModelReactionModel: NSObject {
                         if (local_symbol != "SYSTEM"){
                                 
                             // we are going *to* the system -
-                            var tmp="k_\(reaction_index)_\(local_symbol)_system"
+                            var tmp="k_R\(reaction_index)_\(local_symbol)_to_system"
                             parameter_array.append(tmp)
                         }
                         else {
-                            var tmp = "k_\(reaction_index)_from_system"
+                            
+                            // we have a transfer of something *from* system
+                            // what is it?
+                            var tmp_to_symbol = "_"
+                            if let local_product_list = product_symbol_list {
+                                
+                                for local_product_symbol in local_product_list {
+                                    
+                                    tmp_to_symbol+="\(local_product_symbol)_"
+                                }
+                            }
+
+                            
+                            var tmp = "k_R\(reaction_index)\(tmp_to_symbol)from_system"
                             parameter_array.append(tmp)
                         }
                     }
@@ -157,14 +170,14 @@ class HybridModelReactionModel: NSObject {
             // ok, we have a catalyst, so this is a an enzyme catalyzed reaction -
             
             // build the rate -
-            buffer+="k_\(reaction_index)*\(local_enzyme_symbol)"
+            buffer+="k_R\(reaction_index)_cat*\(local_enzyme_symbol)"
             
             // do we have a reactant list?
             if let local_reactant_list = reactant_symbol_list {
                 
                 for local_symbol in local_reactant_list {
                     
-                    buffer+="*((\(local_symbol))/(\(local_symbol)+KM_\(reaction_index)_\(local_symbol)))"
+                    buffer+="*((\(local_symbol))/(\(local_symbol)+KM_R\(reaction_index)_\(local_symbol)))"
                 }
             }
             
@@ -186,10 +199,22 @@ class HybridModelReactionModel: NSObject {
                         if (local_symbol != "SYSTEM"){
                                 
                             // we are going *to* the system -
-                            buffer+="k_\(reaction_index)_\(local_symbol)_system*(\(local_symbol))"
+                            buffer+="k_R\(reaction_index)_\(local_symbol)_to_system*(\(local_symbol))"
                         }
                         else {
-                            buffer+="k_\(reaction_index)_from_system"
+                            
+                            // we have a transfer of something *from* system
+                            // what is it?
+                            var tmp_to_symbol = "_"
+                            if let local_product_list = product_symbol_list {
+                                
+                                for local_product_symbol in local_product_list {
+                                
+                                    tmp_to_symbol+="\(local_product_symbol)_"
+                                }
+                            }
+                            
+                            buffer+="k_R\(reaction_index)\(tmp_to_symbol)from_system"
                         }
                     }
                 }
@@ -197,7 +222,7 @@ class HybridModelReactionModel: NSObject {
             else {
              
                 // ok, we do *not* have a SYSTEM or an enzyme. We must be a BIND step -
-                buffer+="k_\(reaction_index)"
+                buffer+="k_R\(reaction_index)"
                 if let local_reactant_list = reactant_symbol_list {
                     for local_symbol in local_reactant_list {
                         

@@ -8,6 +8,12 @@
 
 import Cocoa
 
+enum IntegrationRuleType {
+    
+    case MEAN
+    case WINNER
+}
+
 class HybridModelContext: NSObject {
     
     // Declarations -
@@ -24,13 +30,15 @@ class HybridModelContext: NSObject {
     var metabolic_control_target_symbol_array:[String]?
     var metabolic_control_table:Matrix?
     
+    // integration rule? Default is WINNER (min/max)
+    var integration_rule = IntegrationRuleType.WINNER
+    
     // init -
     override init(){
         
         // initlized the state array -
         self.state_symbol_array = [String]()
     }
-    
     
     func addStateSymbolsToModelContext(state_symbol:String) -> Void {
         

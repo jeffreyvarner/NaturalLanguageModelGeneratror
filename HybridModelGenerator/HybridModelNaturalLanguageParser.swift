@@ -14,6 +14,8 @@ enum ActionVerb:String {
     case REPRESSES = "represses"
     case TRANSLATES = "translates"
     case TRANSCRIBES = "transcribes"
+    case EXPRESSION = "EXPRESSION"
+    case TRANSCRIPTION = "TRANSCRIPTION"
     case PARAMETERS = "PARAMETERS"
     case PARAMETER = "PARAMETER"
     case CATALYZES = "CATALYZES"
@@ -29,7 +31,7 @@ enum ActionVerb:String {
     
     
     // allows iteration -
-    static let allVerbs = [INDUCES,REPRESSES,TRANSLATES,TRANSCRIBES,PARAMETERS,PARAMETER,CATALYZES,ACTIVATES,ACTIVATE,INACTIVATES,INACTIVATE,INHIBITS,INHIBIT,SYSTEM]
+    static let allVerbs = [INDUCES,REPRESSES,TRANSLATES,TRANSCRIBES,TRANSCRIPTION,EXPRESSION,PARAMETERS,PARAMETER,CATALYZES,ACTIVATES,ACTIVATE,INACTIVATES,INACTIVATE,INHIBITS,INHIBIT,SYSTEM]
 }
 
 enum RoleDescriptor:String {
@@ -916,6 +918,7 @@ class HybridModelNaturalLanguageParser: NSObject {
         verb_symbol_array.append(ActionVerb.INDUCES)
         verb_symbol_array.append(ActionVerb.REPRESSES)
         
+        
         let (verb_noun_array, index_list) = extractNounSymbolListFromModelStatementArray(_listOfStatements: listOfStatements, verbSymbolArray:verb_symbol_array)
         
         // create the control table -
@@ -939,7 +942,9 @@ class HybridModelNaturalLanguageParser: NSObject {
                         
                         if (containsString(model_statement, test_string: output_symbol) == true &&
                             containsString(model_statement, test_string: noun_symbol) == true &&
-                            containsString(model_statement, test_string: action_verb.rawValue) == true) {
+                            containsString(model_statement, test_string: action_verb.rawValue) == true &&
+                            (containsString(model_statement, test_string:ActionVerb.EXPRESSION.rawValue) == true ||
+                            containsString(model_statement, test_string:ActionVerb.TRANSCRIPTION.rawValue) == true)) {
                                 
                             if (action_verb == ActionVerb.INDUCES){
                                 
@@ -1152,8 +1157,9 @@ class HybridModelNaturalLanguageParser: NSObject {
         // iterate through the list, and look for the action verbs -
         for raw_statement in listOfStatements {
             
-            // Does this statement contain 'transcribes'?
-            if (containsString(raw_statement, test_string:ActionVerb.TRANSCRIBES.rawValue) == true ) {
+            // Does this statement contain 'transcribes or expression'?
+            if (containsString(raw_statement, test_string:ActionVerb.TRANSCRIBES.rawValue) == true ||
+                containsString(raw_statement, test_string:ActionVerb.EXPRESSION.rawValue) == true) {
                 
                 // ok, we have a transcribes, right of the -> gives the mRNA list -
                 var fragment_array = cutStatement(raw_statement, text_delimiter: "->")

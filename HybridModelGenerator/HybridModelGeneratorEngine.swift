@@ -93,65 +93,36 @@ class HybridModelGeneratorEngine: NSObject {
             // ok, we have the model context, we need to write the associate data files to the outputURL
             // For octave-m, we need DataFile.m, ControlFile.m, Kinetics.m, BalanceEquations.m, and SolveBalanceEquations.m
             
-            
             message_dictionary["MESSAGE_KEY"] = "Starting to build code ... \n"
             statusUpdateBlock(message_dictionary)
             
-            // DataFile.m -
-            var data_file_object = HybridModelDataFileObject(context: hybrid_model_context,strategy: DataFileOctaveMStrategy())
-            var data_file_buffer:String = data_file_object.doExecute()
-            var data_file_url = self.myModelOutputURL.URLByAppendingPathComponent("DataFile.m")
-            data_file_buffer.writeToURL(data_file_url, atomically:true, encoding: NSUTF8StringEncoding, error: nil);
+            // ok, we need to set a few things on the CodeLib -
+            HybridModelOctaveMCodeLibrary.my_input_url = self.myModelInputURL
             
-            message_dictionary["MESSAGE_KEY"] = "Wrote DataFile.m to \(data_file_url) \n"
-            statusUpdateBlock(message_dictionary)
-
+            // Array for files we need to generate -
+            var dictionary_of_model_files = Dictionary<String,CodeStrategy>()
+            dictionary_of_model_files["Kinetics.m"] = KineticsOctaveMStrategy()
+            dictionary_of_model_files["DataFile.m"] = DataFileOctaveMStrategy()
+            dictionary_of_model_files["Balances.m"] = BalanceEquationsOctaveMStrategy()
+            dictionary_of_model_files["SolveBalanceEquations.m"] = SolveBalanceEquationsOctaveMStrategy()
+            dictionary_of_model_files["Control.m"] = ControlOctaveMStrategy()
             
-            // SolveBalanceEquations.m -
-            var solve_balance_equations_object = HybridModelSolveBalanceEquationsFileObject(context:hybrid_model_context, strategy:SolveBalanceEquationsOctaveMStrategy())
-            var solve_balances_buffer:String = solve_balance_equations_object.doExecute()
-            var solve_balances_url = self.myModelOutputURL.URLByAppendingPathComponent("SolveBalanceEquations.m")
-            solve_balances_buffer.writeToURL(solve_balances_url, atomically:true, encoding: NSUTF8StringEncoding, error: nil);
-            
-            message_dictionary["MESSAGE_KEY"] = "Wrote SolveBalanceEquations.m to \(solve_balances_url) \n"
-            statusUpdateBlock(message_dictionary)
-            
-            // BalanceEquations.m -
-            var balance_equations_object = HybridModelBalanceEquationsFileObject(context:hybrid_model_context, strategy:BalanceEquationsOctaveMStrategy())
-            var balances_buffer:String = balance_equations_object.doExecute()
-            var balances_url = self.myModelOutputURL.URLByAppendingPathComponent("Balances.m")
-            balances_buffer.writeToURL(balances_url, atomically:true, encoding: NSUTF8StringEncoding, error: nil);
-            
-            message_dictionary["MESSAGE_KEY"] = "Wrote Balances.m to \(balances_url) \n"
-            statusUpdateBlock(message_dictionary)
-            
-            // Control.m -
-            var control_equations_object = HybridModelControlFileObject(context:hybrid_model_context, strategy:ControlOctaveMStrategy())
-            var control_buffer:String = control_equations_object.doExecute()
-            var control_url = self.myModelOutputURL.URLByAppendingPathComponent("Control.m")
-            control_buffer.writeToURL(control_url, atomically:true, encoding: NSUTF8StringEncoding, error: nil)
-            
-            message_dictionary["MESSAGE_KEY"] = "Wrote Control.m to \(control_url) \n"
-            statusUpdateBlock(message_dictionary)
-            
-            // Kinetics.m -
-            var kinetic_equations_object = HybridModelKineticsFileObject(context:hybrid_model_context, strategy:KineticsOctaveMStrategy())
-            var kinetic_buffer:String = kinetic_equations_object.doExecute()
-            var kinetic_url = self.myModelOutputURL.URLByAppendingPathComponent("Kinetics.m")
-            kinetic_buffer.writeToURL(kinetic_url, atomically:true, encoding: NSUTF8StringEncoding, error: nil)
-            
-            message_dictionary["MESSAGE_KEY"] = "Wrote Kinetics.m to \(kinetic_url) \n"
-            statusUpdateBlock(message_dictionary)
+            // process the dictionary -
+            processStrategyModelFileDictionary(hybrid_model_context,modelDictionary: dictionary_of_model_files,statusUpdateBlock: statusUpdateBlock)
             
             // get elapsed time -
             let elapsed_time = timeElapsedInSecondsWhenRunningCode(start_time)
             message_dictionary["MESSAGE_KEY"] = "Completed code generation run in \(elapsed_time)s \n"
             statusUpdateBlock(message_dictionary)
+
         }
         else if (ModelCodeLanguage.LANGUAGE_JULIA == self.myModelCodeLanguage){
             
             // read the input file, create model_context -
             let hybrid_model_context = input_file_parser.parse()
+            
+            // ok, we need to set a few things on the CodeLib -
+            HybridModelJuliaCodeLibrary.my_input_url = self.myModelInputURL
             
             // Array for files we need to generate -
             var dictionary_of_model_files = Dictionary<String,CodeStrategy>()
@@ -160,9 +131,15 @@ class HybridModelGeneratorEngine: NSObject {
             dictionary_of_model_files["Balances.jl"] = BalanceEquationsJuliaStrategy()
             dictionary_of_model_files["SolveBalanceEquations.jl"] = SolveBalanceEquationsJuliaStrategy()
             dictionary_of_model_files["Control.jl"] = ControlJuliaStrategy()
+            dictionary_of_model_files["Project.jl"] = ProjectIncludeFileJuliaStrategy()
             
             // process the dictionary -
             processStrategyModelFileDictionary(hybrid_model_context,modelDictionary: dictionary_of_model_files,statusUpdateBlock: statusUpdateBlock)
+            
+            // get elapsed time -
+            let elapsed_time = timeElapsedInSecondsWhenRunningCode(start_time)
+            message_dictionary["MESSAGE_KEY"] = "Completed code generation run in \(elapsed_time)s \n"
+            statusUpdateBlock(message_dictionary)
         }
         else
         {
