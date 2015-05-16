@@ -269,12 +269,19 @@ class ControlJuliaStrategy:CodeStrategy {
                 // apply the integration rule -
                 buffer+="\tcontrol_vector_gene_expression[\(control_term_counter)] = "
                 
-                // which direction do we have?
-                if (direction_flag == Direction.POSITIVE){
-                    buffer+="maximum(f_vector);\n"
+                if (modelContext.integration_rule == IntegrationRuleType.WINNER){
+                    
+                    // which direction do we have?
+                    if (direction_flag == Direction.POSITIVE){
+                        buffer+="maximum(f_vector);\n"
+                    }
+                    else {
+                        buffer+="minimum(f_vector);\n"
+                    }
                 }
-                else {
-                    buffer+="minimum(f_vector);\n"
+                else if (modelContext.integration_rule == IntegrationRuleType.MEAN){
+                    
+                    buffer+="mean(f_vector);\n"
                 }
             }
             
@@ -392,14 +399,23 @@ class ControlJuliaStrategy:CodeStrategy {
                         }
                     }
                     
-                    // which direction do we have?
-                    if (direction_flag == Direction.POSITIVE){
-                        buffer+="\tmaximum(f_vector);\n"
-                    }
-                    else {
-                        buffer+="\tminimum(f_vector);\n"
-                    }
                     
+                    // setup integration rule?
+                    if (modelContext.integration_rule == IntegrationRuleType.WINNER){
+                        
+                        // which direction do we have?
+                        if (direction_flag == Direction.POSITIVE){
+                            buffer+="maximum(f_vector);\n"
+                        }
+                        else {
+                            buffer+="minimum(f_vector);\n"
+                        }
+                    }
+                    else if (modelContext.integration_rule == IntegrationRuleType.MEAN){
+                        
+                        buffer+="mean(f_vector);\n"
+                    }
+
                     // add a new line -
                     buffer+="\n"
                 } // end target for

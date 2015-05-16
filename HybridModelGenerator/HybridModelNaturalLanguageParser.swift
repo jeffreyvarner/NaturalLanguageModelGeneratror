@@ -259,10 +259,43 @@ class HybridModelNaturalLanguageParser: NSObject {
         // set the state model -
         model_context.state_model_dictionary = state_model_dictionary
         
+        // Process any directives -
+        processPragmaDirectivesFromModelStatementArray(_listOfStatements:local_model_commands,modelContext:&model_context)
+        
         // return the context -
         return model_context
     }
     
+    
+    // MARK: Process the directives
+    private func processPragmaDirectivesFromModelStatementArray(_listOfStatements listOfStatements:[String],inout modelContext:HybridModelContext) -> Void {
+        
+        // ok, extract the #pragma directives -
+        var local_directive_array = [String]()
+        
+        // Go through the sentences, extract #pragma
+        for model_sentence in listOfStatements {
+            
+            if (containsString(model_sentence, test_string:"#pragma") == true) {
+                
+                local_directive_array.append(model_sentence)
+            }
+        }
+        
+        // ok, we have keyword = value structure -
+        for pragma_statement in local_directive_array {
+            
+            // split around =
+            let split_around_equal_array = pragma_statement.componentsSeparatedByString("=")
+            let keyword = split_around_equal_array.first!.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+            let value = split_around_equal_array.last!.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+                
+            // ok, which keyword do we have?
+            if (keyword == "#pragma integration_rule" && value == "mean"){
+                modelContext.integration_rule = IntegrationRuleType.MEAN
+            }
+        }
+    }
     
     // MARK: Metabolic * methods
     private func extractMetabolicControlTableFromModelStatementArray(_listOfStatements listOfStatements:[String]) -> (control_table:Matrix?,actors:[String], targets:[String]) {

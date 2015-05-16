@@ -7,16 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AD07E2891AE9D52700E74CBC /* HybridModelSolveBalanceEquationsFileObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD07E2881AE9D52700E74CBC /* HybridModelSolveBalanceEquationsFileObject.swift */; };
-		AD07E28B1AE9D8E000E74CBC /* HybridModelBalanceEquationsFileObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD07E28A1AE9D8E000E74CBC /* HybridModelBalanceEquationsFileObject.swift */; };
-		AD07E28D1AE9DC8500E74CBC /* HybridModelControlFileObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD07E28C1AE9DC8500E74CBC /* HybridModelControlFileObject.swift */; };
-		AD07E28F1AE9DDC600E74CBC /* HybridModelKineticsFileObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD07E28E1AE9DDC600E74CBC /* HybridModelKineticsFileObject.swift */; };
 		AD0903CC1AE6607F0078713B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0903CB1AE6607F0078713B /* AppDelegate.swift */; };
 		AD0903CE1AE6607F0078713B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0903CD1AE6607F0078713B /* ViewController.swift */; };
 		AD0903D31AE6607F0078713B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD0903D11AE6607F0078713B /* Main.storyboard */; };
 		AD0903DF1AE6607F0078713B /* HybridModelGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0903DE1AE6607F0078713B /* HybridModelGeneratorTests.swift */; };
 		AD0903EA1AE7B2250078713B /* HybridModelGeneratorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0903E91AE7B2250078713B /* HybridModelGeneratorEngine.swift */; };
-		AD1780011AE9CAC800A09CA0 /* HybridModelDataFileObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD1780001AE9CAC800A09CA0 /* HybridModelDataFileObject.swift */; };
 		AD1780031AE9CAF600A09CA0 /* HybridModelOctaveMCodeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD1780021AE9CAF600A09CA0 /* HybridModelOctaveMCodeLibrary.swift */; };
 		AD32EF811AF2582900E4C433 /* HybridModelReactionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD32EF801AF2582900E4C433 /* HybridModelReactionModel.swift */; };
 		AD3E54881AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD3E54871AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift */; };
@@ -37,10 +32,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		AD07E2881AE9D52700E74CBC /* HybridModelSolveBalanceEquationsFileObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelSolveBalanceEquationsFileObject.swift; sourceTree = "<group>"; };
-		AD07E28A1AE9D8E000E74CBC /* HybridModelBalanceEquationsFileObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelBalanceEquationsFileObject.swift; sourceTree = "<group>"; };
-		AD07E28C1AE9DC8500E74CBC /* HybridModelControlFileObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelControlFileObject.swift; sourceTree = "<group>"; };
-		AD07E28E1AE9DDC600E74CBC /* HybridModelKineticsFileObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelKineticsFileObject.swift; sourceTree = "<group>"; };
 		AD0903C61AE6607F0078713B /* HybridModelGenerator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HybridModelGenerator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD0903CA1AE6607F0078713B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AD0903CB1AE6607F0078713B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -50,7 +41,6 @@
 		AD0903DD1AE6607F0078713B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AD0903DE1AE6607F0078713B /* HybridModelGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HybridModelGeneratorTests.swift; sourceTree = "<group>"; };
 		AD0903E91AE7B2250078713B /* HybridModelGeneratorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelGeneratorEngine.swift; sourceTree = "<group>"; };
-		AD1780001AE9CAC800A09CA0 /* HybridModelDataFileObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelDataFileObject.swift; sourceTree = "<group>"; };
 		AD1780021AE9CAF600A09CA0 /* HybridModelOctaveMCodeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelOctaveMCodeLibrary.swift; sourceTree = "<group>"; };
 		AD32EF801AF2582900E4C433 /* HybridModelReactionModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelReactionModel.swift; sourceTree = "<group>"; };
 		AD3E54871AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelNaturalLanguageParser.swift; sourceTree = "<group>"; };
@@ -148,12 +138,7 @@
 		AD5E6BAA1AE988F8000FDDFA /* model */ = {
 			isa = PBXGroup;
 			children = (
-				AD1780001AE9CAC800A09CA0 /* HybridModelDataFileObject.swift */,
 				AD1780021AE9CAF600A09CA0 /* HybridModelOctaveMCodeLibrary.swift */,
-				AD07E2881AE9D52700E74CBC /* HybridModelSolveBalanceEquationsFileObject.swift */,
-				AD07E28A1AE9D8E000E74CBC /* HybridModelBalanceEquationsFileObject.swift */,
-				AD07E28C1AE9DC8500E74CBC /* HybridModelControlFileObject.swift */,
-				AD07E28E1AE9DDC600E74CBC /* HybridModelKineticsFileObject.swift */,
 				ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */,
 				AD32EF801AF2582900E4C433 /* HybridModelReactionModel.swift */,
 				ADEFD5181AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift */,
@@ -260,16 +245,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AD07E28F1AE9DDC600E74CBC /* HybridModelKineticsFileObject.swift in Sources */,
-				AD07E28D1AE9DC8500E74CBC /* HybridModelControlFileObject.swift in Sources */,
-				AD07E28B1AE9D8E000E74CBC /* HybridModelBalanceEquationsFileObject.swift in Sources */,
 				AD3E54881AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift in Sources */,
 				ADEFD5191AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift in Sources */,
 				AD0903CE1AE6607F0078713B /* ViewController.swift in Sources */,
 				AD1780031AE9CAF600A09CA0 /* HybridModelOctaveMCodeLibrary.swift in Sources */,
-				AD1780011AE9CAC800A09CA0 /* HybridModelDataFileObject.swift in Sources */,
 				AD0903EA1AE7B2250078713B /* HybridModelGeneratorEngine.swift in Sources */,
-				AD07E2891AE9D52700E74CBC /* HybridModelSolveBalanceEquationsFileObject.swift in Sources */,
 				AD32EF811AF2582900E4C433 /* HybridModelReactionModel.swift in Sources */,
 				ADD8D4641AEC301A00F60815 /* HybridStateModel.swift in Sources */,
 				AD3E548A1AE8254000C12998 /* HybridModelContext.swift in Sources */,
