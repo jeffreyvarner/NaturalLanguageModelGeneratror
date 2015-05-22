@@ -13,8 +13,9 @@ import HybridModelGenerator
 class VLEMScannerTest: XCTestCase {
 
     // Declarations -
-    let test_sentence = "protein_N1 and protein_N2 induce the transcription of gene_N3 -> mRNA_N3"
+    let test_sentence = "(protein_N1 and protein_N2) induce the transcription of gene_N3 -> mRNA_N3"
     var scanner:VLEMScanner?
+    
     
     override func setUp() {
         super.setUp()
@@ -35,7 +36,7 @@ class VLEMScannerTest: XCTestCase {
         // scan -
         if let local_scanner = scanner {
             
-            let return_data = local_scanner.scanSentence(test_sentence)
+            let return_data = local_scanner.scanSentence(VLEMSentenceWrapper(sentence: test_sentence, lineNumber: 1))
             if (return_data.success == true){
                 
                 local_scanner.printSentenceTokens()
