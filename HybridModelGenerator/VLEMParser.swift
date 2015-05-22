@@ -13,9 +13,16 @@ class VLEMParser: NSObject {
     // declarations -
     private var scanner:VLEMScanner?
     private var myModelInputURL:NSURL
+    private var file_name:String?
     
     init(inputURL:NSURL){
+        
         self.myModelInputURL = inputURL
+        
+        // what is the file name?
+        if let local_file_name = inputURL.lastPathComponent {
+            self.file_name = local_file_name
+        }
     }
     
     // main method
@@ -61,8 +68,14 @@ class VLEMParser: NSObject {
                 if let line_number = error_object.userInfo["LINE_NUMBER"],
                     let bad_token = error_object.userInfo["OFFENDING_TOKEN"] {
                     
-                    var error_description:String = "ERROR at L\(line_number): Illegal symbol \(bad_token)"
-                    println(error_description)
+                    if let local_file_name = file_name {
+                        var error_description:String = "ERROR in \(local_file_name) at L\(line_number): Illegal symbol \(bad_token)"
+                        println(error_description)
+                    }
+                    else {
+                        var error_description:String = "ERROR at L\(line_number): Illegal symbol \(bad_token)"
+                        println(error_description)
+                    }
                 }
             }
         }
