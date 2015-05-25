@@ -13,15 +13,15 @@ import HybridModelGenerator
 class VLEMScannerTest: XCTestCase {
 
     // Declarations -
-    let test_sentence = "(protein_N1 and protein_N2) induce the transcription of gene_N3 -> mRNA_N3"
+    let test_sentence = "(0protein_N1 and pro^tein_N2) induce the transcription of gene_N3 -> mRNA_N3"
     var scanner:VLEMScanner?
-    
     
     override func setUp() {
         super.setUp()
         
-        // build a scanner, use space as the delimiter -
-        scanner = VLEMScanner(sentenceDelimiter: " ")
+        // build a scanner, use test sentence -
+        var sentence_wrapper = VLEMSentenceWrapper(sentence: test_sentence, lineNumber: 0)
+        scanner = VLEMScanner(sentenceWrapper: sentence_wrapper)
     }
     
     override func tearDown() {
@@ -33,70 +33,22 @@ class VLEMScannerTest: XCTestCase {
     
     func testScannerScanFunction() -> Void {
         
-        // scan -
         if let local_scanner = scanner {
             
-            let return_data = local_scanner.scanSentence(VLEMSentenceWrapper(sentence: test_sentence, lineNumber: 1))
-            if (return_data.success == true){
+            let scanner_result = local_scanner.scanSentence()
+            
+            if (scanner_result.success) {
                 
-                local_scanner.printSentenceTokens()
-                XCTAssert(true, "Scanner initialization and scanning succeded")
+                println("Sentence: \(test_sentence) was tokenized correctly")
+                
             }
             else {
-                // ok, we have an error ...
-                if let error_data = return_data.error {
-                    
-                    let error_code = error_data.code
-                    switch (error_code) {
-                        case .ILLEGAL_CHARACTER_ERROR:
-                            
-                            // get the user dictionary from the error -
-                            if let bad_token = error_data.userInfo["OFFENDING_TOKEN"] {
-                                println("Illegal character found in token => \(bad_token)")
-                            }
-                            else {
-                            
-                                println("Illegal character found in token. No token returned ...")
-                                //XCTAssert(false, "Scanner initialization or scanning failed")
-                            }
-                        
-                        
-                        default:
-                            println("Some other error found ...")
-                            XCTAssert(false, "Scanner initialization or scanning failed")
-                    }
-                }
+                
+                println("Sentence: \(test_sentence) was NOT tokenized correctly")
             }
-        }
-        else {
-            
-            XCTAssert(false, "Scanner initialization or scanning failed")
-            
         }
     }
     
     func testGetNextScannerTokenFunction() -> Void {
-        
-        // scan -
-        if let local_scanner = scanner {
-            
-            while (local_scanner.hasMoreSentenceTokens()){
-                
-                // get the token -
-                if let local_token = local_scanner.getNextSentenceToken() {
-                    
-                    println("NEXT TOKEN: \(local_token)")
-                    XCTAssert(true, "Scanner initialization and scanning succeded. TOKEN:\(local_token)")
-                }
-                else {
-                    XCTAssert(false, "Missing token?")
-                }
-            }
-        }
-        else {
-            
-            XCTAssert(false, "Scanner initialization or scanning failed")
-            
-        }
     }
 }

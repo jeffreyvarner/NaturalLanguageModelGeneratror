@@ -2,4 +2,134 @@
 <Bucket
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HybridModelGeneratorTests/VLEMScannerTest.swift"
+            timestampString = "454275102.952849"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "47"
+            endingLineNumber = "47"
+            landmarkName = "testScannerScanFunction()"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HybridModelGeneratorTests/VLEMScannerTest.swift"
+            timestampString = "454275198.464522"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "40"
+            endingLineNumber = "40"
+            landmarkName = "testScannerScanFunction()"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HybridModelGenerator/VLEMScanner.swift"
+            timestampString = "454275549.46127"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "313"
+            endingLineNumber = "313"
+            landmarkName = "scanSentenceAtLineNumber(_:lineNumber:)"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGenerator.VLEMScanner.(scanSentenceAtLineNumber in _D38AFDEF8FAEC561B685CF131C9D0832) (HybridModelGenerator.VLEMScanner)(Swift.String, lineNumber : Swift.Int) -&gt; (success : Swift.Bool, error : Swift.Optional&lt;HybridModelGenerator.VLError&gt;)"
+                  moduleName = "HybridModelGenerator"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMScanner.swift"
+                  timestampString = "454275763.163583"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "313"
+                  endingLineNumber = "313"
+                  offsetFromSymbolStart = "12284">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGeneratorTests.VLEMScanner.(scanSentenceAtLineNumber in _8510F3A98769D062DA9C7778B7CD0E57) (HybridModelGeneratorTests.VLEMScanner)(Swift.String, lineNumber : Swift.Int) -&gt; (success : Swift.Bool, error : Swift.Optional&lt;HybridModelGeneratorTests.VLError&gt;)"
+                  moduleName = "HybridModelGeneratorTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMScanner.swift"
+                  timestampString = "454275763.344179"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "313"
+                  endingLineNumber = "313"
+                  offsetFromSymbolStart = "12284">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HybridModelGenerator/VLEMScanner.swift"
+            timestampString = "454275693.600856"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "336"
+            endingLineNumber = "336"
+            landmarkName = "scanSentenceAtLineNumber(_:lineNumber:)"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGenerator.VLEMScanner.(scanSentenceAtLineNumber in _D38AFDEF8FAEC561B685CF131C9D0832) (HybridModelGenerator.VLEMScanner)(Swift.String, lineNumber : Swift.Int) -&gt; (success : Swift.Bool, error : Swift.Optional&lt;HybridModelGenerator.VLError&gt;)"
+                  moduleName = "HybridModelGenerator"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMScanner.swift"
+                  timestampString = "454275763.164268"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "336"
+                  endingLineNumber = "336"
+                  offsetFromSymbolStart = "13959">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGeneratorTests.VLEMScanner.(scanSentenceAtLineNumber in _8510F3A98769D062DA9C7778B7CD0E57) (HybridModelGeneratorTests.VLEMScanner)(Swift.String, lineNumber : Swift.Int) -&gt; (success : Swift.Bool, error : Swift.Optional&lt;HybridModelGeneratorTests.VLError&gt;)"
+                  moduleName = "HybridModelGeneratorTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMScanner.swift"
+                  timestampString = "454275763.344459"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "336"
+                  endingLineNumber = "336"
+                  offsetFromSymbolStart = "13959">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>

@@ -32,15 +32,18 @@ class VLEMParser: NSObject {
         var myParserErrorArray:[VLError] = [VLError]()
         
         // ok, load the file up -
-        var scanner = VLEMScanner(sentenceDelimiter: " ")
+        var scanner:VLEMScanner?
         
         // ok, if we have any sentences, we need to parse them and check to see of the syntax is correct.
         if let sentence_array = loadSentences() {
             
             for sentence_wrapper in sentence_array {
                 
+                // create scanner -
+                scanner = VLEMScanner(sentenceWrapper: sentence_wrapper)
+                
                 // Scan the sentence -
-                let return_scanner_data = scanner.scanSentence(sentence_wrapper)
+                let return_scanner_data = scanner!.scanSentence()
                 
                 // did this parse ok?
                 let did_scan_succed = return_scanner_data.success
