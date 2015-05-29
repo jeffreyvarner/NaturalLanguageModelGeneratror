@@ -12,7 +12,7 @@ import XCTest
 class VLEMParserTest: XCTestCase {
 
     // Declarations -
-    let test_path = "/Users/jeffreyvarner/Desktop/HybridModelTest/Negative.net"
+    let test_path = "/Users/jeffreyvarner/Desktop/HybridModelTest/Test.net"
     var parser:VLEMParser?
     
     override func setUp() {

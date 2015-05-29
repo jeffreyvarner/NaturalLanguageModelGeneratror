@@ -13,7 +13,7 @@ import HybridModelGenerator
 class VLEMScannerTest: XCTestCase {
 
     // Declarations -
-    let test_sentence = "(0protein_N1 and pro^tein_N2) induce the transcription of gene_N3 -> mRNA_N3"
+    let test_sentence = "(protein_N1 and protein_N2) induce the transcription of gene_N3 -> mRNA_N3"
     var scanner:VLEMScanner?
     
     override func setUp() {
@@ -49,6 +49,33 @@ class VLEMScannerTest: XCTestCase {
         }
     }
     
-    func testGetNextScannerTokenFunction() -> Void {
+    func testGetNextTokenFunction() -> Void {
+    
+        if let local_scanner = scanner {
+        
+            let scanner_result = local_scanner.scanSentence()
+            
+            if (scanner_result.success) {
+                
+                println("Sentence: \(test_sentence) was tokenized correctly! Looking at tokens ..")
+                
+                while (local_scanner.hasMoreTokens()){
+                    
+                    // get the next token -
+                    var token = local_scanner.getNextToken()
+                    
+                    if let local_token = token, let local_lexeme = token?.lexeme {
+                        
+                        // print the lexeme -
+                        println("TOKEN_VALUE = \(local_lexeme)")
+                    }
+                }
+            }
+            else {
+                
+                println("Sentence: \(test_sentence) was NOT tokenized correctly")
+                return
+            }
+        }
     }
 }

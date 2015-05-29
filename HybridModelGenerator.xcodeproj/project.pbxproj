@@ -24,6 +24,8 @@
 		AD7695FF1B0D00020042CF58 /* VLEMScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7695FE1B0D00010042CF58 /* VLEMScanner.swift */; };
 		AD7696011B0D07D70042CF58 /* VLEMScannerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7696001B0D07D70042CF58 /* VLEMScannerTest.swift */; };
 		AD7696021B0D09E20042CF58 /* VLEMScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7695FE1B0D00010042CF58 /* VLEMScanner.swift */; };
+		AD7E11931B18F408001232EC /* VLEMGrammerLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7E11921B18F408001232EC /* VLEMGrammerLibrary.swift */; };
+		AD7E11941B190D99001232EC /* VLEMGrammerLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7E11921B18F408001232EC /* VLEMGrammerLibrary.swift */; };
 		ADC2FA091AF6C848004C1C8A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ADC2FA081AF6C848004C1C8A /* Images.xcassets */; };
 		ADD8D4641AEC301A00F60815 /* HybridStateModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */; };
 		ADEFD5191AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEFD5181AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift */; };
@@ -58,6 +60,7 @@
 		AD3E54891AE8254000C12998 /* HybridModelContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelContext.swift; sourceTree = "<group>"; };
 		AD7695FE1B0D00010042CF58 /* VLEMScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMScanner.swift; sourceTree = "<group>"; };
 		AD7696001B0D07D70042CF58 /* VLEMScannerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMScannerTest.swift; sourceTree = "<group>"; };
+		AD7E11921B18F408001232EC /* VLEMGrammerLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMGrammerLibrary.swift; sourceTree = "<group>"; };
 		ADC2FA081AF6C848004C1C8A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridStateModel.swift; sourceTree = "<group>"; };
 		ADEFD5181AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelJuliaCodeLibrary.swift; sourceTree = "<group>"; };
@@ -168,6 +171,7 @@
 				AD7695FE1B0D00010042CF58 /* VLEMScanner.swift */,
 				AD01482D1B0E61570093E609 /* VLEMParser.swift */,
 				AD0148331B0E68C40093E609 /* VLEMSentenceWrapper.swift */,
+				AD7E11921B18F408001232EC /* VLEMGrammerLibrary.swift */,
 			);
 			name = parser;
 			sourceTree = "<group>";
@@ -275,6 +279,7 @@
 				ADEFD5191AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift in Sources */,
 				AD0903CE1AE6607F0078713B /* ViewController.swift in Sources */,
 				AD01482E1B0E61570093E609 /* VLEMParser.swift in Sources */,
+				AD7E11931B18F408001232EC /* VLEMGrammerLibrary.swift in Sources */,
 				AD1780031AE9CAF600A09CA0 /* HybridModelOctaveMCodeLibrary.swift in Sources */,
 				AD0903EA1AE7B2250078713B /* HybridModelGeneratorEngine.swift in Sources */,
 				AD0148341B0E68C40093E609 /* VLEMSentenceWrapper.swift in Sources */,
@@ -290,6 +295,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD7E11941B190D99001232EC /* VLEMGrammerLibrary.swift in Sources */,
 				AD0148351B0E6A470093E609 /* VLEMSentenceWrapper.swift in Sources */,
 				AD7696021B0D09E20042CF58 /* VLEMScanner.swift in Sources */,
 				AD7696011B0D07D70042CF58 /* VLEMScannerTest.swift in Sources */,

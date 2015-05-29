@@ -8,6 +8,12 @@
 
 import Cocoa
 
+protocol GrammerStrategy {
+    
+    func parse(scanner:VLEMScanner) -> VLError?
+}
+
+
 class VLEMParser: NSObject {
     
     // declarations -
@@ -35,7 +41,7 @@ class VLEMParser: NSObject {
         var scanner:VLEMScanner?
         
         // ok, if we have any sentences, we need to parse them and check to see of the syntax is correct.
-        if let sentence_array = loadSentences() {
+        if let sentence_array = loadSentences() where (sentence_array.count>0) {
             
             for sentence_wrapper in sentence_array {
                 
@@ -49,6 +55,14 @@ class VLEMParser: NSObject {
                 let did_scan_succed = return_scanner_data.success
                 if (did_scan_succed == true) {
                     
+                    // ok, if we get here, then I need to do a few things.
+                    // First, I need to figure out what grammar we have ...
+                    // Next, we need to pass that Grammer, and our token list to an appropriate parser function to check
+                    // If our program is legit.
+                    // Last, we need to constuct the AST (abstract syntax tree) that will be crawled to generate our code.
+                    
+                    // for now we *know* that we have an induce statement ...
+                    doParseWithGrammerAndScanner(scanner!, grammar:InduceStatementStrategy())
                     
                 }
                 else {
@@ -60,6 +74,12 @@ class VLEMParser: NSObject {
                     }
                 }
             }
+        }
+        else {
+            // We have an empty file w/no sentences ...
+            // Create error -
+            let error_object = VLError(code: VLErrorCode.EMPTY_SENTENCE_ERROR, domain: "VLEMParser", userInfo:nil)
+             myParserErrorArray.append(error_object)
         }
         
         // ok, we've scanned the source code, do we have any errors?
@@ -103,7 +123,7 @@ class VLEMParser: NSObject {
             // start with //
             for raw_text_line in component_array {
                 
-                if (raw_text_line.isEmpty == false && !(raw_text_line ~= /"^//.*")){
+                if (raw_text_line.isEmpty == false && !(raw_text_line ~= /"^[/#].+")){
                     
                     // create a sentence wrapper -
                     var sentence_wrapper = VLEMSentenceWrapper(sentence:raw_text_line,lineNumber:line_counter)
@@ -121,5 +141,28 @@ class VLEMParser: NSObject {
         
         // return the sentence array -
         return local_model_sentences
+    }
+    
+    private func doParseWithGrammerAndScanner(scanner:VLEMScanner,grammar:GrammerStrategy) -> Void {
+        
+        if let error = grammar.parse(scanner) {
+            
+            let user_information = error.userInfo
+            
+            if (VLErrorCode.MISSION_TOKEN_ERROR == error.code){
+                
+                let method_name = user_information["METHOD"]
+                println("Opps - error found: Missing token in method \(method_name)")
+            }
+            else if (VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR == error.code){
+                
+                if let location = user_information["LOCATION"], method_name = user_information["METHOD"], message = user_information["MESSAGE"] {
+                    println("Ooops! Error in method \(method_name) found at \(location). \(message)")
+                }
+            }
+        }
+        else {
+            println("No error ...?")
+        }
     }
 }

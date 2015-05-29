@@ -10,11 +10,14 @@ import Cocoa
 
 enum VLErrorCode {
     
+    case MISSION_TOKEN_ERROR
     case EMPTY_SENTENCE_ERROR
     case EMPTY_DELIMITER_ERROR
     case ILLEGAL_DELIMITER_ERROR
     case ILLEGAL_CHARACTER_ERROR
     case TOKEN_ARRAY_BOUNDS_ERROR
+    case SYNTAX_ERROR
+    case INCOMPLETE_SENTENCE_SYNTAX_ERROR
 }
 
 enum TokenType {
@@ -37,6 +40,7 @@ enum TokenType {
     case INHIBITS
     case INHIBIT
     case TRANSCRIPTION
+    case EXPRESSION
     case TRANSLATION
     case TRANSCRIBES
     case TRANSCIBE
@@ -122,11 +126,10 @@ class VLEMScanner: NSObject {
         
         // tokenize the sentence -
         let local_return_data = scanSentenceAtLineNumber(sentence,lineNumber: line_number)
-        
-        return (true,nil)
+        return (local_return_data.success,local_return_data.error)
     }
     
-    func hasMoreSentenceTokens() -> Bool {
+    func hasMoreTokens() -> Bool {
         
         let number_of_tokens = token_array.count
         if (token_index>number_of_tokens - 1){
@@ -137,8 +140,16 @@ class VLEMScanner: NSObject {
         }
     }
     
-    func getNextSentenceToken() -> String? {
+    func getNextToken() -> VLEMToken? {
     
+        // ok, so my tokens are stored in a VLEMToken array.
+        // We need to always *pop* the first token off the array
+        
+        // ok, we reversed the token array, so grab the last element -
+        if (hasMoreTokens()){
+            return token_array.removeLast()
+        }
+        
         // declarations -
         return nil
     }
@@ -260,6 +271,12 @@ class VLEMScanner: NSObject {
                         // we got to do a bunch of tests to do here to determine what type of item we have.
                         if (isInduces(local_character_stack) == true){
                             
+                            // capture induce -
+                            let token = VLEMToken(token_type:TokenType.INDUCES, line_number: lineNumber, column_number: column_index, lexeme: "induces", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
                         }
                         else if (isInduce(local_character_stack) == true){
                             
@@ -287,10 +304,37 @@ class VLEMScanner: NSObject {
                             // clear the stack -
                             local_character_stack.removeAll(keepCapacity: true)
                         }
+                        else if (isRepress(local_character_stack) == true) {
+                            
+                            // capture transcription -
+                            let token = VLEMToken(token_type:TokenType.REPRESS, line_number: lineNumber, column_number: column_index, lexeme: "repress", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isRepresses(local_character_stack) == true) {
+                            
+                            // capture transcription -
+                            let token = VLEMToken(token_type:TokenType.REPRESSES, line_number: lineNumber, column_number: column_index, lexeme: "represses", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
                         else if (isTranscription(local_character_stack) == true) {
                             
                             // capture transcription -
                             let token = VLEMToken(token_type:TokenType.TRANSCRIPTION, line_number: lineNumber, column_number: column_index, lexeme: "transcription", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isExpression(local_character_stack) == true) {
+                            
+                            // capture transcription -
+                            let token = VLEMToken(token_type:TokenType.EXPRESSION, line_number: lineNumber, column_number: column_index, lexeme: "expression", value: nil)
                             token_array.append(token)
                             
                             // clear the stack -
@@ -379,20 +423,11 @@ class VLEMScanner: NSObject {
             local_character_stack.removeAll(keepCapacity: false)
         }
         
+        // reverse the token array -
+        token_array = token_array.reverse()
+        
         // return -
         return (true,nil)
-    }
-    
-    
-    private func isInduces(characterStack:[Character]) -> Bool {
-        
-        // declaractions -
-        var return_flag = false
-        
-        
-        
-        
-        return return_flag
     }
     
     private func isGeneratesSymbol(characterStack:[Character]) -> Bool {
@@ -431,6 +466,12 @@ class VLEMScanner: NSObject {
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
+    private func isInduces(characterStack:[Character]) -> Bool {
+        
+        var match_array:[Character] = ["i","n","d","u","c","e","s"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+    
     private func isRepresses(characterStack:[Character]) -> Bool {
     
         var match_array:[Character] = ["r","e","p","r","e","s","s","e","s"]
@@ -458,6 +499,12 @@ class VLEMScanner: NSObject {
     private func isTranscription(characterStack:[Character]) -> Bool {
     
         var match_array:[Character] = ["t","r","a","n","s","c","r","i","p","t","i","o","n"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+    
+    private func isExpression(characterStack:[Character]) -> Bool {
+        
+        var match_array:[Character] = ["e","x","p","r","e","s","s","i","o","n"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
 
@@ -553,7 +600,7 @@ class VLEMScanner: NSObject {
         }
         
         // ok, we have a string that we can do regex on -
-        if local_string ~= /"^[A-Za-z_][A-Za-z0-9_].*" {
+        if local_string ~= /"^[A-Za-z_][A-Za-z0-9_].+" {
             
             // my string matches this pattern ...
             return (true,local_string)
