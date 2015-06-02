@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol GrammerStrategy {
+protocol GrammarStrategy {
     
     func parse(scanner:VLEMScanner) -> VLError?
 }
@@ -21,6 +21,9 @@ class VLEMParser: NSObject {
     private var myModelInputURL:NSURL
     private var file_name:String?
     
+    // Initialize an *empty* error array -
+    var myParserErrorArray:[VLError] = [VLError]()
+
     init(inputURL:NSURL){
         
         self.myModelInputURL = inputURL
@@ -31,12 +34,9 @@ class VLEMParser: NSObject {
         }
     }
     
-    // main method
-    func parse() -> Void {
+    // MARK: - Main parse method
+    func parse() -> (success:Bool,error:[VLError]?) {
     
-        // Initialize an *empty* error array -
-        var myParserErrorArray:[VLError] = [VLError]()
-        
         // ok, load the file up -
         var scanner:VLEMScanner?
         
@@ -57,18 +57,22 @@ class VLEMParser: NSObject {
                     
                     // ok, if we get here, then I need to do a few things.
                     // First, I need to figure out what grammar we have ...
-                    // Next, we need to pass that Grammer, and our token list to an appropriate parser function to check
+                    // Next, we need to pass that Grammar, and our token list to an appropriate parser function to check
                     // If our program is legit.
                     // Last, we need to constuct the AST (abstract syntax tree) that will be crawled to generate our code.
                     
-                    // for now we *know* that we have an induce statement ...
-                    doParseWithGrammerAndScanner(scanner!, grammar:InduceStatementStrategy())
-                    
+                    // we need to figure out what grammar to use -
+                    let action_token_type = scanner!.getActionTokenType()
+                    if (action_token_type == TokenType.EXPRESSION || action_token_type == TokenType.TRANSCRIPTION){
+                        
+                        // We have an expression statement -
+                        doParseWithGrammarAndScanner(scanner!, grammar:ExpressionStatementGrammarStrategy())
+                    }
                 }
                 else {
                     
                     // need to handle the error here ...
-                    // ok, we have an error. Grab the error instance and store in the error array -
+                    // ok, we have a some type of scanner error. Grab the error instance and store in the error array -
                     if let local_error_object = return_scanner_data.error {
                         myParserErrorArray.append(local_error_object)
                     }
@@ -76,31 +80,19 @@ class VLEMParser: NSObject {
             }
         }
         else {
+            
             // We have an empty file w/no sentences ...
             // Create error -
             let error_object = VLError(code: VLErrorCode.EMPTY_SENTENCE_ERROR, domain: "VLEMParser", userInfo:nil)
              myParserErrorArray.append(error_object)
         }
         
-        // ok, we've scanned the source code, do we have any errors?
+        // ok, we've scanned the source code, and we parsed the source code do we have any errors?
         if (myParserErrorArray.count>0){
-            
-            // oops, it appears we have some parser errors in the code. report the line numbers.
-            for error_object in myParserErrorArray {
-                
-                if let line_number = error_object.userInfo["LINE_NUMBER"],
-                    let bad_token = error_object.userInfo["OFFENDING_TOKEN"] {
-                    
-                    if let local_file_name = file_name {
-                        var error_description:String = "ERROR in \(local_file_name) at L\(line_number): Illegal symbol \(bad_token)"
-                        println(error_description)
-                    }
-                    else {
-                        var error_description:String = "ERROR at L\(line_number): Illegal symbol \(bad_token)"
-                        println(error_description)
-                    }
-                }
-            }
+            return (false,myParserErrorArray)
+        }
+        else {
+            return (true,nil)
         }
     }
     
@@ -123,7 +115,7 @@ class VLEMParser: NSObject {
             // start with //
             for raw_text_line in component_array {
                 
-                if (raw_text_line.isEmpty == false && !(raw_text_line ~= /"^[/#].+")){
+                if (raw_text_line.isEmpty == false && !(raw_text_line ~= /"^//[A-Za-z0-9].*")){
                     
                     // create a sentence wrapper -
                     var sentence_wrapper = VLEMSentenceWrapper(sentence:raw_text_line,lineNumber:line_counter)
@@ -143,12 +135,14 @@ class VLEMParser: NSObject {
         return local_model_sentences
     }
     
-    private func doParseWithGrammerAndScanner(scanner:VLEMScanner,grammar:GrammerStrategy) -> Void {
+    private func doParseWithGrammarAndScanner(scanner:VLEMScanner,grammar:GrammarStrategy) -> Void {
         
         if let error = grammar.parse(scanner) {
             
-            let user_information = error.userInfo
+            // cache the error in the error array -
+            myParserErrorArray.append(error)
             
+            let user_information = error.userInfo
             if (VLErrorCode.MISSION_TOKEN_ERROR == error.code){
                 
                 let method_name = user_information["METHOD"]
@@ -162,7 +156,7 @@ class VLEMParser: NSObject {
             }
         }
         else {
-            println("No error ...?")
+            println("Parse succeded!")
         }
     }
 }

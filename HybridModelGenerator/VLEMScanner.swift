@@ -22,6 +22,8 @@ enum VLErrorCode {
 
 enum TokenType {
     
+    case NULL
+    
     case IF
     case AND
     case OR
@@ -113,6 +115,7 @@ class VLEMScanner: NSObject {
     private var my_sentence_wrapper:VLEMSentenceWrapper
     private var model_sentence:String?
     
+    
     init(sentenceWrapper:VLEMSentenceWrapper) {
         self.my_sentence_wrapper = sentenceWrapper
     }
@@ -138,6 +141,37 @@ class VLEMScanner: NSObject {
         else {
             return true
         }
+    }
+    
+    func getActionTokenType() -> TokenType {
+        
+        // scan through my list of tokens, return the "action" token -
+        for token_item in token_array {
+            
+            if (token_item.token_type == TokenType.TRANSCRIPTION) {
+                return TokenType.TRANSCRIPTION
+            }
+            else if (token_item.token_type == TokenType.EXPRESSION){
+                return TokenType.EXPRESSION
+            }
+        }
+        
+        return TokenType.NULL
+    }
+    
+    func peekAtNextTokenType() -> TokenType {
+        
+        // ok, I may need to look ahead sometimes to catch a dangling enclosure ...
+        if (hasMoreTokens()){
+            
+            if let last_element = token_array.last {
+                
+                return last_element.token_type!
+            }
+        }
+        
+        // default, return NULL
+        return TokenType.NULL
     }
     
     func getNextToken() -> VLEMToken? {
@@ -284,6 +318,8 @@ class VLEMScanner: NSObject {
                             let token = VLEMToken(token_type:TokenType.INDUCE, line_number: lineNumber, column_number: column_index, lexeme: "induce", value: nil)
                             token_array.append(token)
                             
+                            
+                            
                             // clear the stack -
                             local_character_stack.removeAll(keepCapacity: true)
                         }
@@ -310,6 +346,7 @@ class VLEMScanner: NSObject {
                             let token = VLEMToken(token_type:TokenType.REPRESS, line_number: lineNumber, column_number: column_index, lexeme: "repress", value: nil)
                             token_array.append(token)
                             
+                            
                             // clear the stack -
                             local_character_stack.removeAll(keepCapacity: true)
                         }
@@ -318,6 +355,7 @@ class VLEMScanner: NSObject {
                             // capture transcription -
                             let token = VLEMToken(token_type:TokenType.REPRESSES, line_number: lineNumber, column_number: column_index, lexeme: "represses", value: nil)
                             token_array.append(token)
+                            
                             
                             // clear the stack -
                             local_character_stack.removeAll(keepCapacity: true)
@@ -328,6 +366,8 @@ class VLEMScanner: NSObject {
                             let token = VLEMToken(token_type:TokenType.TRANSCRIPTION, line_number: lineNumber, column_number: column_index, lexeme: "transcription", value: nil)
                             token_array.append(token)
                             
+                            
+                            
                             // clear the stack -
                             local_character_stack.removeAll(keepCapacity: true)
                         }
@@ -336,6 +376,7 @@ class VLEMScanner: NSObject {
                             // capture transcription -
                             let token = VLEMToken(token_type:TokenType.EXPRESSION, line_number: lineNumber, column_number: column_index, lexeme: "expression", value: nil)
                             token_array.append(token)
+                            
                             
                             // clear the stack -
                             local_character_stack.removeAll(keepCapacity: true)

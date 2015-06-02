@@ -1,5 +1,5 @@
 //
-//  VLEMGrammerLibrary.swift
+//  VLEMGrammarLibrary.swift
 //  HybridModelGenerator
 //
 //  Created by Jeffrey Varner on 5/29/15.
@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class VLEMGrammerLibrary: NSObject {
+class VLEMGrammarLibrary: NSObject {
 
     // methods
     static func mustBeTokenOfType(token:VLEMToken,tokenType:TokenType) -> Bool {
@@ -22,8 +22,12 @@ class VLEMGrammerLibrary: NSObject {
     }
 }
 
-class InduceStatementStrategy:GrammerStrategy {
 
+
+class ExpressionStatementGrammarStrategy:GrammarStrategy {
+
+    
+    
     // Top level method
     func parse(scanner:VLEMScanner) -> VLError? {
     
@@ -45,7 +49,7 @@ class InduceStatementStrategy:GrammerStrategy {
                 // We could have a protein list ...
                 return parseProteinList(scanner)
             }
-            else if (first_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
+            else if (first_token.token_type == TokenType.BIOLOGICAL_SYMBOL && scanner.peekAtNextTokenType() != TokenType.RPAREN){
                 
                 // We could have a single protein -
                 return parseProteinSymbol(scanner)
@@ -56,7 +60,7 @@ class InduceStatementStrategy:GrammerStrategy {
                 var error_information_dictionary = Dictionary<String,String>()
                 error_information_dictionary["TOKEN"] = first_token.lexeme
                 error_information_dictionary["LOCATION"] = "Line: \(first_token.line_number) col: \(first_token.column_number)"
-                error_information_dictionary["MESSAGE"] = "Expected either \"(\" or a biological symbol, found \"\(first_token.lexeme!)\" instead."
+                error_information_dictionary["MESSAGE"] = "Expected either \"(\" or a biological symbol, found \"\(first_token.lexeme!)\" instead. Check for extra )?"
                 error_information_dictionary["METHOD"] = "parse"
                 error_information_dictionary["CLASS"] = "InduceStatementStrategy"
                 return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
@@ -76,7 +80,7 @@ class InduceStatementStrategy:GrammerStrategy {
         // Get the next token -
         if var next_token = scanner.getNextToken() {
         
-            if (VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.BIOLOGICAL_SYMBOL)){
+            if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.BIOLOGICAL_SYMBOL)){
                 return parseProteinSymbol(scanner)
             }
             else {
@@ -103,19 +107,19 @@ class InduceStatementStrategy:GrammerStrategy {
         
         if var next_token = scanner.getNextToken() where (scanner.hasMoreTokens() == true) {
             
-            if (VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.RPAREN)){
+            if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.RPAREN)){
                 return parseRParenToken(scanner)
             }
-            else if (VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.AND)){
+            else if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.AND)){
                 return parseAndToken(scanner)
             }
-            else if (VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.INDUCE)  ||
-                    VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.INDUCES) ||
-                    VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.REPRESSES) ||
-                    VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.REPRESS)){
+            else if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.INDUCE)  ||
+                    VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.INDUCES) ||
+                    VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.REPRESSES) ||
+                    VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.REPRESS)){
                     
                     // parse the action verb token -
-                    return parseInducesToken(scanner)
+                    return parseBiologicalActionToken(scanner)
             }
             else {
                 
@@ -147,12 +151,12 @@ class InduceStatementStrategy:GrammerStrategy {
         // ok, the next token should be an INDUCE or INDUCES token -
         if var next_token = scanner.getNextToken() {
             
-            if (VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.INDUCE)  ||
-                VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.INDUCES) ||
-                VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.REPRESSES) ||
-                VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.REPRESS)){
+            if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.INDUCE)  ||
+                VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.INDUCES) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.REPRESSES) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.REPRESS)){
                     
-                return parseInducesToken(scanner)
+                return parseBiologicalActionToken(scanner)
             }
             else {
                 
@@ -177,7 +181,7 @@ class InduceStatementStrategy:GrammerStrategy {
     
         if var next_token = scanner.getNextToken() {
             
-            if (VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.BIOLOGICAL_SYMBOL)){
+            if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.BIOLOGICAL_SYMBOL)){
                 return parseProteinSymbol(scanner)
             }
             else {
@@ -199,12 +203,12 @@ class InduceStatementStrategy:GrammerStrategy {
         return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
     
-    func parseInducesToken(scanner:VLEMScanner) -> VLError? {
+    func parseBiologicalActionToken(scanner:VLEMScanner) -> VLError? {
         
         if var next_token = scanner.getNextToken() {
             
-            if (VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.TRANSCRIPTION) ||
-                VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.EXPRESSION)){
+            if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.TRANSCRIPTION) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.EXPRESSION)){
                     
                     return parseProteinSymbol(scanner)
             }
@@ -231,8 +235,8 @@ class InduceStatementStrategy:GrammerStrategy {
         
         if var next_token = scanner.getNextToken() {
             
-            if (VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.TRANSCRIPTION) ||
-                VLEMGrammerLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.EXPRESSION)){
+            if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.TRANSCRIPTION) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.EXPRESSION)){
                     
                     // ok, we have *only* one allowed target
                     return parseProteinSymbol(scanner)
