@@ -146,6 +146,27 @@ class VLEMScanner: NSObject {
         }
     }
     
+    func removeTokenOfType(tokenType:TokenType) -> (Bool) {
+        
+        var index = 0
+        for token_item in token_array {
+            
+            // get the type -
+            let test_token_type = token_item.token_type!
+            if (test_token_type == tokenType){
+                
+                // update the array (remove this element)
+                token_array.removeAtIndex(index)
+                return true
+            }
+            
+            // update the index -
+            index++
+        }
+        
+        return false
+    }
+    
     func getControlTokenType() -> TokenType {
         
         var index = 0
@@ -154,9 +175,6 @@ class VLEMScanner: NSObject {
             // get the type -
             let test_token_type = token_item.token_type!
             if (contains(TokenType.control_token_array, test_token_type)){
-                
-                // update the array (remove this element)
-                token_array.removeAtIndex(index)
                 
                 // return the token type -
                 return test_token_type
@@ -177,15 +195,9 @@ class VLEMScanner: NSObject {
             
             if (token_item.token_type == TokenType.TRANSCRIPTION) {
                 
-                // update the array (remove this element)
-                token_array.removeAtIndex(index)
-                
                 return TokenType.TRANSCRIPTION
             }
             else if (token_item.token_type == TokenType.EXPRESSION){
-                
-                // update the array (remove this element)
-                token_array.removeAtIndex(index)
                 
                 return TokenType.EXPRESSION
             }
@@ -366,7 +378,14 @@ class VLEMScanner: NSObject {
                             let token = VLEMToken(token_type:TokenType.INDUCE, line_number: lineNumber, column_number: column_index, lexeme: "induce", value: nil)
                             token_array.append(token)
                             
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isOr(local_character_stack) == true) {
                             
+                            // captutre or -
+                            let token = VLEMToken(token_type:TokenType.OR, line_number: lineNumber, column_number: column_index, lexeme: "or", value: nil)
+                            token_array.append(token)
                             
                             // clear the stack -
                             local_character_stack.removeAll(keepCapacity: true)
@@ -543,6 +562,12 @@ class VLEMScanner: NSObject {
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
+    private func isOr(characterStack:[Character]) -> Bool {
+        
+        var match_array:[Character] = ["o","r"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+
     private func isThe(characterStack:[Character]) -> Bool {
         
         var match_array:[Character] = ["t","h","e"]

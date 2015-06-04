@@ -113,6 +113,9 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
             else if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.AND)){
                 return parseAndToken(scanner)
             }
+            else if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.OR)) {
+                return parseOrToken(scanner)
+            }
             else if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.INDUCE)  ||
                     VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.INDUCES) ||
                     VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.REPRESSES) ||
@@ -177,6 +180,33 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
         return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
     
+    func parseOrToken(scanner:VLEMScanner) -> VLError? {
+        
+        if var next_token = scanner.getNextToken() {
+            
+            if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.BIOLOGICAL_SYMBOL)){
+                return parseProteinSymbol(scanner)
+            }
+            else {
+                
+                // return false
+                var error_information_dictionary = Dictionary<String,String>()
+                error_information_dictionary["TOKEN"] = next_token.lexeme
+                error_information_dictionary["LOCATION"] = "Line: \(next_token.line_number) col: \(next_token.column_number)"
+                error_information_dictionary["MESSAGE"] = "Expected a biological symbol, found \"\(next_token.lexeme!)\" instead."
+                error_information_dictionary["METHOD"] = "parseOrToken"
+                error_information_dictionary["CLASS"] = "InduceStatementStrategy"
+                return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+            }
+        }
+        
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["METHOD"] = "parseOrToken"
+        error_information_dictionary["CLASS"] = "InduceStatementStrategy"
+        return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
+
+    
     func parseAndToken(scanner:VLEMScanner) -> VLError? {
     
         if var next_token = scanner.getNextToken() {
@@ -210,7 +240,21 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
             if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.TRANSCRIPTION) ||
                 VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.EXPRESSION)){
                     
-                    return parseProteinSymbol(scanner)
+                    // ok, so we may have another list here.
+                    // Peek one token ahead ...
+                    if (scanner.peekAtNextTokenType() == TokenType.LPAREN){
+                        
+                        if let local_next_token = scanner.getNextToken() {
+                            if (VLEMGrammarLibrary.mustBeTokenOfType(local_next_token, tokenType: TokenType.LPAREN)){
+                                return parseProteinList(scanner)
+                            }
+                        }
+                    }
+                    else {
+                        
+                       return parseProteinSymbol(scanner)
+                    }
+                    
             }
             else {
                 
