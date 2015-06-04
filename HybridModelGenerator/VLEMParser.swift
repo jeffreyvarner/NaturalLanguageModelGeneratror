@@ -20,6 +20,7 @@ class VLEMParser: NSObject {
     private var scanner:VLEMScanner?
     private var myModelInputURL:NSURL
     private var file_name:String?
+    private var sentence_array:[VLEMSentenceWrapper]?
     
     // Initialize an *empty* error array -
     var myParserErrorArray:[VLError] = [VLError]()
@@ -34,6 +35,173 @@ class VLEMParser: NSObject {
         }
     }
     
+    // MARK: - Main tree creation method 
+    func buildAbstractSyntaxTree() -> SyntaxTreeComposite? {
+        
+        // Declarations -
+        var scanner:VLEMScanner?
+        var model_root:SyntaxTreeComposite = SyntaxTreeComposite(type:TokenType.ROOT)
+        
+        // hidden helper functions -
+        
+        
+        // ok, so we have consumed all the tokens
+        if let sentence_array = self.sentence_array {
+            
+            // Iterate through the sentence array -
+            for sentence_wrapper in sentence_array {
+                
+                // create scanner -
+                scanner = VLEMScanner(sentenceWrapper: sentence_wrapper)
+                
+                // Scan the sentence -
+                let return_scanner_data = scanner!.scanSentence()
+                
+                // did this parse ok?
+                let did_scan_succed = return_scanner_data.success
+                if (did_scan_succed == true) {
+                    
+                    let action_token_type = scanner!.getActionTokenType()
+                    if (action_token_type == TokenType.EXPRESSION || action_token_type == TokenType.TRANSCRIPTION){
+                        
+                        // If we get here then we have a expression sentence, so we need to make an expression tree.
+                        // The first node we create is a transcription node -
+                        var transcription_node = buildTranscriptionStatementControlTreeWithScanner(scanner!)
+                       
+                        // Add the transcription node the root -
+                        model_root.addNodeToTree(transcription_node)
+                    }
+                }
+            }
+        }
+        
+        return model_root
+    }
+    
+    
+    // MARK: - Tree node creation methods
+    func buildTranscriptionStatementControlTreeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
+        
+        // Declarations -
+        var transcription_node = SyntaxTreeComposite(type: TokenType.TRANSCRIPTION)
+        
+        // What type of control do we have?
+        var control_node = buildControlStatementNodeWithScanner(scanner)
+        
+        // What symbols are associated with the control node?
+        if let first_token = scanner.getNextToken() {
+            
+            if (first_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
+                
+                // Ok, we have a simple statement - create an OR, add the species to it, and then add OR to control node
+                var or_node = SyntaxTreeComposite(type: TokenType.OR)
+                
+                // Create species component node -
+                var species_component = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                species_component.lexeme = first_token.lexeme
+                
+                // Add species to OR node -
+                or_node.addNodeToTree(species_component)
+                
+                // Add OR to CONTROL node -
+                control_node.addNodeToTree(or_node)
+            }
+            else if (first_token.token_type == TokenType.LPAREN){
+                
+                // ok, so we have a more complicated situation.
+                // We have a (species AND species) -or- (species OR species) clause 
+                if var relationship_subtree = buildRelationshipSubtreeNodeWithScanner(scanner,node: nil) {
+                    
+                    // add relationship subtree to control node -
+                    control_node.addNodeToTree(relationship_subtree)
+                }
+            }
+        }
+        
+        // Process the target clause - (the remainder of the tokens in the scanner)
+        if let target_clause_token = scanner.getNextToken() {
+            
+            if (target_clause_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
+                
+            }
+            else if (target_clause_token.token_type == TokenType.LPAREN){
+                
+            }
+        }
+        
+        
+        // add control node to transcription node -
+        transcription_node.addNodeToTree(control_node)
+        
+        // return -
+        return transcription_node
+    }
+    
+    
+    func buildRelationshipSubtreeNodeWithScanner(scanner:VLEMScanner,node:SyntaxTreeComponent?) -> SyntaxTreeComponent? {
+        
+        if let next_token = scanner.getNextToken() {
+            
+            if (next_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
+                
+                // ok, create symbol node -
+                var symbol_leaf = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                symbol_leaf.lexeme = next_token.lexeme
+                
+                if let local_parent_node = node as? SyntaxTreeComposite {
+                    
+                    // add my leaf to the node that was passed in -
+                    local_parent_node.addNodeToTree(symbol_leaf)
+                    
+                    // ok, let's keep going, call me with the leaf that I just created -
+                    return buildRelationshipSubtreeNodeWithScanner(scanner, node:local_parent_node)
+                }
+                
+                // ok, let's keep going, call me with the leaf that I just created -
+                return buildRelationshipSubtreeNodeWithScanner(scanner, node: symbol_leaf)
+            }
+            else if (next_token.token_type == TokenType.AND ||
+                    next_token.token_type == TokenType.OR){
+             
+                // ok, we have a relationship, do we have a node that was passed in?
+                if let local_node = node {
+                    
+                    var relationship_node = SyntaxTreeComposite(type: next_token.token_type!)
+                    relationship_node.lexeme = next_token.lexeme
+                    
+                    // ok, grab the node that was passed in -
+                    relationship_node.addNodeToTree(local_node)
+                    
+                    // call me again -
+                    return buildRelationshipSubtreeNodeWithScanner(scanner, node: relationship_node)
+                }
+            }
+            else if (next_token.token_type == TokenType.RPAREN)
+            {
+                return node
+            }
+        }
+     
+        // no more tokens?
+        return nil
+    }
+    
+    func buildControlStatementNodeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
+    
+        // what type of control node do we have?
+        
+        // Get the "control" type (induce, induces etc)
+        let control_token_type = scanner.getControlTokenType()
+        
+        // Create the control node -
+        var control_node = SyntaxTreeComposite(type: control_token_type)
+        
+        // return my control node -
+        return control_node
+    }
+    
+
+    
     // MARK: - Main parse method
     func parse() -> (success:Bool,error:[VLError]?) {
     
@@ -43,6 +211,10 @@ class VLEMParser: NSObject {
         // ok, if we have any sentences, we need to parse them and check to see of the syntax is correct.
         if let sentence_array = loadSentences() where (sentence_array.count>0) {
             
+            // grab the sentence array for later -
+            self.sentence_array = sentence_array
+            
+            // Iterate through the sentence array -
             for sentence_wrapper in sentence_array {
                 
                 // create scanner -
@@ -115,7 +287,7 @@ class VLEMParser: NSObject {
             // start with //
             for raw_text_line in component_array {
                 
-                if (raw_text_line.isEmpty == false && !(raw_text_line ~= /"^//[A-Za-z0-9].*")){
+                if (raw_text_line.isEmpty == false && !(raw_text_line ~= /"^//[A-Za-z0-9 ].*")){
                     
                     // create a sentence wrapper -
                     var sentence_wrapper = VLEMSentenceWrapper(sentence:raw_text_line,lineNumber:line_counter)

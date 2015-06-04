@@ -36,7 +36,17 @@ class VLEMParserTest: XCTestCase {
         
         // execute the parse function -
         if let local_parser = parser {
-            local_parser.parse()
+            let return_data = local_parser.parse()
+            if (return_data.success == true){
+                
+                // ok, the input was parsed ok, Let's have the parser build the
+                // syntax tree for this file...
+                var model_tree = local_parser.buildAbstractSyntaxTree()
+                if let local_model_tree = model_tree {
+                 
+                    println("We have a tree ...")
+                }
+            }
         }
     }
 }

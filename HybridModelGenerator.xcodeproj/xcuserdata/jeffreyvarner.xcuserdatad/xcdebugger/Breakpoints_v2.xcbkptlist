@@ -35,5 +35,357 @@
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HybridModelGenerator/VLEMParser.swift"
+            timestampString = "455115628.290423"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "78"
+            endingLineNumber = "78"
+            landmarkName = "buildAbstractSyntaxTree()"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGenerator.VLEMParser.buildAbstractSyntaxTree (HybridModelGenerator.VLEMParser)() -&gt; Swift.Optional&lt;HybridModelGenerator.SyntaxTreeComposite&gt;"
+                  moduleName = "HybridModelGenerator"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.616019"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "78"
+                  endingLineNumber = "78"
+                  offsetFromSymbolStart = "1693">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGeneratorTests.VLEMParser.buildAbstractSyntaxTree (HybridModelGeneratorTests.VLEMParser)() -&gt; Swift.Optional&lt;HybridModelGeneratorTests.SyntaxTreeComposite&gt;"
+                  moduleName = "HybridModelGeneratorTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.79002"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "78"
+                  endingLineNumber = "78"
+                  offsetFromSymbolStart = "1693">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HybridModelGeneratorTests/VLEMParserTest.swift"
+            timestampString = "454971449.44706"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "45"
+            endingLineNumber = "45"
+            landmarkName = "testParserParseFunction()"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HybridModelGenerator/VLEMParser.swift"
+            timestampString = "455115628.290423"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "128"
+            endingLineNumber = "128"
+            landmarkName = "buildTranscriptionStatementControlTreeWithScanner(_:)"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGenerator.VLEMParser.buildTranscriptionStatementControlTreeWithScanner (HybridModelGenerator.VLEMParser)(HybridModelGenerator.VLEMScanner) -&gt; HybridModelGenerator.SyntaxTreeComposite"
+                  moduleName = "HybridModelGenerator"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.616984"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "128"
+                  endingLineNumber = "128"
+                  offsetFromSymbolStart = "1660">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGeneratorTests.VLEMParser.buildTranscriptionStatementControlTreeWithScanner (HybridModelGeneratorTests.VLEMParser)(HybridModelGeneratorTests.VLEMScanner) -&gt; HybridModelGeneratorTests.SyntaxTreeComposite"
+                  moduleName = "HybridModelGeneratorTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.790509"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "128"
+                  endingLineNumber = "128"
+                  offsetFromSymbolStart = "1660">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HybridModelGenerator/VLEMParser.swift"
+            timestampString = "455115628.290423"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "116"
+            endingLineNumber = "116"
+            landmarkName = "buildTranscriptionStatementControlTreeWithScanner(_:)"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGenerator.VLEMParser.buildTranscriptionStatementControlTreeWithScanner (HybridModelGenerator.VLEMParser)(HybridModelGenerator.VLEMScanner) -&gt; HybridModelGenerator.SyntaxTreeComposite"
+                  moduleName = "HybridModelGenerator"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.618758"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "116"
+                  endingLineNumber = "116"
+                  offsetFromSymbolStart = "1415">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGeneratorTests.VLEMParser.buildTranscriptionStatementControlTreeWithScanner (HybridModelGeneratorTests.VLEMParser)(HybridModelGeneratorTests.VLEMScanner) -&gt; HybridModelGeneratorTests.SyntaxTreeComposite"
+                  moduleName = "HybridModelGeneratorTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.790737"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "116"
+                  endingLineNumber = "116"
+                  offsetFromSymbolStart = "1415">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HybridModelGenerator/VLEMParser.swift"
+            timestampString = "455115628.290423"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "151"
+            endingLineNumber = "151"
+            landmarkName = "buildRelationshipSubtreeNodeWithScanner(_:node:)"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGenerator.VLEMParser.buildRelationshipSubtreeNodeWithScanner (HybridModelGenerator.VLEMParser)(HybridModelGenerator.VLEMScanner, node : Swift.Optional&lt;HybridModelGenerator.SyntaxTreeComponent&gt;) -&gt; Swift.Optional&lt;HybridModelGenerator.SyntaxTreeComponent&gt;"
+                  moduleName = "HybridModelGenerator"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.619428"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "151"
+                  endingLineNumber = "151"
+                  offsetFromSymbolStart = "1243">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGeneratorTests.VLEMParser.buildRelationshipSubtreeNodeWithScanner (HybridModelGeneratorTests.VLEMParser)(HybridModelGeneratorTests.VLEMScanner, node : Swift.Optional&lt;HybridModelGeneratorTests.SyntaxTreeComponent&gt;) -&gt; Swift.Optional&lt;HybridModelGeneratorTests.SyntaxTreeComponent&gt;"
+                  moduleName = "HybridModelGeneratorTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.79097"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "151"
+                  endingLineNumber = "151"
+                  offsetFromSymbolStart = "1243">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HybridModelGenerator/VLEMParser.swift"
+            timestampString = "455115628.290423"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "166"
+            endingLineNumber = "166"
+            landmarkName = "buildRelationshipSubtreeNodeWithScanner(_:node:)"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGenerator.VLEMParser.buildRelationshipSubtreeNodeWithScanner (HybridModelGenerator.VLEMParser)(HybridModelGenerator.VLEMScanner, node : Swift.Optional&lt;HybridModelGenerator.SyntaxTreeComponent&gt;) -&gt; Swift.Optional&lt;HybridModelGenerator.SyntaxTreeComponent&gt;"
+                  moduleName = "HybridModelGenerator"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.620868"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "166"
+                  endingLineNumber = "166"
+                  offsetFromSymbolStart = "2306">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGeneratorTests.VLEMParser.buildRelationshipSubtreeNodeWithScanner (HybridModelGeneratorTests.VLEMParser)(HybridModelGeneratorTests.VLEMScanner, node : Swift.Optional&lt;HybridModelGeneratorTests.SyntaxTreeComponent&gt;) -&gt; Swift.Optional&lt;HybridModelGeneratorTests.SyntaxTreeComponent&gt;"
+                  moduleName = "HybridModelGeneratorTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.791298"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "166"
+                  endingLineNumber = "166"
+                  offsetFromSymbolStart = "2306">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HybridModelGenerator/VLEMParser.swift"
+            timestampString = "455115628.290423"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "171"
+            endingLineNumber = "171"
+            landmarkName = "buildRelationshipSubtreeNodeWithScanner(_:node:)"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGenerator.VLEMParser.buildRelationshipSubtreeNodeWithScanner (HybridModelGenerator.VLEMParser)(HybridModelGenerator.VLEMScanner, node : Swift.Optional&lt;HybridModelGenerator.SyntaxTreeComponent&gt;) -&gt; Swift.Optional&lt;HybridModelGenerator.SyntaxTreeComponent&gt;"
+                  moduleName = "HybridModelGenerator"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.622161"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "171"
+                  endingLineNumber = "171"
+                  offsetFromSymbolStart = "2672">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGeneratorTests.VLEMParser.buildRelationshipSubtreeNodeWithScanner (HybridModelGeneratorTests.VLEMParser)(HybridModelGeneratorTests.VLEMScanner, node : Swift.Optional&lt;HybridModelGeneratorTests.SyntaxTreeComponent&gt;) -&gt; Swift.Optional&lt;HybridModelGeneratorTests.SyntaxTreeComponent&gt;"
+                  moduleName = "HybridModelGeneratorTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.79154"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "171"
+                  endingLineNumber = "171"
+                  offsetFromSymbolStart = "2672">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HybridModelGenerator/VLEMParser.swift"
+            timestampString = "455115628.290423"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "147"
+            endingLineNumber = "147"
+            landmarkName = "buildRelationshipSubtreeNodeWithScanner(_:node:)"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGenerator.VLEMParser.buildRelationshipSubtreeNodeWithScanner (HybridModelGenerator.VLEMParser)(HybridModelGenerator.VLEMScanner, node : Swift.Optional&lt;HybridModelGenerator.SyntaxTreeComponent&gt;) -&gt; Swift.Optional&lt;HybridModelGenerator.SyntaxTreeComponent&gt;"
+                  moduleName = "HybridModelGenerator"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.622813"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "147"
+                  endingLineNumber = "147"
+                  offsetFromSymbolStart = "1028">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "HybridModelGeneratorTests.VLEMParser.buildRelationshipSubtreeNodeWithScanner (HybridModelGeneratorTests.VLEMParser)(HybridModelGeneratorTests.VLEMScanner, node : Swift.Optional&lt;HybridModelGeneratorTests.SyntaxTreeComponent&gt;) -&gt; Swift.Optional&lt;HybridModelGeneratorTests.SyntaxTreeComponent&gt;"
+                  moduleName = "HybridModelGeneratorTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jeffreyvarner/Desktop/PookSoft/HybridModelGenerator/HybridModelGenerator/VLEMParser.swift"
+                  timestampString = "455115628.791772"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "147"
+                  endingLineNumber = "147"
+                  offsetFromSymbolStart = "1028">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

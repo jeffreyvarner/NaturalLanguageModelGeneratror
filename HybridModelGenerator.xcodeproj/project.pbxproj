@@ -27,11 +27,10 @@
 		AD7E11931B18F408001232EC /* VLEMGrammarLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7E11921B18F408001232EC /* VLEMGrammarLibrary.swift */; };
 		AD7E11941B190D99001232EC /* VLEMGrammarLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7E11921B18F408001232EC /* VLEMGrammarLibrary.swift */; };
 		ADC2FA091AF6C848004C1C8A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ADC2FA081AF6C848004C1C8A /* Images.xcassets */; };
-		ADC37FCA1B1DE5C700FCD586 /* Sentence.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FC91B1DE5C700FCD586 /* Sentence.swift */; };
-		ADC37FCC1B1DE6A900FCD586 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FCB1B1DE6A900FCD586 /* Action.swift */; };
-		ADC37FCE1B1DE7C100FCD586 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FCD1B1DE7C100FCD586 /* Relationship.swift */; };
-		ADC37FD11B1DE82600FCD586 /* Symbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FD01B1DE82600FCD586 /* Symbol.swift */; };
-		ADC37FD31B1DF96900FCD586 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FD21B1DF96900FCD586 /* Model.swift */; };
+		ADC37FDD1B1E238E00FCD586 /* SyntaxTreeComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FDC1B1E238E00FCD586 /* SyntaxTreeComponent.swift */; };
+		ADC37FDF1B1E23B600FCD586 /* SyntaxTreeComposite.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FDE1B1E23B600FCD586 /* SyntaxTreeComposite.swift */; };
+		ADC37FE01B1E456000FCD586 /* SyntaxTreeComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FDC1B1E238E00FCD586 /* SyntaxTreeComponent.swift */; };
+		ADC37FE11B1E456000FCD586 /* SyntaxTreeComposite.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FDE1B1E23B600FCD586 /* SyntaxTreeComposite.swift */; };
 		ADD8D4641AEC301A00F60815 /* HybridStateModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */; };
 		ADEFD5191AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEFD5181AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift */; };
 /* End PBXBuildFile section */
@@ -67,11 +66,8 @@
 		AD7696001B0D07D70042CF58 /* VLEMScannerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMScannerTest.swift; sourceTree = "<group>"; };
 		AD7E11921B18F408001232EC /* VLEMGrammarLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMGrammarLibrary.swift; sourceTree = "<group>"; };
 		ADC2FA081AF6C848004C1C8A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		ADC37FC91B1DE5C700FCD586 /* Sentence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sentence.swift; sourceTree = "<group>"; };
-		ADC37FCB1B1DE6A900FCD586 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
-		ADC37FCD1B1DE7C100FCD586 /* Relationship.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
-		ADC37FD01B1DE82600FCD586 /* Symbol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Symbol.swift; sourceTree = "<group>"; };
-		ADC37FD21B1DF96900FCD586 /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		ADC37FDC1B1E238E00FCD586 /* SyntaxTreeComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SyntaxTreeComponent.swift; sourceTree = "<group>"; };
+		ADC37FDE1B1E23B600FCD586 /* SyntaxTreeComposite.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SyntaxTreeComposite.swift; sourceTree = "<group>"; };
 		ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridStateModel.swift; sourceTree = "<group>"; };
 		ADEFD5181AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelJuliaCodeLibrary.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -156,7 +152,7 @@
 		AD0903E81AE665290078713B /* engine */ = {
 			isa = PBXGroup;
 			children = (
-				ADC37FC81B1DE53500FCD586 /* abstract_syntax_tree */,
+				ADC37FD71B1E220900FCD586 /* syntax_tree */,
 				AD7695FD1B0CFF760042CF58 /* parser */,
 				AD0903E91AE7B2250078713B /* HybridModelGeneratorEngine.swift */,
 				AD3E54871AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift */,
@@ -187,16 +183,13 @@
 			name = parser;
 			sourceTree = "<group>";
 		};
-		ADC37FC81B1DE53500FCD586 /* abstract_syntax_tree */ = {
+		ADC37FD71B1E220900FCD586 /* syntax_tree */ = {
 			isa = PBXGroup;
 			children = (
-				ADC37FC91B1DE5C700FCD586 /* Sentence.swift */,
-				ADC37FCB1B1DE6A900FCD586 /* Action.swift */,
-				ADC37FCD1B1DE7C100FCD586 /* Relationship.swift */,
-				ADC37FD01B1DE82600FCD586 /* Symbol.swift */,
-				ADC37FD21B1DF96900FCD586 /* Model.swift */,
+				ADC37FDC1B1E238E00FCD586 /* SyntaxTreeComponent.swift */,
+				ADC37FDE1B1E23B600FCD586 /* SyntaxTreeComposite.swift */,
 			);
-			name = abstract_syntax_tree;
+			name = syntax_tree;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -298,24 +291,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADC37FDD1B1E238E00FCD586 /* SyntaxTreeComponent.swift in Sources */,
 				AD3E54881AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift in Sources */,
 				ADEFD5191AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift in Sources */,
 				AD0903CE1AE6607F0078713B /* ViewController.swift in Sources */,
 				AD01482E1B0E61570093E609 /* VLEMParser.swift in Sources */,
 				AD7E11931B18F408001232EC /* VLEMGrammarLibrary.swift in Sources */,
+				ADC37FDF1B1E23B600FCD586 /* SyntaxTreeComposite.swift in Sources */,
 				AD1780031AE9CAF600A09CA0 /* HybridModelOctaveMCodeLibrary.swift in Sources */,
 				AD0903EA1AE7B2250078713B /* HybridModelGeneratorEngine.swift in Sources */,
 				AD0148341B0E68C40093E609 /* VLEMSentenceWrapper.swift in Sources */,
 				AD32EF811AF2582900E4C433 /* HybridModelReactionModel.swift in Sources */,
-				ADC37FD31B1DF96900FCD586 /* Model.swift in Sources */,
 				ADD8D4641AEC301A00F60815 /* HybridStateModel.swift in Sources */,
 				AD3E548A1AE8254000C12998 /* HybridModelContext.swift in Sources */,
 				AD7695FF1B0D00020042CF58 /* VLEMScanner.swift in Sources */,
-				ADC37FCA1B1DE5C700FCD586 /* Sentence.swift in Sources */,
-				ADC37FCC1B1DE6A900FCD586 /* Action.swift in Sources */,
-				ADC37FD11B1DE82600FCD586 /* Symbol.swift in Sources */,
 				AD0903CC1AE6607F0078713B /* AppDelegate.swift in Sources */,
-				ADC37FCE1B1DE7C100FCD586 /* Relationship.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -323,6 +313,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADC37FE01B1E456000FCD586 /* SyntaxTreeComponent.swift in Sources */,
+				ADC37FE11B1E456000FCD586 /* SyntaxTreeComposite.swift in Sources */,
 				AD7E11941B190D99001232EC /* VLEMGrammarLibrary.swift in Sources */,
 				AD0148351B0E6A470093E609 /* VLEMSentenceWrapper.swift in Sources */,
 				AD7696021B0D09E20042CF58 /* VLEMScanner.swift in Sources */,

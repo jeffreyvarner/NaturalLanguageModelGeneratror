@@ -22,6 +22,7 @@ enum VLErrorCode {
 
 enum TokenType {
     
+    case ROOT
     case NULL
     
     case IF
@@ -63,6 +64,8 @@ enum TokenType {
     case RIOBOSOME
     case DLIT
     case ILIT
+    
+    static let control_token_array = [INDUCES,INDUCE,REPRESSES,REPRESS,ACTIVATES,ACTIVATE,INHIBITS,INHIBIT]
 }
 
 struct VLError {
@@ -143,21 +146,69 @@ class VLEMScanner: NSObject {
         }
     }
     
-    func getActionTokenType() -> TokenType {
+    func getControlTokenType() -> TokenType {
         
-        // scan through my list of tokens, return the "action" token -
+        var index = 0
         for token_item in token_array {
+        
+            // get the type -
+            let test_token_type = token_item.token_type!
+            if (contains(TokenType.control_token_array, test_token_type)){
+                
+                // update the array (remove this element)
+                token_array.removeAtIndex(index)
+                
+                // return the token type -
+                return test_token_type
+            }
             
-            if (token_item.token_type == TokenType.TRANSCRIPTION) {
-                return TokenType.TRANSCRIPTION
-            }
-            else if (token_item.token_type == TokenType.EXPRESSION){
-                return TokenType.EXPRESSION
-            }
+            // update the index -
+            index++
         }
         
         return TokenType.NULL
     }
+    
+    func getActionTokenType() -> TokenType {
+        
+        // scan through my list of tokens, return the "action" token -
+        var index = 0
+        for token_item in token_array {
+            
+            if (token_item.token_type == TokenType.TRANSCRIPTION) {
+                
+                // update the array (remove this element)
+                token_array.removeAtIndex(index)
+                
+                return TokenType.TRANSCRIPTION
+            }
+            else if (token_item.token_type == TokenType.EXPRESSION){
+                
+                // update the array (remove this element)
+                token_array.removeAtIndex(index)
+                
+                return TokenType.EXPRESSION
+            }
+            
+            // update the index -
+            index++
+        }
+        
+        return TokenType.NULL
+    }
+    
+    func peekAtTokenTypeAtIndex(index:Int) -> TokenType {
+        
+        // ok, I may need to look ahead sometimes to catch a dangling enclosure ...
+        if (index<=count(token_array)-1){
+            let local_token = token_array[index]
+            return local_token.token_type!
+        }
+        
+        // default, return NULL
+        return TokenType.NULL
+    }
+
     
     func peekAtNextTokenType() -> TokenType {
         
@@ -188,9 +239,6 @@ class VLEMScanner: NSObject {
         return nil
     }
     
-    func printSentenceTokens() -> Void {
-        
-    }
     
     // MARK: - Private helper functions
     private func resetTokenIndexToStartOfSentence() -> Void {
