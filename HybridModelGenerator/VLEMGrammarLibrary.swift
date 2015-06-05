@@ -23,10 +23,7 @@ class VLEMGrammarLibrary: NSObject {
 }
 
 
-
 class ExpressionStatementGrammarStrategy:GrammarStrategy {
-
-    
     
     // Top level method
     func parse(scanner:VLEMScanner) -> VLError? {

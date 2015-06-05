@@ -1,12 +1,19 @@
 //
-//  TestSyntaxTreeVistor.swift
+//  VLEMAbstractSyntaxTreeVistorLibrary.swift
 //  HybridModelGenerator
 //
-//  Created by Jeffrey Varner on 6/4/15.
+//  Created by Jeffrey Varner on 6/5/15.
 //  Copyright (c) 2015 Pooksoft. All rights reserved.
 //
 
 import Cocoa
+
+class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
+    
+
+}
+
+
 
 class TestSyntaxTreeVisitor: SyntaxTreeVisitor {
     
@@ -24,6 +31,11 @@ class TestSyntaxTreeVisitor: SyntaxTreeVisitor {
     }
     
     func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        
+        if (node.tokenType == TokenType.OR && node.parent_pointer?.tokenType == TokenType.TRANSCRIPTION){
+            return false
+        }
+        
         return true
     }
     
@@ -42,3 +54,4 @@ class TestSyntaxTreeVisitor: SyntaxTreeVisitor {
         }
     }
 }
+

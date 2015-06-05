@@ -9,13 +9,6 @@
 import Cocoa
 import Foundation
 
-enum ModelCodeLanguage {
-    
-    case LANGUAGE_OCATVE_M
-    case LANGUAGE_OCTAVE_C
-    case LANGUAGE_MATLAB_M
-    case LANGUAGE_JULIA
-}
 
 
 class HybridModelGeneratorEngine: NSObject {

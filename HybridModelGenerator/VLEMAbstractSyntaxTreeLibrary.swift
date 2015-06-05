@@ -20,9 +20,7 @@ class VLEMAbstractSyntaxTreeLibrary: NSObject {
 class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
     
     
-    init ()
-    {
-        
+    init (){
     }
     
     func build(scanner:VLEMScanner) -> SyntaxTreeComponent {

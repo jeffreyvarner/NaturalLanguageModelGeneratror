@@ -15,9 +15,18 @@ class SyntaxTreeComposite: SyntaxTreeComponent {
 
     // MARK: - Tree node access methods 
     func addNodeToTree(node:SyntaxTreeComponent) -> Void {
+        
+        // ok, we want to add this node to my children.
+        // However, we want to be able to navigate "backwards" so a parent pointer -
+        node.parent_pointer = self
+        
+        // add child to array -
         children_array.append(node)
     }
     
+    deinit {
+        println("Compsite deinit method called ...")
+    }
     
     // override the accept method -
     override func accept(visitor:SyntaxTreeVisitor) -> Void {

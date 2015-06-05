@@ -48,6 +48,4 @@ class HybridModelContext: NSObject {
             self.state_symbol_array.append(state_symbol)
         }
     }
-    
-    
 }

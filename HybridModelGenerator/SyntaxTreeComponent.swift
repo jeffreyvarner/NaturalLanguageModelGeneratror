@@ -21,6 +21,7 @@ class SyntaxTreeComponent: NSObject {
     // declarations -
     var tokenType:TokenType
     var lexeme:String?
+    weak var parent_pointer:SyntaxTreeComponent?
     
     init (type:TokenType){
         self.tokenType = type
