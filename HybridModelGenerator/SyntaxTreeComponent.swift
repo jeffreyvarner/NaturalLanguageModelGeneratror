@@ -8,6 +8,14 @@
 
 import Cocoa
 
+protocol SyntaxTreeVisitor {
+    
+    func visit(node:SyntaxTreeComponent) -> Void
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool
+    func willVisit(node:SyntaxTreeComponent) -> Void
+    func didVisit(node:SyntaxTreeComponent) -> Void
+}
+
 class SyntaxTreeComponent: NSObject {
     
     // declarations -
@@ -16,5 +24,22 @@ class SyntaxTreeComponent: NSObject {
     
     init (type:TokenType){
         self.tokenType = type
+    }
+    
+    // vistor method -
+    func accept(visitor:SyntaxTreeVisitor) -> Void {
+        
+        if (visitor.shouldVisit(self)){
+            
+            // Ok, we are ok to visit -
+            // Call willVisit to do any prep work
+            visitor.willVisit(self)
+            
+            // Visit -
+            visitor.visit(self)
+            
+            // Call didVisit to finish up -
+            visitor.didVisit(self)
+        }
     }
 }

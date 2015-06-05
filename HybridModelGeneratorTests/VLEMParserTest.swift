@@ -44,7 +44,13 @@ class VLEMParserTest: XCTestCase {
                 var model_tree = local_parser.buildAbstractSyntaxTree()
                 if let local_model_tree = model_tree {
                  
-                    println("We have a tree ...")
+                    // do a print visit -
+                    var print_visitor = TestSyntaxTreeVisitor()
+                    for child_node in local_model_tree.children_array {
+                        child_node.accept(print_visitor)
+                    }
+                    
+                    print_visitor.printNodeList()
                 }
             }
         }

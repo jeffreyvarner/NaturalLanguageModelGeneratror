@@ -35,6 +35,7 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
         
         // Declarations -
         var transcription_node = SyntaxTreeComposite(type: TokenType.TRANSCRIPTION)
+        transcription_node.lexeme = "transcription"
         
         // What type of control do we have?
         var control_node = buildControlStatementNodeWithScanner(scanner)
@@ -67,6 +68,7 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
                 
                 // Ok, we have a simple statement - create an OR, add the species to it, and then add OR to control node
                 var or_node = SyntaxTreeComposite(type: TokenType.OR)
+                or_node.lexeme = "or"
                 
                 // Create species component node -
                 var species_component = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
@@ -153,6 +155,7 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
         
         // Create the control node -
         var control_node = SyntaxTreeComposite(type: control_token_type)
+        control_node.lexeme = "control_node"
         
         // return my control node -
         return control_node

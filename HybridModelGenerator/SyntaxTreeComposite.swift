@@ -17,4 +17,28 @@ class SyntaxTreeComposite: SyntaxTreeComponent {
     func addNodeToTree(node:SyntaxTreeComponent) -> Void {
         children_array.append(node)
     }
+    
+    
+    // override the accept method -
+    override func accept(visitor:SyntaxTreeVisitor) -> Void {
+        
+        if (visitor.shouldVisit(self)){
+         
+            // visit me first ...
+            
+            // Call willVisit to do any prep work
+            visitor.willVisit(self)
+            
+            // Visit -
+            visitor.visit(self)
+            
+            // Call didVisit to finish up -
+            visitor.didVisit(self)
+            
+            // Visit my children -
+            for syntax_node in children_array {
+                syntax_node.accept(visitor)
+            }
+        }
+    }
 }
