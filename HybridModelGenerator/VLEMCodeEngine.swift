@@ -36,16 +36,14 @@ class VLEMCodeEngine: NSObject {
         self.myModelCodeLanguage = language
     }
     
-    // MARK: - Factory method impl
-    private func generateModelCodeFromAbstractSyntaxTreeAndStrategy(abstractSyntaxTree:SyntaxTreeComponent,strategy:CodeStrategy) -> String {
+    // MARK: - Factory method impl    
+    private func generateModelCodeFromAbstractSyntaxTreeAndStrategy(abstractSyntaxTree:SyntaxTreeComponent,strategy:CodeGenerationStrategy) -> String {
         
         // return -
-        return "monkey"
+        return strategy.execute(abstractSyntaxTree)
     }
     
-    func generate(abstractSyntaxTree:SyntaxTreeComponent,modelDictionary:Dictionary<String,CodeStrategy>) -> Void {
-        
-        var message_dictionary = Dictionary<String,String>()
+    func generate(abstractSyntaxTree:SyntaxTreeComponent,modelDictionary:Dictionary<String,CodeGenerationStrategy>) -> Void {
         
         // process the files in the dictionary -
         for (model_file_name,strategy_impl) in modelDictionary {

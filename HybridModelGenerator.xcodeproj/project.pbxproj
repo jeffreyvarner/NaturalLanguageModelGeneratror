@@ -36,6 +36,12 @@
 		ADC37FE91B21B00900FCD586 /* VLEMCodeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FE81B21B00900FCD586 /* VLEMCodeEngine.swift */; };
 		ADC37FEB1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FEA1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift */; };
 		ADC37FEE1B222A2900FCD586 /* JuliaLanguageStrategyLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FED1B222A2900FCD586 /* JuliaLanguageStrategyLibrary.swift */; };
+		ADC37FF01B224BB100FCD586 /* VLEMSpeciesProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FEF1B224BB100FCD586 /* VLEMSpeciesProxy.swift */; };
+		ADC37FF11B22547F00FCD586 /* JuliaLanguageStrategyLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FED1B222A2900FCD586 /* JuliaLanguageStrategyLibrary.swift */; };
+		ADC37FF21B22549600FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FEA1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift */; };
+		ADC37FF31B22549600FCD586 /* VLEMSpeciesProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FEF1B224BB100FCD586 /* VLEMSpeciesProxy.swift */; };
+		ADC37FF51B2281CC00FCD586 /* VLEMCodeEngineTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FF41B2281CC00FCD586 /* VLEMCodeEngineTest.swift */; };
+		ADC37FF61B2283F700FCD586 /* VLEMCodeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FE81B21B00900FCD586 /* VLEMCodeEngine.swift */; };
 		ADD8D4641AEC301A00F60815 /* HybridStateModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */; };
 		ADEFD5191AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEFD5181AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift */; };
 /* End PBXBuildFile section */
@@ -77,6 +83,8 @@
 		ADC37FE81B21B00900FCD586 /* VLEMCodeEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMCodeEngine.swift; sourceTree = "<group>"; };
 		ADC37FEA1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMAbstractSyntaxTreeVisitorLibrary.swift; sourceTree = "<group>"; };
 		ADC37FED1B222A2900FCD586 /* JuliaLanguageStrategyLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JuliaLanguageStrategyLibrary.swift; sourceTree = "<group>"; };
+		ADC37FEF1B224BB100FCD586 /* VLEMSpeciesProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMSpeciesProxy.swift; sourceTree = "<group>"; };
+		ADC37FF41B2281CC00FCD586 /* VLEMCodeEngineTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMCodeEngineTest.swift; sourceTree = "<group>"; };
 		ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridStateModel.swift; sourceTree = "<group>"; };
 		ADEFD5181AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelJuliaCodeLibrary.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -147,6 +155,7 @@
 				AD0903DC1AE6607F0078713B /* Supporting Files */,
 				AD7696001B0D07D70042CF58 /* VLEMScannerTest.swift */,
 				AD0148301B0E65F60093E609 /* VLEMParserTest.swift */,
+				ADC37FF41B2281CC00FCD586 /* VLEMCodeEngineTest.swift */,
 			);
 			path = HybridModelGeneratorTests;
 			sourceTree = "<group>";
@@ -201,6 +210,7 @@
 				ADC37FDE1B1E23B600FCD586 /* SyntaxTreeComposite.swift */,
 				ADC37FE21B20B13E00FCD586 /* VLEMAbstractSyntaxTreeLibrary.swift */,
 				ADC37FEA1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift */,
+				ADC37FEF1B224BB100FCD586 /* VLEMSpeciesProxy.swift */,
 			);
 			name = syntax_tree;
 			sourceTree = "<group>";
@@ -331,6 +341,7 @@
 				AD3E548A1AE8254000C12998 /* HybridModelContext.swift in Sources */,
 				AD7695FF1B0D00020042CF58 /* VLEMScanner.swift in Sources */,
 				AD0903CC1AE6607F0078713B /* AppDelegate.swift in Sources */,
+				ADC37FF01B224BB100FCD586 /* VLEMSpeciesProxy.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,6 +349,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADC37FF61B2283F700FCD586 /* VLEMCodeEngine.swift in Sources */,
+				ADC37FF21B22549600FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift in Sources */,
+				ADC37FF31B22549600FCD586 /* VLEMSpeciesProxy.swift in Sources */,
+				ADC37FF11B22547F00FCD586 /* JuliaLanguageStrategyLibrary.swift in Sources */,
 				ADC37FE41B20B2D300FCD586 /* VLEMAbstractSyntaxTreeLibrary.swift in Sources */,
 				ADC37FE01B1E456000FCD586 /* SyntaxTreeComponent.swift in Sources */,
 				ADC37FE11B1E456000FCD586 /* SyntaxTreeComposite.swift in Sources */,
@@ -345,6 +360,7 @@
 				AD0148351B0E6A470093E609 /* VLEMSentenceWrapper.swift in Sources */,
 				AD7696021B0D09E20042CF58 /* VLEMScanner.swift in Sources */,
 				AD7696011B0D07D70042CF58 /* VLEMScannerTest.swift in Sources */,
+				ADC37FF51B2281CC00FCD586 /* VLEMCodeEngineTest.swift in Sources */,
 				AD01482F1B0E61570093E609 /* VLEMParser.swift in Sources */,
 				AD0148321B0E65F60093E609 /* VLEMParserTest.swift in Sources */,
 				AD0903DF1AE6607F0078713B /* HybridModelGeneratorTests.swift in Sources */,

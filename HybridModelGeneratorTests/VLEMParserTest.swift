@@ -45,12 +45,16 @@ class VLEMParserTest: XCTestCase {
                 if let local_model_tree = model_tree {
                  
                     // do a print visit -
-                    var print_visitor = TestSyntaxTreeVisitor()
+                    var print_visitor = BiologicalSymbolSyntaxTreeVisitor()
                     for child_node in local_model_tree.children_array {
                         child_node.accept(print_visitor)
                     }
                     
-                    print_visitor.printNodeList()
+                    if var array = print_visitor.getSyntaxTreeVisitorData() as? [VLEMSpeciesProxy]{
+                        if (count(array)>0){
+                            println("We have species")
+                        }
+                    }
                 }
             }
         }

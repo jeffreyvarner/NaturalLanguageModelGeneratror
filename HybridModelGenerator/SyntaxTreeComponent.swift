@@ -12,6 +12,7 @@ protocol SyntaxTreeVisitor {
     
     func visit(node:SyntaxTreeComponent) -> Void
     func shouldVisit(node:SyntaxTreeComponent) -> Bool
+    func getSyntaxTreeVisitorData() -> Any?
     func willVisit(node:SyntaxTreeComponent) -> Void
     func didVisit(node:SyntaxTreeComponent) -> Void
 }
