@@ -229,7 +229,7 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
     }
     
     // MARK: - Helper methods
-    func extractGeneExpressionRateList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionProcessRateProxy]? {
+    func extractGeneExpressionRateList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionRateProcessProxy]? {
      
         // get the list of rates involved in gene expression (includes degradation rates for both protein, and mRNA)
         var rate_visitor = GeneExpressionRateSyntaxTreeVistor()
@@ -237,7 +237,7 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
             child_node.accept(rate_visitor)
         }
         
-        return rate_visitor.getSyntaxTreeVisitorData() as? [VLEMGeneExpressionProcessRateProxy]
+        return rate_visitor.getSyntaxTreeVisitorData() as? [VLEMGeneExpressionRateProcessProxy]
     }
     
     func extractSpeciesList(root:SyntaxTreeComposite) -> [VLEMSpeciesProxy]? {

@@ -14,9 +14,24 @@ class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
 
 class GeneExpressionRateSyntaxTreeVistor:SyntaxTreeVisitor {
 
+    // Declarations -
+    private var rate_node_array:[VLEMGeneExpressionRateProcessProxy] = [VLEMGeneExpressionRateProcessProxy]()
     
+    // mRNA process rates -
+    private var mrna_generation_proxy_object:VLEMGeneExpressionRateProcessProxy?
+    private var mrna_degradation_proxy_object:VLEMGeneExpressionRateProcessProxy?
+    private var mrna_basal_generation_proxy_object:VLEMGeneExpressionRateProcessProxy?
+    
+    // protein process rates -
+    private var protein_generation_proxy_object:VLEMGeneExpressionRateProcessProxy?
+    private var protein_degradation_proxy_object:VLEMGeneExpressionRateProcessProxy?
     
     func visit(node:SyntaxTreeComponent) -> Void {
+    
+        // let's do some further configuration of the proxy -
+        if (node.tokenType == TokenType.BIOLOGICAL_SYMBOL && node.parent_pointer?.parent_pointer?.tokenType == TokenType.TRANSCRIPTION){
+            
+        }
     }
     
     func shouldVisit(node:SyntaxTreeComponent) -> Bool {
@@ -24,21 +39,46 @@ class GeneExpressionRateSyntaxTreeVistor:SyntaxTreeVisitor {
     }
     
     func willVisit(node:SyntaxTreeComponent) -> Void {
+        
+        // ok, if we are going to visit a node that is type transcription,
+        // make a new proxy -
+        if (node.tokenType == TokenType.TRANSCRIPTION){
+            
+            if let composite = (node as? SyntaxTreeComposite){
+                
+                // ok, these are all the rates that are involved in the mRNA and protein balances -
+                mrna_generation_proxy_object = VLEMGeneExpressionRateProcessProxy(node:composite)
+                mrna_degradation_proxy_object = VLEMGeneExpressionRateProcessProxy(node: composite)
+                mrna_basal_generation_proxy_object = VLEMGeneExpressionRateProcessProxy(node: composite)
+                protein_generation_proxy_object = VLEMGeneExpressionRateProcessProxy(node: composite)
+                protein_degradation_proxy_object = VLEMGeneExpressionRateProcessProxy(node: composite)
+            }
+        }
+        
+        
     }
     
     func didVisit(node: SyntaxTreeComponent) -> Void {
+    
+        // if we have a current proxy object, and we are of type TRANSCRIPTION, then store this node
+        if (node.tokenType == TokenType.TRANSCRIPTION){
+            
+            if let _current_proxy_object = mrna_generation_proxy_object {
+                rate_node_array.append(_current_proxy_object)
+            }
+        }
     }
     
     func getSyntaxTreeVisitorData() -> Any? {
-        return nil
+        return rate_node_array
     }
 }
 
 class BiologicalSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
     
     // declarations -
-    var state_node_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
-    var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    private var state_node_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
+    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     
     func visit(node:SyntaxTreeComponent) -> Void {
         
@@ -116,7 +156,7 @@ class BiologicalSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
                 
                 // ok, create the proxy with a guess of the type of node -
                 var my_proxy_object = VLEMSpeciesProxy(node: component_object)
-                my_proxy_object.species_token_type = node_type
+                my_proxy_object.token_type = node_type
                 
                 // specify default values different types -
                 if (node_type == TokenType.DNA)
@@ -139,7 +179,7 @@ class BiologicalSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
             
             for component_proxy in proxy_array {
             
-                if (component_proxy.species_token_type == token_type){
+                if (component_proxy.token_type == token_type){
                     sorted_proxy_array.append(component_proxy)
                 }
             }

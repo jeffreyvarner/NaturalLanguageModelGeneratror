@@ -14,7 +14,7 @@ class VLEMSpeciesProxy: NSObject {
     var syntax_tree_node:SyntaxTreeComponent?
     var state_symbol_string:String?
     var default_value:Double?
-    var species_token_type:TokenType?
+    var token_type:TokenType?
     
     // init -
     init (node:SyntaxTreeComponent){
