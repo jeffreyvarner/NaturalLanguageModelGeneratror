@@ -68,9 +68,7 @@ class VLEMParser: NSObject {
                         if (!scanner!.removeTokenOfType(TokenType.EXPRESSION)){
                             scanner!.removeTokenOfType(TokenType.TRANSCRIPTION)
                         }
-                        
-                        
-                        
+                    
                         // If we get here then we have a expression sentence, so we need to make an expression tree.
                         // The first node we create is a transcription node -
                         var builder = TranscriptionSyntaxTreeBuilderLogic()
@@ -78,6 +76,16 @@ class VLEMParser: NSObject {
                        
                         // Add the transcription node the root -
                         model_root.addNodeToTree(transcription_node)
+                    }
+                    else if (scanner!.getTypeTokenType() == TokenType.TYPE){
+                        
+                        // ok, we have a type assignmnet -
+                        // I know thw first and last tokens are what we need
+                        var builder = TypeAssignmentSyntaxTreeBuilderLogic()
+                        var type_tree = builder.build(scanner!)
+                        
+                        // Add this type to the tree -
+                        model_root.addNodeToTree(type_tree)
                     }
                 }
             }
@@ -127,6 +135,11 @@ class VLEMParser: NSObject {
                         
                         // We have an expression statement -
                         doParseWithGrammarAndScanner(scanner!, grammar:ExpressionStatementGrammarStrategy())
+                    }
+                    else if (scanner!.getTypeTokenType() == TokenType.TYPE){
+                        
+                        // ok, we have a TYPE token, so this must be a type of assingment -
+                        doParseWithGrammarAndScanner(scanner!, grammar: TypeAssignmentStatementGrammarStrategy())
                     }
                 }
                 else {

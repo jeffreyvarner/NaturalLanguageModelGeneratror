@@ -8,21 +8,13 @@
 
 import Cocoa
 
-enum VLEMSpeciesProxyType {
-    
-    case PROXY_TYPE_PROTEIN
-    case PROXY_TYPE_MESSENGER_RNA
-    case PROXY_TYPE_REGULATORY_RNA
-    case PROXY_TYPE_GENE_DNA
-    case PROXY_TYPE_NULL
-}
-
 class VLEMSpeciesProxy: NSObject {
     
     // Declarations -
     var syntax_tree_node:SyntaxTreeComponent?
     var state_symbol_string:String?
     var default_value:Double?
+    var species_token_type:TokenType?
     
     // init -
     init (node:SyntaxTreeComponent){

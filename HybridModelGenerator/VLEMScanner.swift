@@ -25,6 +25,13 @@ enum TokenType {
     case ROOT
     case NULL
     
+    case TYPE
+    case PROTEIN
+    case DNA
+    case METABOLITE
+    case MESSENGER_RNA
+    case REGULATORY_RNA
+    
     case IF
     case AND
     case OR
@@ -146,6 +153,7 @@ class VLEMScanner: NSObject {
         }
     }
     
+    
     func removeTokenOfType(tokenType:TokenType) -> (Bool) {
         
         var index = 0
@@ -186,6 +194,27 @@ class VLEMScanner: NSObject {
         
         return TokenType.NULL
     }
+    
+    func getTypeTokenType() -> TokenType {
+        
+        var index = 0
+        for token_item in token_array {
+            
+            // get the type -
+            let test_token_type = token_item.token_type!
+            if (test_token_type == TokenType.TYPE){
+                
+                // return the token type -
+                return test_token_type
+            }
+            
+            // update the index -
+            index++
+        }
+        
+        return TokenType.NULL
+    }
+
     
     func getActionTokenType() -> TokenType {
         
@@ -356,7 +385,7 @@ class VLEMScanner: NSObject {
                 
                 // ok, so we don't have a single character token, but it is *not* a comment
                 // However, we need to check to see if this is a whitespace char ..
-                if (sentence_character == " "){
+                if (sentence_character == " " || sentence_character == ";"){
                     
                     // ok, we ran into whitespace ...
                     // if local_character_stack is elements, then we have captured a word ... need to check to see what it is ...
@@ -457,6 +486,69 @@ class VLEMScanner: NSObject {
                             // clear the stack -
                             local_character_stack.removeAll(keepCapacity: true)
                         }
+                        else if (isProtein(local_character_stack) == true){
+                            
+                            // capture protein -
+                            let token = VLEMToken(token_type:TokenType.PROTEIN, line_number: lineNumber, column_number: column_index, lexeme: "protein_type", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isDNA(local_character_stack) == true){
+                            
+                            // capture protein -
+                            let token = VLEMToken(token_type:TokenType.DNA, line_number: lineNumber, column_number: column_index, lexeme: "dna_type", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isMRNA(local_character_stack) == true){
+                            
+                            // capture protein -
+                            let token = VLEMToken(token_type:TokenType.MESSENGER_RNA, line_number: lineNumber, column_number: column_index, lexeme: "mrna_type", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isRRNA(local_character_stack) == true){
+                            
+                            // capture protein -
+                            let token = VLEMToken(token_type:TokenType.REGULATORY_RNA, line_number: lineNumber, column_number: column_index, lexeme: "rrna_type", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isMetabolite(local_character_stack) == true){
+                            
+                            // capture protein -
+                            let token = VLEMToken(token_type:TokenType.METABOLITE, line_number: lineNumber, column_number: column_index, lexeme: "metabolite_type", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isType(local_character_stack) == true){
+                            
+                            // capture protein -
+                            let token = VLEMToken(token_type:TokenType.TYPE, line_number: lineNumber, column_number: column_index, lexeme: "type_type", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isIs(local_character_stack) == true){
+                            
+                            // capture Is -
+                            let token = VLEMToken(token_type:TokenType.IS, line_number: lineNumber, column_number: column_index, lexeme: "is", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
                         else {
                             
                             // ok, we don't match *any* of our keywords. This *could* be an identifier of some sort ..
@@ -536,6 +628,43 @@ class VLEMScanner: NSObject {
         
         // return -
         return (true,nil)
+    }
+    
+    
+    private func isType(characterStack:[Character]) -> Bool {
+        
+        var match_array:[Character] = ["t","y","p","e"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+    
+    private func isProtein(characterStack:[Character]) -> Bool {
+        
+        var match_array:[Character] = ["P","R","O","T","E","I","N"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+    
+    private func isDNA(characterStack:[Character]) -> Bool {
+        
+        var match_array:[Character] = ["D","N","A"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+    
+    private func isMRNA(characterStack:[Character]) -> Bool {
+        
+        var match_array:[Character] = ["M","E","S","S","E","N","G","E","R","_","R","N","A"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+    
+    private func isRRNA(characterStack:[Character]) -> Bool {
+        
+        var match_array:[Character] = ["R","E","G","U","L","A","T","O","R","Y","_","R","N","A"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+    
+    private func isMetabolite(characterStack:[Character]) -> Bool {
+        
+        var match_array:[Character] = ["M","E","T","A","B","O","L","I","T","E"]
+        return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isGeneratesSymbol(characterStack:[Character]) -> Bool {

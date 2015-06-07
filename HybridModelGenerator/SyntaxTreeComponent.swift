@@ -17,11 +17,21 @@ protocol SyntaxTreeVisitor {
     func didVisit(node:SyntaxTreeComponent) -> Void
 }
 
+enum VLEMSpeciesProxyType {
+    
+    case PROXY_TYPE_PROTEIN
+    case PROXY_TYPE_MESSENGER_RNA
+    case PROXY_TYPE_REGULATORY_RNA
+    case PROXY_TYPE_GENE_DNA
+    case PROXY_TYPE_NULL
+}
+
 class SyntaxTreeComponent: NSObject {
     
     // declarations -
     var tokenType:TokenType
     var lexeme:String?
+    
     weak var parent_pointer:SyntaxTreeComponent?
     
     init (type:TokenType){

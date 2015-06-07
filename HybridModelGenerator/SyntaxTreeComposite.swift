@@ -24,6 +24,16 @@ class SyntaxTreeComposite: SyntaxTreeComponent {
         children_array.append(node)
     }
     
+    func getChildAtIndex(index:Int) -> SyntaxTreeComponent? {
+        
+        // make sure we have this element ...
+        if ((count(children_array) - 1) < index){
+            return nil
+        }
+        
+        return children_array[index]
+    }
+    
     deinit {
         println("Compsite deinit method called ...")
     }

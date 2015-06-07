@@ -22,6 +22,161 @@ class VLEMGrammarLibrary: NSObject {
     }
 }
 
+class TypeAssignmentStatementGrammarStrategy:GrammarStrategy {
+    
+    // Top level method
+    func parse(scanner:VLEMScanner) -> VLError? {
+        
+        // ok, this involves checking a statment of the form:
+        // <prefix> is a type of {biological type}
+        
+        // do we have any tokens?
+        if (scanner.hasMoreTokens() == false){
+            return VLError(code: VLErrorCode.EMPTY_SENTENCE_ERROR, domain: "VLEMGrammarLibrary", userInfo: nil)
+        }
+        
+        // get the first token and go ...
+        if let first_token = scanner.getNextToken() {
+            
+            if (first_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
+                return parsePrefixSymbol(scanner)
+            }
+            else {
+                
+                // return false
+                var error_information_dictionary = Dictionary<String,String>()
+                error_information_dictionary["TOKEN"] = first_token.lexeme
+                error_information_dictionary["LOCATION"] = "Line: \(first_token.line_number) col: \(first_token.column_number)"
+                error_information_dictionary["MESSAGE"] = "Type assignment: expected a biological symbol, found \"\(first_token.lexeme!)\" instead."
+                error_information_dictionary["METHOD"] = "parse"
+                error_information_dictionary["CLASS"] = "TypeAssignmentStatementGrammarStrategy"
+                return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+            }
+        }
+        
+        // create user dictionary -
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["METHOD"] = "parse"
+        error_information_dictionary["CLASS"] = "TypeAssignmentStatementGrammarStrategy"
+        return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
+    
+    func parsePrefixSymbol(scanner:VLEMScanner) -> VLError? {
+    
+        if let next_token = scanner.getNextToken() {
+            
+            if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.IS)){
+                return parseASymbol(scanner)
+            }
+            else {
+            
+                // return false
+                var error_information_dictionary = Dictionary<String,String>()
+                error_information_dictionary["TOKEN"] = next_token.lexeme
+                error_information_dictionary["LOCATION"] = "Line: \(next_token.line_number) col: \(next_token.column_number)"
+                error_information_dictionary["MESSAGE"] = "Type assignment: expected is, found \"\(next_token.lexeme!)\" instead."
+                error_information_dictionary["METHOD"] = "parsePrefixSymbol"
+                error_information_dictionary["CLASS"] = "TypeAssignmentStatementGrammarStrategy"
+                return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+            }
+        }
+        
+        // return false
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["METHOD"] = "parsePrefixSymbol"
+        error_information_dictionary["CLASS"] = "TypeAssignmentStatementGrammarStrategy"
+        return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
+    
+    func parseASymbol(scanner:VLEMScanner) -> VLError? {
+        
+        if let next_token = scanner.getNextToken() {
+            
+            if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.A)){
+                return parseTypeSymbol(scanner)
+            }
+            else {
+                
+                // return false
+                var error_information_dictionary = Dictionary<String,String>()
+                error_information_dictionary["TOKEN"] = next_token.lexeme
+                error_information_dictionary["LOCATION"] = "Line: \(next_token.line_number) col: \(next_token.column_number)"
+                error_information_dictionary["MESSAGE"] = "Type assignment: expected \"a\", found \"\(next_token.lexeme!)\" instead."
+                error_information_dictionary["METHOD"] = "parseASymbol"
+                error_information_dictionary["CLASS"] = "TypeAssignmentStatementGrammarStrategy"
+                return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+            }
+        }
+        
+        // return false
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["METHOD"] = "parseASymbol"
+        error_information_dictionary["CLASS"] = "TypeAssignmentStatementGrammarStrategy"
+        return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
+    
+    func parseTypeSymbol(scanner:VLEMScanner) -> VLError? {
+        
+        if let next_token = scanner.getNextToken() {
+            
+            if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.TYPE)){
+                return parseReservedSpeciesTypeSymbol(scanner)
+            }
+            else {
+                
+                // return false
+                var error_information_dictionary = Dictionary<String,String>()
+                error_information_dictionary["TOKEN"] = next_token.lexeme
+                error_information_dictionary["LOCATION"] = "Line: \(next_token.line_number) col: \(next_token.column_number)"
+                error_information_dictionary["MESSAGE"] = "Type assignment: expected \"type\", found \"\(next_token.lexeme!)\" instead."
+                error_information_dictionary["METHOD"] = "parseTypeSymbol"
+                error_information_dictionary["CLASS"] = "TypeAssignmentStatementGrammarStrategy"
+                return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+            }
+        }
+        
+        // return false
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["METHOD"] = "parseTypeSymbol"
+        error_information_dictionary["CLASS"] = "TypeAssignmentStatementGrammarStrategy"
+        return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
+    
+    func parseReservedSpeciesTypeSymbol(scanner:VLEMScanner) -> VLError? {
+        
+        if let next_token = scanner.getNextToken() {
+            
+            if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.PROTEIN) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.METABOLITE) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.DNA) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.MESSENGER_RNA) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.REGULATORY_RNA)){
+                
+                    // ok, we reached the bottom of the statement -
+                    return nil
+            }
+            else {
+                
+                // return false
+                var error_information_dictionary = Dictionary<String,String>()
+                error_information_dictionary["TOKEN"] = next_token.lexeme
+                error_information_dictionary["LOCATION"] = "Line: \(next_token.line_number) col: \(next_token.column_number)"
+                error_information_dictionary["MESSAGE"] = "Type assignment: expected \"PROTEIN\", \"DNA\", \"MESSENGER_RNA\" or \"REGULATORY_RNA\", found \"\(next_token.lexeme!)\" instead."
+                error_information_dictionary["METHOD"] = "parseReservedSpeciesTypeSymbol"
+                error_information_dictionary["CLASS"] = "TypeAssignmentStatementGrammarStrategy"
+                return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+            }
+        }
+        
+        // return false
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["METHOD"] = "parseReservedSpeciesTypeSymbol"
+        error_information_dictionary["CLASS"] = "TypeAssignmentStatementGrammarStrategy"
+        return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
+
+}
+
 
 class ExpressionStatementGrammarStrategy:GrammarStrategy {
     

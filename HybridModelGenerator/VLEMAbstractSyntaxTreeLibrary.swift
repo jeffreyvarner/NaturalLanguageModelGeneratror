@@ -17,6 +17,78 @@ class VLEMAbstractSyntaxTreeLibrary: NSObject {
 
 }
 
+class TypeAssignmentSyntaxTreeBuilderLogic:ASTBuilder {
+    
+    init (){
+        
+    }
+    
+    func build(scanner:VLEMScanner) -> SyntaxTreeComponent {
+        return buildTypeAssignmentPrefixSubtreeTreeWithScanner(scanner)
+    }
+    
+    private func buildTypeAssignmentPrefixSubtreeTreeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
+    
+        // Declarations -
+        var type_subtree = SyntaxTreeComposite(type: TokenType.TYPE)
+        type_subtree.lexeme = "type"
+        
+        // ok, we just need to grab the first and last token (if we get here, then we have a correct syntax)
+        return recursiveBuildTypeAssignmentSubtree(scanner, node: type_subtree) as! SyntaxTreeComposite
+    }
+    
+    func recursiveBuildTypeAssignmentSubtree(scanner:VLEMScanner,node:SyntaxTreeComponent?) -> SyntaxTreeComponent? {
+        
+        if let next_token = scanner.getNextToken() {
+            
+            if (next_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
+                if let local_node = node where ((local_node as? SyntaxTreeComposite) != nil) {
+                    var composite = local_node as! SyntaxTreeComposite
+                    
+                    // Create leaf -
+                    var leaf_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                    leaf_node.lexeme = next_token.lexeme
+                    
+                    // add the leaf to composite -
+                    composite.addNodeToTree(leaf_node)
+                    
+                    // keep going down the statement -
+                    return recursiveBuildTypeAssignmentSubtree(scanner, node: composite)
+                }
+            }
+            else if (next_token.token_type == TokenType.PROTEIN ||
+                next_token.token_type == TokenType.MESSENGER_RNA ||
+                next_token.token_type == TokenType.METABOLITE ||
+                next_token.token_type == TokenType.REGULATORY_RNA ||
+                next_token.token_type == TokenType.DNA) {
+                    
+                // ok, we are at the bottom of the stack -
+                if let local_node = node where ((local_node as? SyntaxTreeComposite) != nil) {
+                    var composite = local_node as! SyntaxTreeComposite
+                    
+                    // Create a leaf node with the type -
+                    var leaf_node = SyntaxTreeComponent(type:next_token.token_type!)
+                    leaf_node.lexeme = next_token.lexeme
+                    
+                    // Add -
+                    composite.addNodeToTree(leaf_node)
+                    
+                    // return the composite -
+                    return composite
+                }
+            }
+            else {
+                
+                // we have a different type of token, skip and keep going down the statement -
+                return recursiveBuildTypeAssignmentSubtree(scanner, node:node)
+            }
+        }
+        
+        // return -
+        return nil
+    }
+}
+
 class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
     
     
@@ -29,7 +101,7 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
     
     
     // MARK: - Tree node creation methods
-    func buildTranscriptionStatementControlTreeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
+    private func buildTranscriptionStatementControlTreeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
         
         // Declarations -
         var transcription_node = SyntaxTreeComposite(type: TokenType.TRANSCRIPTION)
@@ -56,7 +128,7 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
     }
     
     
-    func buildComplexStatementNodeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComponent? {
+    private func buildComplexStatementNodeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComponent? {
         
         
         // What symbols are associated with the control node?
@@ -93,7 +165,7 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
         return nil
     }
     
-    func buildRelationshipSubtreeNodeWithScanner(scanner:VLEMScanner,node:SyntaxTreeComponent?) -> SyntaxTreeComponent? {
+    private func buildRelationshipSubtreeNodeWithScanner(scanner:VLEMScanner,node:SyntaxTreeComponent?) -> SyntaxTreeComponent? {
         
         if let next_token = scanner.getNextToken() {
             
@@ -141,7 +213,7 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
         return nil
     }
     
-    func buildControlStatementNodeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
+    private func buildControlStatementNodeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
         
         // what type of control node do we have?
         
