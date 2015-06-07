@@ -173,8 +173,7 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         buffer+="\t# Set the initial condition - \n"
         buffer+="\tIC_ARRAY = Float64[]\n"
         
-        // cast -
-        
+        // Build IC list -
         var model_root = root as! SyntaxTreeComposite
         if var species_list = extractSpeciesList(model_root) {
             
@@ -189,11 +188,29 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
                 buffer+="\tpush!(IC_ARRAY,\(default_value!))\t"
                 buffer+="#\t\(counter)\t\(state_symbol!)\n"
                 
-                
                 // update the counter -
                 counter++
             }
         }
+        
+        // Build the list of gene expression kinetic parameters -
+        buffer+="\t# Setup the gene expression kinetic parameter vector - \n"
+        buffer+="\tGENE_EXPRESSION_KINETIC_PARAMETER_VECTOR = Float64[]\n"
+        if var gene_expression_rate_list = extractGeneExpressionRateList(model_root) {
+            
+            var counter = 1
+            for proxy_object in gene_expression_rate_list {
+            
+                
+                // write the record -
+                //buffer+="\tpush!(IC_ARRAY,\(default_value!))\t"
+                //buffer+="#\t\(counter)\t\(state_symbol!)\n"
+
+                // update the counter -
+                counter++
+            }
+        }
+        
         
         buffer+="\n"
         buffer+="\t# - DO NOT EDIT BELOW THIS LINE ------------------------------ \n"
@@ -212,6 +229,17 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
     }
     
     // MARK: - Helper methods
+    func extractGeneExpressionRateList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionProcessRateProxy]? {
+     
+        // get the list of rates involved in gene expression (includes degradation rates for both protein, and mRNA)
+        var rate_visitor = GeneExpressionRateSyntaxTreeVistor()
+        for child_node in root.children_array {
+            child_node.accept(rate_visitor)
+        }
+        
+        return rate_visitor.getSyntaxTreeVisitorData() as? [VLEMGeneExpressionProcessRateProxy]
+    }
+    
     func extractSpeciesList(root:SyntaxTreeComposite) -> [VLEMSpeciesProxy]? {
         
         // Get the list of species using the vistor pattern -

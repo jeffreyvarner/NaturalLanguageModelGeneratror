@@ -42,6 +42,8 @@
 		ADC37FF31B22549600FCD586 /* VLEMSpeciesProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FEF1B224BB100FCD586 /* VLEMSpeciesProxy.swift */; };
 		ADC37FF51B2281CC00FCD586 /* VLEMCodeEngineTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FF41B2281CC00FCD586 /* VLEMCodeEngineTest.swift */; };
 		ADC37FF61B2283F700FCD586 /* VLEMCodeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FE81B21B00900FCD586 /* VLEMCodeEngine.swift */; };
+		ADC37FF81B23DBEF00FCD586 /* VLEMGeneExpressionProcessRateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FF71B23DBEF00FCD586 /* VLEMGeneExpressionProcessRateProxy.swift */; };
+		ADC37FF91B23DCC600FCD586 /* VLEMGeneExpressionProcessRateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FF71B23DBEF00FCD586 /* VLEMGeneExpressionProcessRateProxy.swift */; };
 		ADD8D4641AEC301A00F60815 /* HybridStateModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */; };
 		ADEFD5191AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEFD5181AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift */; };
 /* End PBXBuildFile section */
@@ -85,6 +87,7 @@
 		ADC37FED1B222A2900FCD586 /* JuliaLanguageStrategyLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JuliaLanguageStrategyLibrary.swift; sourceTree = "<group>"; };
 		ADC37FEF1B224BB100FCD586 /* VLEMSpeciesProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMSpeciesProxy.swift; sourceTree = "<group>"; };
 		ADC37FF41B2281CC00FCD586 /* VLEMCodeEngineTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMCodeEngineTest.swift; sourceTree = "<group>"; };
+		ADC37FF71B23DBEF00FCD586 /* VLEMGeneExpressionProcessRateProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMGeneExpressionProcessRateProxy.swift; sourceTree = "<group>"; };
 		ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridStateModel.swift; sourceTree = "<group>"; };
 		ADEFD5181AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelJuliaCodeLibrary.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -211,6 +214,7 @@
 				ADC37FE21B20B13E00FCD586 /* VLEMAbstractSyntaxTreeLibrary.swift */,
 				ADC37FEA1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift */,
 				ADC37FEF1B224BB100FCD586 /* VLEMSpeciesProxy.swift */,
+				ADC37FF71B23DBEF00FCD586 /* VLEMGeneExpressionProcessRateProxy.swift */,
 			);
 			name = syntax_tree;
 			sourceTree = "<group>";
@@ -325,6 +329,7 @@
 				ADC37FDD1B1E238E00FCD586 /* SyntaxTreeComponent.swift in Sources */,
 				ADC37FEB1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift in Sources */,
 				AD3E54881AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift in Sources */,
+				ADC37FF81B23DBEF00FCD586 /* VLEMGeneExpressionProcessRateProxy.swift in Sources */,
 				ADC37FE31B20B13E00FCD586 /* VLEMAbstractSyntaxTreeLibrary.swift in Sources */,
 				ADEFD5191AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift in Sources */,
 				AD0903CE1AE6607F0078713B /* ViewController.swift in Sources */,
@@ -349,6 +354,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADC37FF91B23DCC600FCD586 /* VLEMGeneExpressionProcessRateProxy.swift in Sources */,
 				ADC37FF61B2283F700FCD586 /* VLEMCodeEngine.swift in Sources */,
 				ADC37FF21B22549600FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift in Sources */,
 				ADC37FF31B22549600FCD586 /* VLEMSpeciesProxy.swift in Sources */,

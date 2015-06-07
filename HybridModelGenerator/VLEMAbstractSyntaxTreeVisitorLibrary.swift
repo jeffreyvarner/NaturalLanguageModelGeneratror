@@ -9,8 +9,29 @@
 import Cocoa
 
 class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
-    
 
+}
+
+class GeneExpressionRateSyntaxTreeVistor:SyntaxTreeVisitor {
+
+    
+    
+    func visit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        return true
+    }
+    
+    func willVisit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func didVisit(node: SyntaxTreeComponent) -> Void {
+    }
+    
+    func getSyntaxTreeVisitorData() -> Any? {
+        return nil
+    }
 }
 
 class BiologicalSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
@@ -84,56 +105,6 @@ class BiologicalSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
             }
         }
     }
-    
-//    func didVisit(node:SyntaxTreeComponent) -> Void {
-//    
-//        // ok, we have a list of species, for protien species I need to add
-//        // a gene and mRNA for each unique protein -
-//        
-//        if (node.tokenType == TokenType.BIOLOGICAL_SYMBOL){
-//        
-//            // Declarations -
-//            var protein_match_array:[Character] = ["p","r","o","t","e","i","n","_"]
-//            var tmp_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
-//            
-//            // iterate through the component array -
-//            for component_object in state_node_array {
-//                
-//                if let component_lexeme = component_object.lexeme {
-//                    
-//                    // Build char array -
-//                    var lexeme_char_array = [Character]()
-//                    
-//                    // check, is this a protein?
-//                    for local_char in component_lexeme {
-//                        lexeme_char_array.append(local_char)
-//                    }
-//                    
-//                    if (matchLogic(lexeme_char_array, matchArray: protein_match_array) == true){
-//                        
-//                        // We have a protein, we need to build a GENE_* and mRNA_* species
-//                        var gene_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
-//                        gene_node.lexeme = "gene_"+component_lexeme
-//                        
-//                        var mrna_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
-//                        mrna_node.lexeme = "mRNA_"+component_lexeme
-//                        
-//                        if (arrayContains(tmp_array, node: mrna_node) == false){
-//                            tmp_array.append(gene_node)
-//                            tmp_array.append(mrna_node)
-//                        }
-//                    }
-//                }
-//            }
-//            
-//            // add these to the state array -
-//            for component_object in tmp_array {
-//                if (arrayContains(state_node_array, node: component_object) == false){
-//                    state_node_array.append(component_object)
-//                }
-//            }
-//        }
-//    }
     
     func getSyntaxTreeVisitorData() -> Any? {
         
