@@ -10,28 +10,59 @@ import Cocoa
 
 class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
 
+    
+    static func arrayContainsNode(array:[SyntaxTreeComponent],node:SyntaxTreeComponent) -> Bool {
+        
+        for item in array {
+            
+            if (item.lexeme == node.lexeme){
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    static func isNodeType(node:SyntaxTreeComponent,type_dictionary:Dictionary<String,SyntaxTreeComponent>) -> TokenType? {
+        
+        // What is the lexeme for this node?
+        let node_lexeme = node.lexeme
+        
+        // ok, we need to iterate through my type dictionary, which is key'd by a prefix
+        for (key,value) in type_dictionary {
+            
+            // does the lexeme contain the key?
+            if ((node_lexeme?.rangeOfString(key, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil) != nil)){
+                
+                let first_char_key = key[advance(key.startIndex, 0)]
+                let first_char_lexeme = node_lexeme![advance(node_lexeme!.startIndex, 0)]
+                if (first_char_key == first_char_lexeme){
+                    
+                    // ok, we have a match, return the token_type
+                    return value.tokenType
+                }
+            }
+        }
+        
+        // default is NULL
+        return TokenType.NULL
+    }
+
 }
 
 class GeneExpressionRateSyntaxTreeVistor:SyntaxTreeVisitor {
 
     // Declarations -
     private var rate_node_array:[VLEMGeneExpressionRateProcessProxy] = [VLEMGeneExpressionRateProcessProxy]()
+    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     
-    // mRNA process rates -
-    private var mrna_generation_proxy_object:VLEMGeneExpressionRateProcessProxy?
-    private var mrna_degradation_proxy_object:VLEMGeneExpressionRateProcessProxy?
-    private var mrna_basal_generation_proxy_object:VLEMGeneExpressionRateProcessProxy?
-    
-    // protein process rates -
-    private var protein_generation_proxy_object:VLEMGeneExpressionRateProcessProxy?
-    private var protein_degradation_proxy_object:VLEMGeneExpressionRateProcessProxy?
-    
-    func visit(node:SyntaxTreeComponent) -> Void {
-    
-        // let's do some further configuration of the proxy -
-        if (node.tokenType == TokenType.BIOLOGICAL_SYMBOL && node.parent_pointer?.parent_pointer?.tokenType == TokenType.TRANSCRIPTION){
+    private var target_node_array = [SyntaxTreeComponent]() {
+        willSet(newValue) {
             
         }
+    }
+    
+    func visit(node:SyntaxTreeComponent) -> Void {
     }
     
     func shouldVisit(node:SyntaxTreeComponent) -> Bool {
@@ -40,36 +71,125 @@ class GeneExpressionRateSyntaxTreeVistor:SyntaxTreeVisitor {
     
     func willVisit(node:SyntaxTreeComponent) -> Void {
         
-        // ok, if we are going to visit a node that is type transcription,
-        // make a new proxy -
-        if (node.tokenType == TokenType.TRANSCRIPTION){
+        // ok, if we are visiting a type node, grab it for later -
+        if (node.tokenType == TokenType.TYPE){
+            // ok, I have a type node ...
             
-            if let composite = (node as? SyntaxTreeComposite){
+            if let composite = (node as? SyntaxTreeComposite) {
                 
-                // ok, these are all the rates that are involved in the mRNA and protein balances -
-                mrna_generation_proxy_object = VLEMGeneExpressionRateProcessProxy(node:composite)
-                mrna_degradation_proxy_object = VLEMGeneExpressionRateProcessProxy(node: composite)
-                mrna_basal_generation_proxy_object = VLEMGeneExpressionRateProcessProxy(node: composite)
-                protein_generation_proxy_object = VLEMGeneExpressionRateProcessProxy(node: composite)
-                protein_degradation_proxy_object = VLEMGeneExpressionRateProcessProxy(node: composite)
+                // ok, we need to get the prefix *and* the type -
+                let prefix_node = composite.getChildAtIndex(0)
+                let type_node = composite.getChildAtIndex(1)
+                
+                // setup the key -
+                type_dictionary[prefix_node!.lexeme!] = type_node
             }
         }
         
-        
+        // let's grab the targets -
+        if (node.tokenType == TokenType.BIOLOGICAL_SYMBOL && node.parent_pointer?.parent_pointer?.tokenType == TokenType.TRANSCRIPTION){
+            
+            if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsNode(target_node_array, node: node) == false){
+                target_node_array.append(node)
+            }
+        }
     }
     
     func didVisit(node: SyntaxTreeComponent) -> Void {
-    
-        // if we have a current proxy object, and we are of type TRANSCRIPTION, then store this node
-        if (node.tokenType == TokenType.TRANSCRIPTION){
-            
-            if let _current_proxy_object = mrna_generation_proxy_object {
-                rate_node_array.append(_current_proxy_object)
-            }
-        }
     }
     
     func getSyntaxTreeVisitorData() -> Any? {
+        
+        // ok, so we should have everything here now. 
+        // First, we need to get a count of the number of targets that we have
+        var proxy_node_array = [VLEMSpeciesProxy]()
+        for node in target_node_array {
+            
+            // what kind of node is this?
+            if let node_type = VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) where (node_type == TokenType.PROTEIN) {
+                
+                // ok, we have a protein node, let's build a proxy -
+                var protein_proxy = VLEMSpeciesProxy(node: node)
+                protein_proxy.token_type = TokenType.PROTEIN
+                
+                // ok, we have a protein -
+                var mrna_prefix = ""
+                for (key,value) in type_dictionary {
+                    
+                    if value.tokenType == TokenType.MESSENGER_RNA {
+                        mrna_prefix = key
+                    }
+                }
+                
+                // We have a protein, we need to build a mRNA_* species
+                var mrna_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                mrna_node.lexeme = mrna_prefix+node.lexeme!
+                
+                // build a proxy for it -
+                var mrna_node_proxy = VLEMSpeciesProxy(node: mrna_node)
+                mrna_node_proxy.token_type = TokenType.MESSENGER_RNA
+                
+                // ok, add these nodes to my array (if they are not already there)
+                proxy_node_array.append(protein_proxy)
+                proxy_node_array.append(mrna_node_proxy)
+            }
+        }
+        
+        
+        // let's sort this by type -
+        let type_array = [TokenType.DNA,TokenType.MESSENGER_RNA,TokenType.PROTEIN,TokenType.METABOLITE]
+        var sorted_target_array = [VLEMSpeciesProxy]()
+        for token_type in type_array {
+            
+            for component_proxy in proxy_node_array {
+                
+                if (component_proxy.token_type == token_type){
+                    sorted_target_array.append(component_proxy)
+                }
+            }
+        }
+
+        // Lastly, for each proxy in my sorted target array we'll create a set of reactions
+        for species_proxy in sorted_target_array {
+            
+            
+            if (species_proxy.token_type == TokenType.MESSENGER_RNA){
+                
+                // For this mRNA we need to create a rate proxy
+                var synthesis_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
+                synthesis_rate_proxy.rate_description = "Transcription constant \(species_proxy.syntax_tree_node!.lexeme!)"
+                synthesis_rate_proxy.default_value = 1.0
+                
+                var basal_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
+                basal_rate_proxy.rate_description = "Basal expression constant \(species_proxy.syntax_tree_node!.lexeme!)"
+                basal_rate_proxy.default_value = 0.001
+                
+                var degradation_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
+                degradation_rate_proxy.rate_description = "Degradation constant \(species_proxy.syntax_tree_node!.lexeme!)"
+                degradation_rate_proxy.default_value = 0.1
+                
+                // package -
+                rate_node_array.append(synthesis_rate_proxy)
+                rate_node_array.append(basal_rate_proxy)
+                rate_node_array.append(degradation_rate_proxy)
+            }
+            else {
+                
+                // For this mRNA we need to create a rate proxy
+                var synthesis_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
+                synthesis_rate_proxy.rate_description = "Translation constant \(species_proxy.syntax_tree_node!.lexeme!)"
+                synthesis_rate_proxy.default_value = 10.0
+                
+                var degradation_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
+                degradation_rate_proxy.rate_description = "Degradation constant \(species_proxy.syntax_tree_node!.lexeme!)"
+                degradation_rate_proxy.default_value = 0.01
+                
+                // package -
+                rate_node_array.append(synthesis_rate_proxy)
+                rate_node_array.append(degradation_rate_proxy)
+            }
+        }
+        
         return rate_node_array
     }
 }

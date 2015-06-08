@@ -194,6 +194,7 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         }
         
         // Build the list of gene expression kinetic parameters -
+        buffer+="\n"
         buffer+="\t# Setup the gene expression kinetic parameter vector - \n"
         buffer+="\tGENE_EXPRESSION_KINETIC_PARAMETER_VECTOR = Float64[]\n"
         if var gene_expression_rate_list = extractGeneExpressionRateList(model_root) {
@@ -201,10 +202,13 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
             var counter = 1
             for proxy_object in gene_expression_rate_list {
             
+                // get default value -
+                let default_value = proxy_object.default_value
+                let rate_description = proxy_object.rate_description!
                 
                 // write the record -
-                //buffer+="\tpush!(IC_ARRAY,\(default_value!))\t"
-                //buffer+="#\t\(counter)\t\(state_symbol!)\n"
+                buffer+="\tpush!(IC_ARRAY,\(default_value))\t"
+                buffer+="#\t\(counter)\t\(rate_description)\n"
 
                 // update the counter -
                 counter++

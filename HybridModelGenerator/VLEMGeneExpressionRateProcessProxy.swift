@@ -11,13 +11,14 @@ import Cocoa
 class VLEMGeneExpressionRateProcessProxy: NSObject {
 
     // Declarations -
-    var gene_expression_tree:SyntaxTreeComposite?
+    var gene_expression_tree:SyntaxTreeComponent?
     var token_type:TokenType?
-    
+    var lexeme:String?
+    var rate_description:String?
     var default_value:Double = 0.0
     
     // initialize -
-    init(node:SyntaxTreeComposite){
+    init(node:SyntaxTreeComponent){
         
         self.gene_expression_tree = node
         self.token_type = node.tokenType
