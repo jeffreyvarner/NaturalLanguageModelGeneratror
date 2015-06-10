@@ -85,6 +85,52 @@ class JuliaLanguageStrategyLibrary: NSObject {
     
 }
 
+class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
+    
+    func execute(node:SyntaxTreeComponent) -> String {
+        
+        // declarations -
+        var buffer:String = ""
+        
+        buffer+="# Include statements - \n"
+        buffer+="include(\"Kinetics.jl\")\n"
+        buffer+="include(\"Control.jl\")\n"
+        buffer+="\n"
+        
+        // get the copyright header information -
+        var header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("Balances.jl",
+            functionDescription: "Encodes the material balance equations for the metabolic model.\n# Called by SolveBalanceEquations.jl")
+        
+        buffer+="\(header_information)"
+        buffer+="function Balances(t,x,dxdt_vector,DF)\n"
+        buffer+="\n"
+        
+        buffer+="\t# Define the rate_vector - \n"
+        buffer+="\t(gene_expression_rate_vector, metabolic_rate_vector) = Kinetics(t,x,DF);\n"
+        buffer+="\n"
+        
+        buffer+="\t# Define the control_vector - \n"
+        buffer+="\t(gene_expression_control_vector, metabolic_control_vector) = Control(t,x,gene_expression_rate_vector,metabolic_rate_vector,DF);\n"
+        buffer+="\n"
+        
+        buffer+="\t# Correct the gene expression rate vector - \n"
+        buffer+="\tgene_expression_rate_vector = gene_expression_rate_vector.*gene_expression_control_vector;\n"
+        buffer+="\n"
+        
+        buffer+="\t# Correct the metabolic rate vector - \n"
+        buffer+="\tmetabolic_rate_vector = metabolic_rate_vector.*metabolic_control_vector;\n"
+        buffer+="\n"
+        
+        buffer+="\t# Define the dxdt_vector - \n"
+        buffer+="\n"
+        buffer+="\treturn dxdt_vector;\n"
+        buffer+="end"
+        
+        // return -
+        return buffer
+    }
+}
+
 class JuliaProjectIncludeFileStrategy:CodeGenerationStrategy {
     
     func execute(node:SyntaxTreeComponent) -> String {
@@ -207,14 +253,39 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
                 let rate_description = proxy_object.rate_description!
                 
                 // write the record -
-                buffer+="\tpush!(IC_ARRAY,\(default_value))\t"
+                buffer+="\tpush!(GENE_EXPRESSION_KINETIC_PARAMETER_VECTOR,\(default_value))\t"
                 buffer+="#\t\(counter)\t\(rate_description)\n"
 
                 // update the counter -
                 counter++
             }
         }
+        else {
+            buffer+="\t# No gene expression processes appear in the model.\n"
+        }
         
+        // Build the metabolic kinetic parameter vector -
+        buffer+="\n"
+        buffer+="\t# Setup the metabolic kinetic parameter vector - \n"
+        buffer+="\tMETABOLIC_KINETIC_PARAMETER_VECTOR = Float64[]\n"
+        buffer+="\n"
+        
+        // Setup the gene expression control parameter vector -
+        buffer+="\n"
+        buffer+="\t# Setup the gene expression control parameter vector - \n"
+        buffer+="\tGENE_EXPRESSION_CONTROL_PARAMETER_VECTOR = Float64[]\n"
+        if var gene_expression_control_structure = extractGeneExpressionControlList(model_root){
+            
+        }
+        else {
+            buffer+="\t# No gene expression control terms appear in the model.\n"
+        }
+        
+        // Setup the metabolic control parameter vector -
+        buffer+="\n"
+        buffer+="\t# Setup the metabolic control parameter vector - \n"
+        buffer+="\tMETABOLIC_CONTROL_PARAMETER_VECTOR = Float64[]\n"
+        buffer+="\n"
         
         buffer+="\n"
         buffer+="\t# - DO NOT EDIT BELOW THIS LINE ------------------------------ \n"
@@ -233,6 +304,11 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
     }
     
     // MARK: - Helper methods
+    func extractGeneExpressionControlList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionRateProcessProxy]? {
+    
+        return nil
+    }
+    
     func extractGeneExpressionRateList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionRateProcessProxy]? {
      
         // get the list of rates involved in gene expression (includes degradation rates for both protein, and mRNA)

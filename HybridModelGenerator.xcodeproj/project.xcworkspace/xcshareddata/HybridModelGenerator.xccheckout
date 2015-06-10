@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>25018690-69AF-4CF2-BE7C-30FE6FEB71F0</string>
 	<key>IDESourceControlProjectName</key>
-	<string>project</string>
+	<string>HybridModelGenerator</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>281E9540C1C4E28163ECF414E6C62412E1485F33</key>
 		<string>https://github.com/jeffreyvarner/NaturalLanguageModelGeneratror.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>HybridModelGenerator.xcodeproj/project.xcworkspace</string>
+	<string>HybridModelGenerator.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>281E9540C1C4E28163ECF414E6C62412E1485F33</key>

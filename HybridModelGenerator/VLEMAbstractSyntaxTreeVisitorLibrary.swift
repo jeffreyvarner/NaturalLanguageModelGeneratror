@@ -50,6 +50,90 @@ class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
 
 }
 
+class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
+    
+    // Declarations -
+    private var type_dictionary:Dictionary<String,SyntaxTreeComponent>
+    private var control_species_array = [SyntaxTreeComponent]()
+    
+    // We require the type dictionary -
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
+        self.type_dictionary = typeDictionary
+    }
+    
+    func visit(node:SyntaxTreeComponent) -> Void {
+    
+        if (node.tokenType == TokenType.OR || node.tokenType == TokenType.AND){
+            
+            if let _parent_pointer = node.parent_pointer {
+                
+                if (_parent_pointer.tokenType == TokenType.INDUCE || _parent_pointer.tokenType == TokenType.INDUCES ||
+                    _parent_pointer.tokenType == TokenType.REPRESSES || _parent_pointer.tokenType == TokenType.REPRESS){
+                        
+                    // ok, we are on the relationship node ..
+                    // Are we an AND -or- an OR?
+                    if (node.tokenType == TokenType.OR){
+                    
+                        // An or means we'll have seperate transfer functions, each with two parameters ..
+                        
+                    }
+                }
+            }
+        }
+    }
+    
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        return true
+    }
+    
+    func willVisit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func didVisit(node: SyntaxTreeComponent) -> Void {
+    }
+    
+    func getSyntaxTreeVisitorData() -> Any? {
+        return nil
+    }
+}
+
+class BiologicalTypeDictionarySyntaxTreeVisitor:SyntaxTreeVisitor {
+    
+    // Declarations -
+    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    
+    func visit(node:SyntaxTreeComponent) -> Void {
+        
+        // ok, if we are visiting a type node, grab the types
+        if (node.tokenType == TokenType.TYPE){
+            
+            if let composite = (node as? SyntaxTreeComposite) {
+                
+                // ok, we need to get the prefix *and* the type -
+                let prefix_node = composite.getChildAtIndex(0)
+                let type_node = composite.getChildAtIndex(1)
+                
+                // setup the key -
+                type_dictionary[prefix_node!.lexeme!] = type_node
+            }
+        }
+    }
+    
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        return true
+    }
+    
+    func willVisit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func didVisit(node: SyntaxTreeComponent) -> Void {
+    }
+    
+    func getSyntaxTreeVisitorData() -> Any? {
+        return type_dictionary
+    }
+}
+
 class GeneExpressionRateSyntaxTreeVistor:SyntaxTreeVisitor {
 
     // Declarations -
