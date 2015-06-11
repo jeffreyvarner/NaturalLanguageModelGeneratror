@@ -54,7 +54,9 @@ class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
     private var type_dictionary:Dictionary<String,SyntaxTreeComponent>
-    private var control_species_array = [SyntaxTreeComponent]()
+    private var control_parameter_proxy_array = [VLEMGeneExpressionControlParameterProxy]()
+    private var transcription_root_node:SyntaxTreeComposite?
+    private var target_node_array:[SyntaxTreeComponent]?
     
     // We require the type dictionary -
     init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
@@ -63,19 +65,99 @@ class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     func visit(node:SyntaxTreeComponent) -> Void {
     
+        // declarations -
+        var buffer = "Target(s):"
+        
         if (node.tokenType == TokenType.OR || node.tokenType == TokenType.AND){
             
             if let _parent_pointer = node.parent_pointer {
                 
                 if (_parent_pointer.tokenType == TokenType.INDUCE || _parent_pointer.tokenType == TokenType.INDUCES ||
                     _parent_pointer.tokenType == TokenType.REPRESSES || _parent_pointer.tokenType == TokenType.REPRESS){
+                    
                         
                     // ok, we are on the relationship node ..
                     // Are we an AND -or- an OR?
                     if (node.tokenType == TokenType.OR){
                     
-                        // An or means we'll have seperate transfer functions, each with two parameters ..
+                        if let _local_target_node_array = target_node_array {
+                            
+                            // create target string -
+                            for target_node in _local_target_node_array {
+                                buffer+=" \(target_node.lexeme!) "
+                            }
+                        }
                         
+                        // An OR means we'll have seperate transfer functions, each with two parameters ..
+                        if let _or_node = node as? SyntaxTreeComposite {
+                        
+                            let number_of_species = _or_node.numberOfChildren()
+                            for var index = 0;index<number_of_species;index++ {
+                                
+                                // Create a parameter node, one alpha and one beta node per child
+                                let _child_node = _or_node.getChildAtIndex(index)
+                                
+                                // Alpha node (gain)
+                                var alpha_node = VLEMGeneExpressionControlParameterProxy(node: transcription_root_node!)
+                                alpha_node.default_value = 0.1
+                                alpha_node.gene_expression_parameter_type = GeneExpressionParameterType.EXPRESSION_GAIN
+                                alpha_node.proxy_description = "Gain -> Actor: \(_child_node!.lexeme!) \(buffer)"
+                                
+                                // Beta node (order)
+                                var beta_node = VLEMGeneExpressionControlParameterProxy(node: transcription_root_node!)
+                                beta_node.default_value = 1.0
+                                beta_node.gene_expression_parameter_type = GeneExpressionParameterType.EXPRESSION_ORDER
+                                beta_node.proxy_description = "Order -> Actor: \(_child_node!.lexeme!) \(buffer)"
+                                
+                                // grab for later -
+                                control_parameter_proxy_array.append(alpha_node)
+                                control_parameter_proxy_array.append(beta_node)
+                            }
+                        }
+                    }
+                    else if (node.tokenType == TokenType.AND){
+                    
+                        if let _local_target_node_array = target_node_array {
+                            
+                            // create target string -
+                            for target_node in _local_target_node_array {
+                                buffer+=" \(target_node.lexeme!) "
+                            }
+                        }
+                        
+                        // Get the and node -
+                        if let _and_node = node as? SyntaxTreeComposite {
+                            
+                            var actor_description = ""
+                            let number_of_species = _and_node.numberOfChildren()
+                            for var index = 0;index<number_of_species;index++ {
+                                
+                                // Create a parameter node, one alpha and one beta node per child
+                                let _child_node = _and_node.getChildAtIndex(index)
+                                actor_description+=_child_node!.lexeme!
+                                
+                                if (index < number_of_species - 1)
+                                {
+                                    actor_description+="*"
+                                }
+                            }
+                            
+                            // This is easy - we create a *single* alpha and beta parameter
+                            var alpha_node = VLEMGeneExpressionControlParameterProxy(node: transcription_root_node!)
+                            alpha_node.default_value = 0.1
+                            alpha_node.gene_expression_parameter_type = GeneExpressionParameterType.EXPRESSION_GAIN
+                            alpha_node.proxy_description = "Gain -> Actor: \(actor_description) \(buffer)"
+                            
+                            // Beta node (order)
+                            var beta_node = VLEMGeneExpressionControlParameterProxy(node: transcription_root_node!)
+                            beta_node.default_value = 1.0
+                            beta_node.gene_expression_parameter_type = GeneExpressionParameterType.EXPRESSION_ORDER
+                            beta_node.proxy_description = "Order -> Actor: \(actor_description) \(buffer)"
+                            
+                            // grab for later -
+                            control_parameter_proxy_array.append(alpha_node)
+                            control_parameter_proxy_array.append(beta_node)
+                        }
                     }
                 }
             }
@@ -87,13 +169,27 @@ class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
     }
     
     func willVisit(node:SyntaxTreeComponent) -> Void {
+        
+        if (node.tokenType == TokenType.TRANSCRIPTION){
+            
+            // Grab this node, we'll need it later
+            if let _transcription_root_node = node as? SyntaxTreeComposite {
+                
+                self.transcription_root_node = _transcription_root_node
+                
+                // what are the targets for this transcription process?
+                if let _target_relationship_node = _transcription_root_node.getChildAtIndex(1) as? SyntaxTreeComposite {
+                    self.target_node_array = _target_relationship_node.children_array
+                }
+            }
+        }
     }
     
     func didVisit(node: SyntaxTreeComponent) -> Void {
     }
     
     func getSyntaxTreeVisitorData() -> Any? {
-        return nil
+        return control_parameter_proxy_array
     }
 }
 

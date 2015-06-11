@@ -24,6 +24,18 @@ class JuliaLanguageStrategyLibrary: NSObject {
         buffer+="\n"
     }
     
+    static func extractSpeciesList(root:SyntaxTreeComposite) -> [VLEMSpeciesProxy]? {
+        
+        // Get the list of species using the vistor pattern -
+        var species_visitor = BiologicalSymbolSyntaxTreeVisitor()
+        for child_node in root.children_array {
+            child_node.accept(species_visitor)
+        }
+        
+        return species_visitor.getSyntaxTreeVisitorData() as? [VLEMSpeciesProxy]
+    }
+
+    
     // build function header information -
     static func buildCopyrightHeader(functionName:String, functionDescription:String) -> String {
         
@@ -83,6 +95,59 @@ class JuliaLanguageStrategyLibrary: NSObject {
         return buffer
     }
     
+}
+
+class JuliaControlFileStrategy:CodeGenerationStrategy {
+ 
+    func execute(node:SyntaxTreeComponent) -> String {
+        
+        // declarations -
+        var buffer:String = ""
+        
+        // get the copyright header information -
+        var header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("Control.jl",
+            functionDescription: "Calculates the metabolic and gene expression control vector. Called by Balances.jl.")
+        
+        buffer+="\(header_information)"
+        buffer+="function Control(t,x,rate_vector,metabolic_rate_vector,DF)\n"
+        buffer+="\n"
+        buffer+="\t# Initialize control_vector - \n"
+        buffer+="\tnumber_of_rates = length(rate_vector);\n"
+        buffer+="\tnumber_of_metabolic_rates = length(metabolic_rate_vector);\n"
+        buffer+="\tcontrol_vector_gene_expression = ones(Float64,(number_of_rates,1));\n"
+        buffer+="\tcontrol_vector_metabolism = ones(Float64,(number_of_metabolic_rates,1));\n"
+        buffer+="\n"
+        buffer+="\t# Get the parameter_vector - \n"
+        buffer+="\tgene_expression_parameter_vector = DF[\"GENE_EXPRESSION_CONTROL_PARAMETER_VECTOR\"];\n"
+        buffer+="\tmetabolic_parameter_vector = DF[\"METABOLIC_CONTROL_PARAMETER_VECTOR\"];\n"
+        buffer+="\n"
+        buffer+="\t# Alias the state vector - \n"
+        
+        // Build species list -
+        var model_root = node as! SyntaxTreeComposite
+        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
+            
+            var counter = 1
+            for proxy_object in species_list {
+                
+                // Get the default value -
+                let default_value = proxy_object.default_value
+                let state_symbol = proxy_object.state_symbol_string!
+                
+                buffer+="\t"
+                buffer+=state_symbol
+                buffer+="\t=\t"
+                buffer+="x[\(counter)];\n"
+                
+                // update the counter -
+                counter++
+            }
+        }
+
+        
+        // return -
+        return buffer
+    }
 }
 
 class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
@@ -274,7 +339,29 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Setup the gene expression control parameter vector - \n"
         buffer+="\tGENE_EXPRESSION_CONTROL_PARAMETER_VECTOR = Float64[]\n"
-        if var gene_expression_control_structure = extractGeneExpressionControlList(model_root){
+        if var gene_expression_control_parameters = extractGeneExpressionControlParameterList(model_root){
+            
+            var counter = 1
+            for proxy_object in gene_expression_control_parameters {
+                
+                // get default value -
+                let default_value = proxy_object.default_value
+                
+                
+                // write the record -
+                buffer+="\tpush!(GENE_EXPRESSION_CONTROL_PARAMETER_VECTOR,\(default_value))\t"
+                
+                if let _parameter_description = proxy_object.proxy_description {
+                    buffer+="#\t\(counter)\t \(_parameter_description)\n"
+                }
+                else {
+                    buffer+="#\t\(counter)\t gene expression control parameter \n"
+                }
+                
+                
+                // update the counter -
+                counter++
+            }
             
         }
         else {
@@ -304,8 +391,25 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
     }
     
     // MARK: - Helper methods
-    func extractGeneExpressionControlList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionRateProcessProxy]? {
+    func extractGeneExpressionControlParameterList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionControlParameterProxy]? {
     
+        // Get the type dictionary -
+        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        for child_node in root.children_array {
+            child_node.accept(type_dictionary_visitor)
+        }
+
+        // type dictionary -
+        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+            
+            var gene_expression_control_parameter_visitor = GeneExpressionControlParameterSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            for child_node in root.children_array {
+                child_node.accept(gene_expression_control_parameter_visitor)
+            }
+            
+            return gene_expression_control_parameter_visitor.getSyntaxTreeVisitorData() as? [VLEMGeneExpressionControlParameterProxy]
+        }
+        
         return nil
     }
     

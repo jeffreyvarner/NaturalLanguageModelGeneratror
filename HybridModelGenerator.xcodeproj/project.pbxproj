@@ -22,6 +22,7 @@
 		AD3E54881AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD3E54871AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift */; };
 		AD3E548A1AE8254000C12998 /* HybridModelContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD3E54891AE8254000C12998 /* HybridModelContext.swift */; };
 		AD42B5B51B26F9B50019A4CF /* VLEMGeneExpressionControlParameterProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD42B5B41B26F9B50019A4CF /* VLEMGeneExpressionControlParameterProxy.swift */; };
+		AD42B5B71B2853C40019A4CF /* VLEMGeneExpressionControlParameterProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD42B5B41B26F9B50019A4CF /* VLEMGeneExpressionControlParameterProxy.swift */; };
 		AD7695FF1B0D00020042CF58 /* VLEMScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7695FE1B0D00010042CF58 /* VLEMScanner.swift */; };
 		AD7696011B0D07D70042CF58 /* VLEMScannerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7696001B0D07D70042CF58 /* VLEMScannerTest.swift */; };
 		AD7696021B0D09E20042CF58 /* VLEMScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7695FE1B0D00010042CF58 /* VLEMScanner.swift */; };
@@ -366,6 +367,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD42B5B71B2853C40019A4CF /* VLEMGeneExpressionControlParameterProxy.swift in Sources */,
 				ADC37FF91B23DCC600FCD586 /* VLEMGeneExpressionRateProcessProxy.swift in Sources */,
 				ADC37FF61B2283F700FCD586 /* VLEMCodeEngine.swift in Sources */,
 				ADC37FF21B22549600FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift in Sources */,

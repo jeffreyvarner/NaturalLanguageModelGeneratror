@@ -34,6 +34,10 @@ class SyntaxTreeComposite: SyntaxTreeComponent {
         return children_array[index]
     }
     
+    func numberOfChildren() -> Int {
+        return children_array.count
+    }
+    
     deinit {
         println("Compsite deinit method called ...")
     }
