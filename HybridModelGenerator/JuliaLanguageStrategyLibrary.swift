@@ -24,6 +24,85 @@ class JuliaLanguageStrategyLibrary: NSObject {
         buffer+="\n"
     }
     
+    static func extractProteinDegradationKineticsList(root:SyntaxTreeComposite) -> [VLEMProteinDegradationKineticsFunctionProxy]? {
+        
+        // Get type dictionary -
+        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        for child_node in root.children_array {
+            child_node.accept(type_dictionary_visitor)
+        }
+        
+        // type dictionary -
+        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+            
+            // Build the transfer function tree visitor -
+            var degradation_kinetics_visitor = ProteinDegradationKineticsFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            for child_node in root.children_array {
+                child_node.accept(degradation_kinetics_visitor)
+            }
+            return degradation_kinetics_visitor.getSyntaxTreeVisitorData() as? [VLEMProteinDegradationKineticsFunctionProxy]
+        }
+        
+        return nil
+    }
+
+    
+    static func extractMessengerRNADegradationKineticsList(root:SyntaxTreeComposite) -> [VLEMMessengerRNADegradationKineticsFunctionProxy]? {
+    
+        // Get type dictionary -
+        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        for child_node in root.children_array {
+            child_node.accept(type_dictionary_visitor)
+        }
+
+        // type dictionary -
+        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+            
+            // Build the transfer function tree visitor -
+            var degradation_kinetics_visitor = MessengerRNADegradationineticsFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            for child_node in root.children_array {
+                child_node.accept(degradation_kinetics_visitor)
+            }
+            return degradation_kinetics_visitor.getSyntaxTreeVisitorData() as? [VLEMMessengerRNADegradationKineticsFunctionProxy]
+        }
+        
+        return nil
+    }
+    
+    static func extractGeneExpressionKineticsList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionKineticsFunctionProxy]? {
+        
+        // Get type dictionary -
+        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        for child_node in root.children_array {
+            child_node.accept(type_dictionary_visitor)
+        }
+        
+        // type dictionary -
+        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+            
+            // Build the transfer function tree visitor -
+            var gene_expression_kinetics_visitor = GeneExpressionKineticsFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            for child_node in root.children_array {
+                child_node.accept(gene_expression_kinetics_visitor)
+            }
+            return gene_expression_kinetics_visitor.getSyntaxTreeVisitorData() as? [VLEMGeneExpressionKineticsFunctionProxy]
+        }
+        
+        return nil
+    }
+
+    
+    static func extractGeneExpressionRateList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionRateProcessProxy]? {
+        
+        // get the list of rates involved in gene expression (includes degradation rates for both protein, and mRNA)
+        var rate_visitor = GeneExpressionRateParameterSyntaxTreeVistor()
+        for child_node in root.children_array {
+            child_node.accept(rate_visitor)
+        }
+        
+        return rate_visitor.getSyntaxTreeVisitorData() as? [VLEMGeneExpressionRateProcessProxy]
+    }
+    
     static func extractSpeciesList(root:SyntaxTreeComposite) -> [VLEMSpeciesProxy]? {
         
         // Get the list of species using the vistor pattern -
@@ -33,6 +112,51 @@ class JuliaLanguageStrategyLibrary: NSObject {
         }
         
         return species_visitor.getSyntaxTreeVisitorData() as? [VLEMSpeciesProxy]
+    }
+    
+    static func extractGeneExpressionControlTransferFunctionList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionControlTransferFunctionProxy]? {
+        
+        // Get type dictionary -
+        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        for child_node in root.children_array {
+            child_node.accept(type_dictionary_visitor)
+        }
+
+        // type dictionary -
+        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+            
+            // Build the transfer function tree visitor -
+            var gene_expression_control_transfer_function_visitor = GeneExpressionControlFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            for child_node in root.children_array {
+                child_node.accept(gene_expression_control_transfer_function_visitor)
+            }
+
+            return gene_expression_control_transfer_function_visitor.getSyntaxTreeVisitorData() as? [VLEMGeneExpressionControlTransferFunctionProxy]
+        }
+        
+        return nil
+    }
+    
+    static func extractGeneExpressionControlParameterList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionControlParameterProxy]? {
+        
+        // Get the type dictionary -
+        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        for child_node in root.children_array {
+            child_node.accept(type_dictionary_visitor)
+        }
+        
+        // type dictionary -
+        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+            
+            var gene_expression_control_parameter_visitor = GeneExpressionControlParameterSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            for child_node in root.children_array {
+                child_node.accept(gene_expression_control_parameter_visitor)
+            }
+            
+            return gene_expression_control_parameter_visitor.getSyntaxTreeVisitorData() as? [VLEMGeneExpressionControlParameterProxy]
+        }
+        
+        return nil
     }
 
     
@@ -97,6 +221,125 @@ class JuliaLanguageStrategyLibrary: NSObject {
     
 }
 
+class JuliaKineticsFileStrategy:CodeGenerationStrategy {
+    
+    func execute(node:SyntaxTreeComponent) -> String {
+        
+        // declarations -
+        var buffer = ""
+        var model_root = node as! SyntaxTreeComposite
+        
+        // ok, we need to create a function -
+        // get the copyright header information -
+        var header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("Kinetics.jl",
+            functionDescription: "Encodes the metabolic and gene expression kinetics.\n# Called by Balances.jl")
+        
+        buffer+="\(header_information)"
+        buffer+="function Kinetics(t,x,DF)\n"
+        buffer+="\n"
+        
+        // initialize the rate vectors -
+        buffer+="\t# Initialize empty *_rate_vectors - \n"
+        buffer+="\tgene_expression_rate_vector = Float64[];\n"
+        buffer+="\tmetabolic_rate_vector = Float64[];\n"
+        buffer+="\tmRNA_degradation_rate_vector = Float64[];\n"
+        buffer+="\tprotein_degradation_rate_vector = Float64[];\n"
+        buffer+="\tsystem_transfer_rate_vector = Float64[];\n"
+        buffer+="\n"
+        
+        buffer+="\t# Alias state vector - \n"
+        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
+            
+            var counter = 1
+            for proxy_object in species_list {
+                
+                // Get the default value -
+                let default_value = proxy_object.default_value
+                let state_symbol = proxy_object.state_symbol_string!
+                
+                buffer+="\t"
+                buffer+=state_symbol
+                buffer+="\t=\t"
+                buffer+="x[\(counter)]\n"
+                
+                // update the counter -
+                counter++
+            }
+        }
+        
+        // Get the parameter vectors -
+        buffer+="\n"
+        buffer+="\t# Get the parameter vectors from DF - \n"
+        buffer+="\tgene_expression_parameter_vector = DF[\"GENE_EXPRESSION_KINETIC_PARAMETER_VECTOR\"]\n"
+        buffer+="\tmetabolic_parameter_vector = DF[\"METABOLIC_KINETIC_PARAMETER_VECTOR\"]\n"
+        
+        buffer+="\n"
+        buffer+="\t# Gene expression rates - \n"
+        buffer+="\tfill!(gene_expression_rate_vector,0.0)\n"
+        if var expression_kinetics_list = JuliaLanguageStrategyLibrary.extractGeneExpressionKineticsList(model_root) {
+            
+            for proxy_object in expression_kinetics_list {
+            
+                // Get the data in the proxy -
+                let parameter_index = proxy_object.parameter_index
+                let gene_symbol = proxy_object.gene_symbol
+                
+                // write the buffer entry -
+                buffer+="\tpush!(gene_expression_rate_vector,gene_expression_parameter_vector[\(parameter_index)]*\(gene_symbol))\n"
+            }
+        }
+        
+        buffer+="\n"
+        buffer+="\t# Define the metabolic rate vector - \n"
+        buffer+="\tfill!(metabolic_rate_vector,0.0)\n"
+        
+        buffer+="\n"
+        buffer+="\t# Define the mRNA degradation rate vector - \n"
+        buffer+="\tfill!(mRNA_degradation_rate_vector,0.0)\n"
+        if let mrna_degradation_kinetics_array = JuliaLanguageStrategyLibrary.extractMessengerRNADegradationKineticsList(model_root) {
+            
+            for proxy_object in mrna_degradation_kinetics_array {
+                
+                // Get the data in the proxy -
+                let parameter_index = proxy_object.parameter_index
+                let mrna_symbol = proxy_object.proxy_symbol
+
+                // write the buffer entry -
+                buffer+="\tpush!(mRNA_degradation_rate_vector,gene_expression_parameter_vector[\(parameter_index)]*\(mrna_symbol))\n"
+            }
+        }
+
+        buffer+="\n"
+        buffer+="\t# Define the protein degradation rate vector - \n"
+        buffer+="\tfill!(protein_degradation_rate_vector,0.0)\n"
+        if let protein_degradation_kinetics_array = JuliaLanguageStrategyLibrary.extractProteinDegradationKineticsList(model_root) {
+            
+            for proxy_object in protein_degradation_kinetics_array {
+                
+                // Get the data in the proxy -
+                let parameter_index = proxy_object.parameter_index
+                let protein_symbol = proxy_object.proxy_symbol
+                
+                // write the buffer entry -
+                buffer+="\tpush!(protein_degradation_rate_vector,gene_expression_parameter_vector[\(parameter_index)]*\(protein_symbol))\n"
+            }
+        }
+
+        
+        buffer+="\n"
+        buffer+="\t# Define the system transfer rate vector - \n"
+        buffer+="\tfill!(system_transfer_rate_vector,0.0)\n"
+        
+        buffer+="\n"
+        buffer+="\t# Return the rate vectors to the caller - \n"
+        buffer+="\treturn (gene_expression_rate_vector, metabolic_rate_vector, mRNA_degradation_rate_vector, protein_degradation_rate_vector, system_transfer_rate_vector)\n"
+        buffer+="end"
+        
+        // return -
+        return buffer
+    }
+}
+
 class JuliaControlFileStrategy:CodeGenerationStrategy {
  
     func execute(node:SyntaxTreeComponent) -> String {
@@ -143,7 +386,33 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
                 counter++
             }
         }
-
+        
+        buffer+="\n"
+        buffer+="\t# Formulate the gene expression control vector \n"
+        if var transfer_function_list = JuliaLanguageStrategyLibrary.extractGeneExpressionControlTransferFunctionList(model_root) {
+        
+            var counter = 1
+            for proxy_object in transfer_function_list {
+            
+                if let target_node = proxy_object.target_node, let _local_target_symbol = target_node.lexeme {
+                    
+                    // Write the comment -
+                    buffer+="\t# Gene expression control term target:\(_local_target_symbol)\n"
+                }
+                
+                // initialize a new f_vector -
+                buffer+="\tf_vector = Float64[];\n"
+                
+                
+            }
+        }
+        
+        buffer+="\n"
+        buffer+="\t# Formulate the metabolic control vector - \n"
+        buffer+="\n"
+        
+        buffer+="\treturn (control_vector_gene_expression, control_vector_metabolism)\n"
+        buffer+="end"
         
         // return -
         return buffer
@@ -308,7 +577,7 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Setup the gene expression kinetic parameter vector - \n"
         buffer+="\tGENE_EXPRESSION_KINETIC_PARAMETER_VECTOR = Float64[]\n"
-        if var gene_expression_rate_list = extractGeneExpressionRateList(model_root) {
+        if var gene_expression_rate_list = JuliaLanguageStrategyLibrary.extractGeneExpressionRateList(model_root) {
             
             var counter = 1
             for proxy_object in gene_expression_rate_list {
@@ -339,14 +608,13 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Setup the gene expression control parameter vector - \n"
         buffer+="\tGENE_EXPRESSION_CONTROL_PARAMETER_VECTOR = Float64[]\n"
-        if var gene_expression_control_parameters = extractGeneExpressionControlParameterList(model_root){
+        if var gene_expression_control_parameters = JuliaLanguageStrategyLibrary.extractGeneExpressionControlParameterList(model_root){
             
             var counter = 1
             for proxy_object in gene_expression_control_parameters {
                 
                 // get default value -
                 let default_value = proxy_object.default_value
-                
                 
                 // write the record -
                 buffer+="\tpush!(GENE_EXPRESSION_CONTROL_PARAMETER_VECTOR,\(default_value))\t"
@@ -357,7 +625,6 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
                 else {
                     buffer+="#\t\(counter)\t gene expression control parameter \n"
                 }
-                
                 
                 // update the counter -
                 counter++
@@ -391,38 +658,6 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
     }
     
     // MARK: - Helper methods
-    func extractGeneExpressionControlParameterList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionControlParameterProxy]? {
-    
-        // Get the type dictionary -
-        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
-        for child_node in root.children_array {
-            child_node.accept(type_dictionary_visitor)
-        }
-
-        // type dictionary -
-        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
-            
-            var gene_expression_control_parameter_visitor = GeneExpressionControlParameterSyntaxTreeVisitor(typeDictionary: _type_dictionary)
-            for child_node in root.children_array {
-                child_node.accept(gene_expression_control_parameter_visitor)
-            }
-            
-            return gene_expression_control_parameter_visitor.getSyntaxTreeVisitorData() as? [VLEMGeneExpressionControlParameterProxy]
-        }
-        
-        return nil
-    }
-    
-    func extractGeneExpressionRateList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionRateProcessProxy]? {
-     
-        // get the list of rates involved in gene expression (includes degradation rates for both protein, and mRNA)
-        var rate_visitor = GeneExpressionRateSyntaxTreeVistor()
-        for child_node in root.children_array {
-            child_node.accept(rate_visitor)
-        }
-        
-        return rate_visitor.getSyntaxTreeVisitorData() as? [VLEMGeneExpressionRateProcessProxy]
-    }
     
     func extractSpeciesList(root:SyntaxTreeComposite) -> [VLEMSpeciesProxy]? {
         

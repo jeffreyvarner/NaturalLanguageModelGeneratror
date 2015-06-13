@@ -45,6 +45,7 @@ class VLEMCodeEngineTest: XCTestCase {
         dictionary_of_model_files["Project.jl"] = JuliaProjectIncludeFileStrategy()
         dictionary_of_model_files["Balances.jl"] = JuliaBalanceEquationsFileStrategy()
         dictionary_of_model_files["Control.jl"] = JuliaControlFileStrategy()
+        dictionary_of_model_files["Kinetics.jl"] = JuliaKineticsFileStrategy()
        
         // execute -
         // execute the parse function -

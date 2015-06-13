@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
+final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
 
     
     static func arrayContainsNode(array:[SyntaxTreeComponent],node:SyntaxTreeComponent) -> Bool {
@@ -21,6 +21,33 @@ class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
         }
         
         return false
+    }
+    
+    static func removeTypePrefixFromNodeLexeme(node:SyntaxTreeComponent,type_dictionary:Dictionary<String,SyntaxTreeComponent>) -> String? {
+        
+        // Grab the current node lexeme -
+        if let _node_lexeme = node.lexeme {
+            
+            // ok, we need to iterate through my type dictionary, which is key'd by a prefix
+            for (key,value) in type_dictionary {
+                
+                // does the lexeme contain the key?
+                if ((_node_lexeme.rangeOfString(key, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil) != nil)){
+                    
+                    let first_char_key = key[advance(key.startIndex, 0)]
+                    let first_char_lexeme = _node_lexeme[advance(_node_lexeme.startIndex, 0)]
+                    if (first_char_key == first_char_lexeme){
+                        
+                        // ok, we have a match!
+                        if let prefix_range = _node_lexeme.rangeOfString(key, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil) {
+                            return _node_lexeme.substringFromIndex(prefix_range.endIndex)
+                        }
+                    }
+                }
+            }
+        }
+        
+        return nil
     }
     
     static func isNodeType(node:SyntaxTreeComponent,type_dictionary:Dictionary<String,SyntaxTreeComponent>) -> TokenType? {
@@ -50,7 +77,7 @@ class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
 
 }
 
-class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
+final class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
     private var type_dictionary:Dictionary<String,SyntaxTreeComponent>
@@ -193,7 +220,7 @@ class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
     }
 }
 
-class BiologicalTypeDictionarySyntaxTreeVisitor:SyntaxTreeVisitor {
+final class BiologicalTypeDictionarySyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
     private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
@@ -230,7 +257,288 @@ class BiologicalTypeDictionarySyntaxTreeVisitor:SyntaxTreeVisitor {
     }
 }
 
-class GeneExpressionRateSyntaxTreeVistor:SyntaxTreeVisitor {
+final class ProteinDegradationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
+    
+    // Declarations -
+    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    private var degradation_kinetics_array = [VLEMProteinDegradationKineticsFunctionProxy]()
+    private var protein_counter = 1
+    
+    // We require the type dictionary -
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
+        self.type_dictionary = typeDictionary
+    }
+    
+    func willVisit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func visit(node:SyntaxTreeComponent) -> Void {
+        
+        if (node.tokenType == TokenType.BIOLOGICAL_SYMBOL && node.parent_pointer?.parent_pointer?.tokenType == TokenType.TRANSCRIPTION){
+         
+            if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.PROTEIN){
+                
+                // put the gene node in the kinetics proxy object -
+                var proxy_node = VLEMProteinDegradationKineticsFunctionProxy(node: node)
+                proxy_node.protein_index = protein_counter
+                
+                
+                // cache -
+                degradation_kinetics_array.append(proxy_node)
+            }
+            else if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.DNA) {
+                
+                // Build mRNA node -
+                var protein_node = SyntaxTreeComponent(type: TokenType.PROTEIN)
+                
+                // ok, we have a DNA node! I need to split off the prefix from this node -
+                if let _node_symbol = VLEMAbstractSyntaxTreeVisitorLibrary.removeTypePrefixFromNodeLexeme(node, type_dictionary: type_dictionary) {
+                    protein_node.lexeme = _node_symbol
+                }
+                else {
+                    protein_node.lexeme = "white_fluffy_cloud_node"
+                }
+                
+                // put the gene node in the kinetics proxy object -
+                var proxy_node = VLEMProteinDegradationKineticsFunctionProxy(node:protein_node)
+                proxy_node.protein_index = protein_counter
+                
+                // cache -
+                degradation_kinetics_array.append(proxy_node)
+            }
+            
+            // update the gene counter -
+            protein_counter++
+        }
+    }
+    
+    func didVisit(node: SyntaxTreeComponent) -> Void {
+    }
+    
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        
+        // Don't walk down the control part of the tree ...
+        if (node.tokenType == TokenType.INDUCE || node.tokenType == TokenType.REPRESS || node.tokenType == TokenType.REPRESSES || node.tokenType == TokenType.INDUCES){
+            return false
+        }
+        
+        return true
+    }
+    
+    func getSyntaxTreeVisitorData() -> Any? {
+        return degradation_kinetics_array
+    }
+}
+
+final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
+    
+    // Declarations -
+    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    private var degradation_kinetics_array = [VLEMMessengerRNADegradationKineticsFunctionProxy]()
+    private var mrna_counter = 1
+    
+    // We require the type dictionary -
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
+        self.type_dictionary = typeDictionary
+    }
+    
+    func willVisit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func visit(node:SyntaxTreeComponent) -> Void {
+        
+        if (node.tokenType == TokenType.BIOLOGICAL_SYMBOL && node.parent_pointer?.parent_pointer?.tokenType == TokenType.TRANSCRIPTION)
+        {
+            // ok, we have a target node. Now ... we need to determine if this is a protein node -or- we have a DNA node
+            // either one of these is correct (listing the protein is slang, but still ok)
+            if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.PROTEIN){
+                
+                // ok, we have a protein node! We have a slang expression. Need to make a gene type, and then build a proxy around it.
+                var mrna_node = SyntaxTreeComponent(type: TokenType.MESSENGER_RNA)
+                
+                // ok, we have a protein, need to create a gene with prefix -
+                var mrna_prefix = ""
+                for (key,value) in type_dictionary {
+                    
+                    if value.tokenType == TokenType.MESSENGER_RNA {
+                        mrna_prefix = key
+                        break
+                    }
+                }
+                
+                // Set the lexeme -
+                mrna_node.lexeme = mrna_prefix+node.lexeme!
+                
+                // put the gene node in the kinetics proxy object -
+                var proxy_node = VLEMMessengerRNADegradationKineticsFunctionProxy(node: mrna_node)
+                proxy_node.mRNA_index = mrna_counter
+                
+                // cache -
+                degradation_kinetics_array.append(proxy_node)
+            }
+            else if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.DNA){
+                
+                // Build mRNA node -
+                var mrna_node = SyntaxTreeComponent(type: TokenType.MESSENGER_RNA)
+                
+                // ok, we have a DNA node! I need to split off the prefix from this node -
+                if let _node_symbol = VLEMAbstractSyntaxTreeVisitorLibrary.removeTypePrefixFromNodeLexeme(node, type_dictionary: type_dictionary) {
+                    
+                    // ok, we have a protein, need to create a gene with prefix -
+                    var mrna_prefix = ""
+                    for (key,value) in type_dictionary {
+                        
+                        if value.tokenType == TokenType.MESSENGER_RNA {
+                            mrna_prefix = key
+                            break
+                        }
+                    }
+                    
+                    // build new symbol -
+                    var new_symbol = mrna_prefix+_node_symbol
+                    mrna_node.lexeme = new_symbol
+                }
+                else {
+                    mrna_node.lexeme = "white_fluffy_cloud_node"
+                }
+                
+                // put the gene node in the kinetics proxy object -
+                var proxy_node = VLEMMessengerRNADegradationKineticsFunctionProxy(node: mrna_node)
+                proxy_node.mRNA_index = mrna_counter
+                
+                // cache -
+                degradation_kinetics_array.append(proxy_node)
+            }
+            
+            // update the gene counter -
+            mrna_counter++
+        }
+    }
+    
+    func didVisit(node: SyntaxTreeComponent) -> Void {
+    }
+    
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        
+        // Don't walk down the control part of the tree ...
+        if (node.tokenType == TokenType.INDUCE || node.tokenType == TokenType.REPRESS || node.tokenType == TokenType.REPRESSES || node.tokenType == TokenType.INDUCES){
+            return false
+        }
+        
+        return true
+    }
+    
+    func getSyntaxTreeVisitorData() -> Any? {
+        return degradation_kinetics_array
+    }
+
+}
+
+final class GeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
+
+    // Declarations -
+    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    private var gene_expression_kinetics_array = [VLEMGeneExpressionKineticsFunctionProxy]()
+    private var gene_counter = 1
+    
+    // We require the type dictionary -
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
+        self.type_dictionary = typeDictionary
+    }
+    
+    func willVisit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func visit(node:SyntaxTreeComponent) -> Void {
+        
+        if (node.tokenType == TokenType.BIOLOGICAL_SYMBOL && node.parent_pointer?.parent_pointer?.tokenType == TokenType.TRANSCRIPTION)
+        {
+            // ok, we have a target node. Now ... we need to determine if this is a protein node -or- we have a DNA node
+            // either one of these is correct (listing the protein is slang, but still ok)
+            if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.PROTEIN){
+                
+                // ok, we have a protein node! We have a slang expression. Need to make a gene type, and then build a proxy around it.
+                var gene_node = SyntaxTreeComponent(type: TokenType.DNA)
+                
+                // ok, we have a protein, need to create a gene with prefix -
+                var gene_prefix = ""
+                for (key,value) in type_dictionary {
+                    
+                    if value.tokenType == TokenType.DNA {
+                        gene_prefix = key
+                        break
+                    }
+                }
+                
+                // Set the lexeme -
+                gene_node.lexeme = gene_prefix+node.lexeme!
+                
+                // put the gene node in the kinetics proxy object -
+                var proxy_node = VLEMGeneExpressionKineticsFunctionProxy(node: gene_node)
+                proxy_node.gene_index = gene_counter
+                
+                // cache -
+                gene_expression_kinetics_array.append(proxy_node)
+            }
+            else if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.DNA){
+                
+                // put the gene node in the kinetics proxy object -
+                var proxy_node = VLEMGeneExpressionKineticsFunctionProxy(node: node)
+                proxy_node.gene_index = gene_counter
+                
+                // cache -
+                gene_expression_kinetics_array.append(proxy_node)
+            }
+            
+            // update the gene counter -
+            gene_counter++
+        }
+    }
+    
+    func didVisit(node: SyntaxTreeComponent) -> Void {
+    }
+    
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        return true
+    }
+    
+    func getSyntaxTreeVisitorData() -> Any? {
+        return gene_expression_kinetics_array
+    }
+
+}
+
+final class GeneExpressionControlFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
+
+    // Declarations -
+    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    private var transfer_function_array = [VLEMGeneExpressionControlTransferFunctionProxy]()
+    
+    // We require the type dictionary -
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
+        self.type_dictionary = typeDictionary
+    }
+
+    
+    func willVisit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func visit(node:SyntaxTreeComponent) -> Void {
+    }
+
+    func didVisit(node: SyntaxTreeComponent) -> Void {
+    }
+    
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        return true
+    }
+    
+    func getSyntaxTreeVisitorData() -> Any? {
+        return transfer_function_array
+    }
+}
+
+final class GeneExpressionRateParameterSyntaxTreeVistor:SyntaxTreeVisitor {
 
     // Declarations -
     private var rate_node_array:[VLEMGeneExpressionRateProcessProxy] = [VLEMGeneExpressionRateProcessProxy]()
@@ -374,7 +682,7 @@ class GeneExpressionRateSyntaxTreeVistor:SyntaxTreeVisitor {
     }
 }
 
-class BiologicalSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
+final class BiologicalSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
     
     // declarations -
     private var state_node_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
