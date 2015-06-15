@@ -17,7 +17,23 @@ enum GeneExpressionParameterType {
 
 
 class VLEMSyntaxTreeNodeProxyLibrary: NSObject {
+}
 
+class VLEMControlRelationshipProxy:NSObject {
+    
+    // Declarations -
+    private var syntax_tree_component:SyntaxTreeComponent
+    private var token_type:TokenType
+
+    
+    
+    
+    // initialize -
+    init(node:SyntaxTreeComponent){
+        self.syntax_tree_component = node
+        self.token_type = node.tokenType
+    }
+    
 }
 
 class VLEMMessengerRNADegradationKineticsFunctionProxy: NSObject {
@@ -27,9 +43,11 @@ class VLEMMessengerRNADegradationKineticsFunctionProxy: NSObject {
     private var token_type:TokenType
     
     var mRNA_index:Int = 1
+    var parameter_array_base_index:Int = 0
+    
     var parameter_index:Int {
         get {
-            return 3*mRNA_index
+            return 3*mRNA_index + parameter_array_base_index
         }
     }
     
@@ -56,11 +74,12 @@ class VLEMProteinDegradationKineticsFunctionProxy: NSObject {
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
     private var token_type:TokenType
+    var parameter_array_base_index:Int = 0
     
     var protein_index:Int = 1
     var parameter_index:Int {
         get {
-            return 3*protein_index
+            return 2*protein_index + 3*parameter_array_base_index
         }
     }
     
@@ -91,9 +110,11 @@ class VLEMGeneExpressionKineticsFunctionProxy: NSObject {
     private var token_type:TokenType
     
     var gene_index:Int = 1
+    var parameter_array_base_index:Int = 0
+    
     var parameter_index:Int {
         get {
-            return 3*gene_index - 2
+            return 3*gene_index - 2 + parameter_array_base_index
         }
     }
     
@@ -125,8 +146,6 @@ class VLEMGeneExpressionControlTransferFunctionProxy: NSObject {
     init(node:SyntaxTreeComponent){
         self.syntax_tree_component = node
     }
-    
-    
 }
 
 class VLEMGeneExpressionControlParameterProxy: NSObject {

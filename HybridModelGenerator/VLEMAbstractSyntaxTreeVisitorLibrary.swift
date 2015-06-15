@@ -74,7 +74,60 @@ final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
         // default is NULL
         return TokenType.NULL
     }
+}
 
+final class GeneExpressionControlModelSyntaxTreeVisitor:SyntaxTreeVisitor {
+    
+    // Declarations -
+    private var type_dictionary:Dictionary<String,SyntaxTreeComponent>
+    private var control_model:Dictionary<String,Array<VLEMControlRelationshipProxy>>?
+    private var relationshipProxyArray:[VLEMControlRelationshipProxy] = [VLEMControlRelationshipProxy]()
+    
+    // We require the type dictionary -
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
+        self.type_dictionary = typeDictionary
+    }
+    
+    func visit(node:SyntaxTreeComponent) -> Void {
+    
+        if (node.tokenType == TokenType.INDUCES || node.tokenType == TokenType.REPRESSES || node.tokenType == TokenType.REPRESS || node.tokenType == TokenType.INDUCE){
+            
+            // we are in the control section of the tree ...
+            
+            // build a relationship proxy -
+            var relationship_proxy = VLEMControlRelationshipProxy(node: node)
+            
+            // store the proxy -
+            relationshipProxyArray.append(relationship_proxy)
+        }
+        else if ((node.tokenType == TokenType.OR || node.tokenType == TokenType.AND) && (node.parent_pointer?.tokenType == TokenType.TRANSCRIPTION)){
+            
+            // we are in the target section of the tree -
+            if let _composite = node as? SyntaxTreeComposite {
+                
+                for child_node in _composite.children_array {
+                
+                    // build the dictionary -
+                    
+                    
+                }
+            }
+        }
+    }
+    
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        return true
+    }
+    
+    func willVisit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func didVisit(node: SyntaxTreeComponent) -> Void {
+    }
+    
+    func getSyntaxTreeVisitorData() -> Any? {
+        return control_model
+    }
 }
 
 final class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
@@ -326,6 +379,13 @@ final class ProteinDegradationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
     }
     
     func getSyntaxTreeVisitorData() -> Any? {
+        
+        // how many proteins do we have?
+        let number_of_proteins = degradation_kinetics_array.count
+        for proxy_object in degradation_kinetics_array {
+            proxy_object.parameter_array_base_index = number_of_proteins
+        }
+        
         return degradation_kinetics_array
     }
 }
