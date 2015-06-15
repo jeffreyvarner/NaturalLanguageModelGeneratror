@@ -80,7 +80,7 @@ final class GeneExpressionControlModelSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
     private var type_dictionary:Dictionary<String,SyntaxTreeComponent>
-    private var control_model:Dictionary<String,Array<VLEMControlRelationshipProxy>>?
+    private var control_model_dictionary:Dictionary<String,Array<VLEMControlRelationshipProxy>> = Dictionary<String,Array<VLEMControlRelationshipProxy>>()
     private var relationshipProxyArray:[VLEMControlRelationshipProxy] = [VLEMControlRelationshipProxy]()
     
     // We require the type dictionary -
@@ -108,8 +108,21 @@ final class GeneExpressionControlModelSyntaxTreeVisitor:SyntaxTreeVisitor {
                 for child_node in _composite.children_array {
                 
                     // build the dictionary -
+                    if var _array:[VLEMControlRelationshipProxy] = control_model_dictionary[child_node.lexeme!] {
                     
-                    
+                        // ok, we already have this node in the dictionary -
+                        for relationship_proxy in relationshipProxyArray {
+                            _array.append(relationship_proxy)
+                        }
+                        
+                        // put array back in dictionary -
+                        control_model_dictionary[child_node.lexeme!] = _array
+                    }
+                    else {
+                        
+                        // we do *not* contain the key - store the array
+                        control_model_dictionary[child_node.lexeme!] = relationshipProxyArray
+                    }
                 }
             }
         }
@@ -123,10 +136,17 @@ final class GeneExpressionControlModelSyntaxTreeVisitor:SyntaxTreeVisitor {
     }
     
     func didVisit(node: SyntaxTreeComponent) -> Void {
+    
+        // clear out the relation ship array *before* I get to the next tree ..
+        if ((node.tokenType == TokenType.OR || node.tokenType == TokenType.AND) && (node.parent_pointer?.tokenType == TokenType.TRANSCRIPTION)){
+            if (relationshipProxyArray.count>0){
+                relationshipProxyArray.removeAll(keepCapacity:true)
+            }
+        }
     }
     
     func getSyntaxTreeVisitorData() -> Any? {
-        return control_model
+        return control_model_dictionary
     }
 }
 

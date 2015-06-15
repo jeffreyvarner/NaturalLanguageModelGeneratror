@@ -24,6 +24,28 @@ class JuliaLanguageStrategyLibrary: NSObject {
         buffer+="\n"
     }
     
+    static func extractGeneExpressionControlModel(root:SyntaxTreeComposite) -> Dictionary<String,Array<VLEMControlRelationshipProxy>>? {
+    
+        // Get type dictionary -
+        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        for child_node in root.children_array {
+            child_node.accept(type_dictionary_visitor)
+        }
+
+        // type dictionary -
+        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+            
+            var gene_expression_control_visitor = GeneExpressionControlModelSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            for child_node in root.children_array {
+                child_node.accept(gene_expression_control_visitor)
+            }
+            
+            return gene_expression_control_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,Array<VLEMControlRelationshipProxy>>
+        }
+        
+        return nil
+    }
+    
     static func extractProteinDegradationKineticsList(root:SyntaxTreeComposite) -> [VLEMProteinDegradationKineticsFunctionProxy]? {
         
         // Get type dictionary -
@@ -387,22 +409,10 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
         
         buffer+="\n"
         buffer+="\t# Formulate the gene expression control vector \n"
-        if var transfer_function_list = JuliaLanguageStrategyLibrary.extractGeneExpressionControlTransferFunctionList(model_root) {
-        
-            var counter = 1
-            for proxy_object in transfer_function_list {
+        if var gene_expression_control_model = JuliaLanguageStrategyLibrary.extractGeneExpressionControlModel(model_root){
             
-                if let target_node = proxy_object.target_node, let _local_target_symbol = target_node.lexeme {
-                    
-                    // Write the comment -
-                    buffer+="\t# Gene expression control term target:\(_local_target_symbol)\n"
-                }
-                
-                // initialize a new f_vector -
-                buffer+="\tf_vector = Float64[];\n"
-                
-                
-            }
+            
+            
         }
         
         buffer+="\n"
