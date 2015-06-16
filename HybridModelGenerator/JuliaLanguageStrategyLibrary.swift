@@ -441,10 +441,11 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
             }
         }
         
-        buffer+="\n"
-        buffer+="\t# Formulate the metabolic control vector - \n"
-        buffer+="\n"
+        //buffer+="\n"
+        //buffer+="\t# Formulate the metabolic control vector - \n"
+        //buffer+="\n"
         
+        buffer+="\t# Return the gene expression and metabolic control vectors - \n"
         buffer+="\treturn (control_vector_gene_expression, control_vector_metabolism)\n"
         buffer+="end"
         
@@ -474,7 +475,7 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         
         buffer+="\t# Define the rate_vector - \n"
-        buffer+="\t(gene_expression_rate_vector, metabolic_rate_vector) = Kinetics(t,x,DF);\n"
+        buffer+="\t(gene_expression_rate_vector, metabolic_rate_vector, mRNA_degradation_rate_vector, protein_degradation_rate_vector, system_transfer_rate_vector) = Kinetics(t,x,DF);\n"
         buffer+="\n"
         
         buffer+="\t# Define the control_vector - \n"
