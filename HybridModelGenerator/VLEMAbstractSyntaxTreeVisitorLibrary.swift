@@ -10,8 +10,19 @@ import Cocoa
 
 final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
 
+    static func arrayContainsProxyNode(array:[VLEMProxyNode],node:VLEMProxyNode) -> Bool {
+        
+        for item in array {
+        
+            if (node.isEqualToProxyNode(item) == true) {
+                return true
+            }
+        }
+        
+        return false
+    }
     
-    static func arrayContainsNode(array:[SyntaxTreeComponent],node:SyntaxTreeComponent) -> Bool {
+    static func arrayContainsSyntaxNode(array:[SyntaxTreeComponent],node:SyntaxTreeComponent) -> Bool {
         
         for item in array {
             
@@ -49,6 +60,8 @@ final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
         
         return nil
     }
+    
+    
     
     static func isNodeType(node:SyntaxTreeComponent,type_dictionary:Dictionary<String,SyntaxTreeComponent>) -> TokenType? {
         
@@ -334,7 +347,7 @@ final class ProteinDegradationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
     
     // Declarations -
     private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
-    private var degradation_kinetics_array = [VLEMProteinDegradationKineticsFunctionProxy]()
+    private var degradation_kinetics_array = [VLEMProxyNode]()
     private var protein_counter = 1
     
     // We require the type dictionary -
@@ -355,9 +368,12 @@ final class ProteinDegradationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
                 var proxy_node = VLEMProteinDegradationKineticsFunctionProxy(node: node)
                 proxy_node.protein_index = protein_counter
                 
-                
-                // cache -
-                degradation_kinetics_array.append(proxy_node)
+                // Add to the proxy *if* we have not seen this before ...
+                if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(degradation_kinetics_array, node: proxy_node) == false){
+                    
+                    // cache -
+                    degradation_kinetics_array.append(proxy_node)
+                }
             }
             else if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.DNA) {
                 
@@ -376,8 +392,12 @@ final class ProteinDegradationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
                 var proxy_node = VLEMProteinDegradationKineticsFunctionProxy(node:protein_node)
                 proxy_node.protein_index = protein_counter
                 
-                // cache -
-                degradation_kinetics_array.append(proxy_node)
+                // Add to the proxy *if* we have not seen this before ...
+                if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(degradation_kinetics_array, node: proxy_node) == false){
+                    
+                    // cache -
+                    degradation_kinetics_array.append(proxy_node)
+                }
             }
             
             // update the gene counter -
@@ -402,8 +422,17 @@ final class ProteinDegradationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
         
         // how many proteins do we have?
         let number_of_proteins = degradation_kinetics_array.count
+        var local_counter = 1
         for proxy_object in degradation_kinetics_array {
-            proxy_object.parameter_array_base_index = number_of_proteins
+            
+            if var _proxy_node = proxy_object as? VLEMProteinDegradationKineticsFunctionProxy {
+                
+                _proxy_node.protein_index = local_counter
+                _proxy_node.parameter_array_base_index = number_of_proteins
+                
+                // update counter -
+                local_counter++
+            }
         }
         
         return degradation_kinetics_array
@@ -414,8 +443,7 @@ final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVi
     
     // Declarations -
     private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
-    private var degradation_kinetics_array = [VLEMMessengerRNADegradationKineticsFunctionProxy]()
-    private var mrna_counter = 1
+    private var degradation_kinetics_array = [VLEMProxyNode]()
     
     // We require the type dictionary -
     init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
@@ -451,10 +479,11 @@ final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVi
                 
                 // put the gene node in the kinetics proxy object -
                 var proxy_node = VLEMMessengerRNADegradationKineticsFunctionProxy(node: mrna_node)
-                proxy_node.mRNA_index = mrna_counter
-                
-                // cache -
-                degradation_kinetics_array.append(proxy_node)
+                if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(degradation_kinetics_array, node: proxy_node) == false){
+                    
+                    // cache -
+                    degradation_kinetics_array.append(proxy_node)
+                }
             }
             else if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.DNA){
                 
@@ -484,14 +513,12 @@ final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVi
                 
                 // put the gene node in the kinetics proxy object -
                 var proxy_node = VLEMMessengerRNADegradationKineticsFunctionProxy(node: mrna_node)
-                proxy_node.mRNA_index = mrna_counter
-                
-                // cache -
-                degradation_kinetics_array.append(proxy_node)
+                if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(degradation_kinetics_array, node: proxy_node) == false){
+                    
+                    // cache -
+                    degradation_kinetics_array.append(proxy_node)
+                }
             }
-            
-            // update the gene counter -
-            mrna_counter++
         }
     }
     
@@ -509,6 +536,17 @@ final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVi
     }
     
     func getSyntaxTreeVisitorData() -> Any? {
+        
+        var counter = 1
+        for proxy in degradation_kinetics_array {
+            
+            if var _proxy = proxy as? VLEMMessengerRNADegradationKineticsFunctionProxy {
+                _proxy.mRNA_index = counter
+            }
+            
+            counter++
+        }
+        
         return degradation_kinetics_array
     }
 
@@ -518,8 +556,7 @@ final class GeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
 
     // Declarations -
     private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
-    private var gene_expression_kinetics_array = [VLEMGeneExpressionKineticsFunctionProxy]()
-    private var gene_counter = 1
+    private var gene_expression_kinetics_array = [VLEMProxyNode]()
     
     // We require the type dictionary -
     init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
@@ -555,23 +592,26 @@ final class GeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
                 
                 // put the gene node in the kinetics proxy object -
                 var proxy_node = VLEMGeneExpressionKineticsFunctionProxy(node: gene_node)
-                proxy_node.gene_index = gene_counter
                 
-                // cache -
-                gene_expression_kinetics_array.append(proxy_node)
+                // Cache this node, if we do *not* have it -
+                if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(gene_expression_kinetics_array, node: proxy_node) == false){
+                    
+                    // cache -
+                    gene_expression_kinetics_array.append(proxy_node)
+                }
             }
             else if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.DNA){
                 
                 // put the gene node in the kinetics proxy object -
                 var proxy_node = VLEMGeneExpressionKineticsFunctionProxy(node: node)
-                proxy_node.gene_index = gene_counter
                 
-                // cache -
-                gene_expression_kinetics_array.append(proxy_node)
+                // Cache this node, if we do *not* have it -
+                if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(gene_expression_kinetics_array, node: proxy_node) == false){
+                    
+                    // cache -
+                    gene_expression_kinetics_array.append(proxy_node)
+                }
             }
-            
-            // update the gene counter -
-            gene_counter++
         }
     }
     
@@ -583,6 +623,17 @@ final class GeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
     }
     
     func getSyntaxTreeVisitorData() -> Any? {
+        
+        var counter = 1
+        for proxy in gene_expression_kinetics_array {
+            
+            if var _proxy = proxy as? VLEMGeneExpressionKineticsFunctionProxy {
+                _proxy.gene_index = counter
+            }
+            
+            counter++
+        }
+        
         return gene_expression_kinetics_array
     }
 
@@ -657,7 +708,7 @@ final class GeneExpressionRateParameterSyntaxTreeVistor:SyntaxTreeVisitor {
         // let's grab the targets -
         if (node.tokenType == TokenType.BIOLOGICAL_SYMBOL && node.parent_pointer?.parent_pointer?.tokenType == TokenType.TRANSCRIPTION){
             
-            if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsNode(target_node_array, node: node) == false){
+            if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsSyntaxNode(target_node_array, node: node) == false){
                 target_node_array.append(node)
             }
         }

@@ -15,16 +15,32 @@ enum GeneExpressionParameterType {
     case NULL
 }
 
+protocol VLEMProxyNode {
+    
+    func isEqualToProxyNode(node:VLEMProxyNode) -> Bool
+}
 
 class VLEMSyntaxTreeNodeProxyLibrary: NSObject {
 }
 
-class VLEMControlRelationshipProxy:NSObject {
+class VLEMControlRelationshipProxy:VLEMProxyNode {
     
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
     private var token_type:TokenType
     var target_index:Int = 1
+    
+    func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
+        
+        if let _test_node = node as? VLEMControlRelationshipProxy {
+            
+            if (token_type == _test_node.token_type){
+                return true
+            }
+        }
+        
+        return false
+    }
     
     var effector_lexeme_array:[String]? {
         
@@ -71,7 +87,7 @@ class VLEMControlRelationshipProxy:NSObject {
     }
 }
 
-class VLEMMessengerRNADegradationKineticsFunctionProxy: NSObject {
+class VLEMMessengerRNADegradationKineticsFunctionProxy: VLEMProxyNode {
     
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
@@ -102,9 +118,29 @@ class VLEMMessengerRNADegradationKineticsFunctionProxy: NSObject {
         self.syntax_tree_component = node
         self.token_type = node.tokenType
     }
+    
+    func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
+        
+        // check the class -
+        if let _test_node = node as? VLEMMessengerRNADegradationKineticsFunctionProxy {
+            
+            // check the token type -
+            if (_test_node.token_type == token_type){
+             
+                // check the lexeme -
+                if (syntax_tree_component.lexeme == _test_node.syntax_tree_component.lexeme){
+                 
+                    return true
+                    
+                }
+            }
+        }
+        
+        return false
+    }
 }
 
-class VLEMProteinDegradationKineticsFunctionProxy: NSObject {
+class VLEMProteinDegradationKineticsFunctionProxy: VLEMProxyNode {
     
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
@@ -114,7 +150,9 @@ class VLEMProteinDegradationKineticsFunctionProxy: NSObject {
     var protein_index:Int = 1
     var parameter_index:Int {
         get {
-            return 2*protein_index + 3*parameter_array_base_index
+            
+            var tmp = 2*protein_index + 3*parameter_array_base_index
+            return tmp
         }
     }
     
@@ -135,10 +173,29 @@ class VLEMProteinDegradationKineticsFunctionProxy: NSObject {
         self.token_type = node.tokenType
     }
     
+    func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
+        
+        // check the class -
+        if let _test_node = node as? VLEMProteinDegradationKineticsFunctionProxy {
+            
+            // check the token type -
+            if (_test_node.token_type == token_type){
+                
+                // check the lexeme -
+                if (syntax_tree_component.lexeme == _test_node.syntax_tree_component.lexeme){
+                    
+                    return true
+                    
+                }
+            }
+        }
+        
+        return false
+    }
 }
 
 
-class VLEMGeneExpressionKineticsFunctionProxy: NSObject {
+class VLEMGeneExpressionKineticsFunctionProxy: VLEMProxyNode {
     
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
@@ -169,9 +226,30 @@ class VLEMGeneExpressionKineticsFunctionProxy: NSObject {
         self.syntax_tree_component = node
         self.token_type = node.tokenType
     }
+    
+    
+    func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
+        
+        // check the class -
+        if let _test_node = node as? VLEMGeneExpressionKineticsFunctionProxy {
+            
+            // check the token type -
+            if (_test_node.token_type == token_type){
+                
+                // check the lexeme -
+                if (syntax_tree_component.lexeme == _test_node.syntax_tree_component.lexeme){
+                    
+                    return true
+                    
+                }
+            }
+        }
+        
+        return false
+    }
 }
 
-class VLEMGeneExpressionControlTransferFunctionProxy: NSObject {
+class VLEMGeneExpressionControlTransferFunctionProxy: VLEMProxyNode {
     
     // Declarations -
     var control_token_type:TokenType = TokenType.NULL
@@ -181,9 +259,13 @@ class VLEMGeneExpressionControlTransferFunctionProxy: NSObject {
     init(node:SyntaxTreeComponent){
         self.syntax_tree_component = node
     }
+    
+    func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
+        return false
+    }
 }
 
-class VLEMGeneExpressionControlParameterProxy: NSObject {
+class VLEMGeneExpressionControlParameterProxy: VLEMProxyNode {
     
     // Declarations -
     var gene_expression_control_tree:SyntaxTreeComponent
@@ -195,9 +277,13 @@ class VLEMGeneExpressionControlParameterProxy: NSObject {
     init(node:SyntaxTreeComponent){
         self.gene_expression_control_tree = node
     }
+    
+    func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
+        return false
+    }
 }
 
-class VLEMGeneExpressionRateProcessProxy: NSObject {
+class VLEMGeneExpressionRateProcessProxy: VLEMProxyNode {
     
     // Declarations -
     var gene_expression_tree:SyntaxTreeComponent?
@@ -214,9 +300,13 @@ class VLEMGeneExpressionRateProcessProxy: NSObject {
         self.gene_expression_tree = node
         self.token_type = node.tokenType
     }
+    
+    func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
+        return false
+    }
 }
 
-class VLEMSpeciesProxy: NSObject {
+class VLEMSpeciesProxy: VLEMProxyNode {
     
     // Declarations -
     var syntax_tree_node:SyntaxTreeComponent?
@@ -236,6 +326,10 @@ class VLEMSpeciesProxy: NSObject {
                 self.state_symbol_string = symbol_lexeme
             }
         }
+    }
+    
+    func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
+        return false
     }
 }
 

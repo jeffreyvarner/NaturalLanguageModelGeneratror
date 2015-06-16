@@ -46,7 +46,7 @@ class JuliaLanguageStrategyLibrary: NSObject {
         return nil
     }
     
-    static func extractProteinDegradationKineticsList(root:SyntaxTreeComposite) -> [VLEMProteinDegradationKineticsFunctionProxy]? {
+    static func extractProteinDegradationKineticsList(root:SyntaxTreeComposite) -> [VLEMProxyNode]? {
         
         // Get type dictionary -
         var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
@@ -62,14 +62,14 @@ class JuliaLanguageStrategyLibrary: NSObject {
             for child_node in root.children_array {
                 child_node.accept(degradation_kinetics_visitor)
             }
-            return degradation_kinetics_visitor.getSyntaxTreeVisitorData() as? [VLEMProteinDegradationKineticsFunctionProxy]
+            return degradation_kinetics_visitor.getSyntaxTreeVisitorData() as? [VLEMProxyNode]
         }
         
         return nil
     }
 
     
-    static func extractMessengerRNADegradationKineticsList(root:SyntaxTreeComposite) -> [VLEMMessengerRNADegradationKineticsFunctionProxy]? {
+    static func extractMessengerRNADegradationKineticsList(root:SyntaxTreeComposite) -> [VLEMProxyNode]? {
     
         // Get type dictionary -
         var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
@@ -85,13 +85,13 @@ class JuliaLanguageStrategyLibrary: NSObject {
             for child_node in root.children_array {
                 child_node.accept(degradation_kinetics_visitor)
             }
-            return degradation_kinetics_visitor.getSyntaxTreeVisitorData() as? [VLEMMessengerRNADegradationKineticsFunctionProxy]
+            return degradation_kinetics_visitor.getSyntaxTreeVisitorData() as? [VLEMProxyNode]
         }
         
         return nil
     }
     
-    static func extractGeneExpressionKineticsList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionKineticsFunctionProxy]? {
+    static func extractGeneExpressionKineticsList(root:SyntaxTreeComposite) -> [VLEMProxyNode]? {
         
         // Get type dictionary -
         var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
@@ -107,7 +107,7 @@ class JuliaLanguageStrategyLibrary: NSObject {
             for child_node in root.children_array {
                 child_node.accept(gene_expression_kinetics_visitor)
             }
-            return gene_expression_kinetics_visitor.getSyntaxTreeVisitorData() as? [VLEMGeneExpressionKineticsFunctionProxy]
+            return gene_expression_kinetics_visitor.getSyntaxTreeVisitorData() as? [VLEMProxyNode]
         }
         
         return nil
@@ -302,12 +302,15 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
             
             for proxy_object in expression_kinetics_list {
             
-                // Get the data in the proxy -
-                let parameter_index = proxy_object.parameter_index
-                let gene_symbol = proxy_object.gene_symbol
-                
-                // write the buffer entry -
-                buffer+="\tpush!(gene_expression_rate_vector,gene_expression_parameter_vector[\(parameter_index)]*\(gene_symbol))\n"
+                if var _proxy_node = proxy_object as? VLEMGeneExpressionKineticsFunctionProxy {
+                    
+                    // Get the data in the proxy -
+                    let parameter_index = _proxy_node.parameter_index
+                    let gene_symbol = _proxy_node.gene_symbol
+                    
+                    // write the buffer entry -
+                    buffer+="\tpush!(gene_expression_rate_vector,gene_expression_parameter_vector[\(parameter_index)]*\(gene_symbol))\n"
+                }
             }
         }
         
@@ -322,12 +325,15 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
             
             for proxy_object in mrna_degradation_kinetics_array {
                 
-                // Get the data in the proxy -
-                let parameter_index = proxy_object.parameter_index
-                let mrna_symbol = proxy_object.proxy_symbol
-
-                // write the buffer entry -
-                buffer+="\tpush!(mRNA_degradation_rate_vector,gene_expression_parameter_vector[\(parameter_index)]*\(mrna_symbol))\n"
+                if let _proxy_node = proxy_object as? VLEMMessengerRNADegradationKineticsFunctionProxy {
+                    
+                    // Get the data in the proxy -
+                    let parameter_index = _proxy_node.parameter_index
+                    let mrna_symbol = _proxy_node.proxy_symbol
+                    
+                    // write the buffer entry -
+                    buffer+="\tpush!(mRNA_degradation_rate_vector,gene_expression_parameter_vector[\(parameter_index)]*\(mrna_symbol))\n"
+                }
             }
         }
 
@@ -338,16 +344,18 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
             
             for proxy_object in protein_degradation_kinetics_array {
                 
-                // Get the data in the proxy -
-                let parameter_index = proxy_object.parameter_index
-                let protein_symbol = proxy_object.proxy_symbol
-                
-                // write the buffer entry -
-                buffer+="\tpush!(protein_degradation_rate_vector,gene_expression_parameter_vector[\(parameter_index)]*\(protein_symbol))\n"
+                if let _proxy_node = proxy_object as? VLEMProteinDegradationKineticsFunctionProxy {
+                    
+                    // Get the data in the proxy -
+                    let parameter_index = _proxy_node.parameter_index
+                    let protein_symbol = _proxy_node.proxy_symbol
+                    
+                    // write the buffer entry -
+                    buffer+="\tpush!(protein_degradation_rate_vector,gene_expression_parameter_vector[\(parameter_index)]*\(protein_symbol))\n"
+                }
             }
         }
 
-        
         buffer+="\n"
         buffer+="\t# Define the system transfer rate vector - \n"
         buffer+="\tfill!(system_transfer_rate_vector,0.0)\n"
@@ -491,7 +499,9 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         
         buffer+="\t# Define the dxdt_vector - \n"
-        buffer+="\n"
+        
+        
+        
         buffer+="\treturn dxdt_vector;\n"
         buffer+="end"
         
