@@ -381,8 +381,8 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
         buffer+="\tcontrol_vector_metabolism = Float64[];\n"
         buffer+="\n"
         buffer+="\t# Get the parameter_vector - \n"
-        buffer+="\tgene_expression_parameter_vector = DF[\"GENE_EXPRESSION_CONTROL_PARAMETER_VECTOR\"];\n"
-        buffer+="\tmetabolic_parameter_vector = DF[\"METABOLIC_CONTROL_PARAMETER_VECTOR\"];\n"
+        buffer+="\tg = DF[\"GENE_EXPRESSION_CONTROL_PARAMETER_VECTOR\"];\n"
+        buffer+="\tm = DF[\"METABOLIC_CONTROL_PARAMETER_VECTOR\"];\n"
         buffer+="\n"
         buffer+="\t# Alias the state vector - \n"
         
@@ -408,11 +408,37 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
         }
         
         buffer+="\n"
-        buffer+="\t# Formulate the gene expression control vector \n"
+        buffer+="\t# Formulate the gene expression control vector - \n"
+        var counter = 0
         if var gene_expression_control_model = JuliaLanguageStrategyLibrary.extractGeneExpressionControlModel(model_root){
             
-            
-            
+            if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
+                
+                for proxy_object in species_list {
+                    
+                    let target_lexeme = proxy_object.state_symbol_string!
+                    if let control_tree_array = gene_expression_control_model[target_lexeme] {
+                        
+                        buffer+="\t# Control structure for \(target_lexeme)\n"
+                        buffer+="\tf_vector = Float64[]\n"
+                        
+                        for proxy:VLEMControlRelationshipProxy in control_tree_array {
+                            
+                            if let _effector_lexeme_array = proxy.effector_lexeme_array {
+                                
+                                for _effector_lexeme in _effector_lexeme_array {
+                                    buffer+="\tpush!(f_vector,(g[\(++counter)]*(\(_effector_lexeme))^g[\(++counter)])/(1 + g[\(--counter)]*(\(_effector_lexeme))^g[\(++counter)]))"
+                                }
+                            }
+                            
+                            buffer+="\n"
+                        }
+                        
+                        buffer+="\tpush!(control_vector_gene_expression,mean(f_vector))\n"
+                        buffer+="\n"
+                    }
+                }
+            }
         }
         
         buffer+="\n"

@@ -24,16 +24,51 @@ class VLEMControlRelationshipProxy:NSObject {
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
     private var token_type:TokenType
-
+    var target_index:Int = 1
     
-    
+    var effector_lexeme_array:[String]? {
+        
+        get {
+         
+            if let _control_subtree = syntax_tree_component as? SyntaxTreeComposite {
+                
+                if let _relationship_node = _control_subtree.children_array[0] as? SyntaxTreeComposite {
+                    
+                    // Get the effector array -
+                    let _effector_node_array = _relationship_node.children_array
+                    
+                    // Different array *depending* upon OR -or- AND
+                    if (_relationship_node.tokenType == TokenType.OR){
+                     
+                        // effector array -
+                        var local_array = [String]()
+                        for effector_node:SyntaxTreeComponent in _effector_node_array {
+                            local_array.append(effector_node.lexeme!)
+                        }
+                        
+                        return local_array
+                    }
+                    else if (_relationship_node.tokenType == TokenType.AND){
+                        
+                        var local_buffer = "1.0"
+                        for effector_node:SyntaxTreeComponent in _effector_node_array {
+                            local_buffer+="*\(effector_node.lexeme!)"
+                        }
+                        
+                        return [local_buffer]
+                    }
+                }
+            }
+            
+            return nil
+        }
+    }
     
     // initialize -
     init(node:SyntaxTreeComponent){
         self.syntax_tree_component = node
         self.token_type = node.tokenType
     }
-    
 }
 
 class VLEMMessengerRNADegradationKineticsFunctionProxy: NSObject {
