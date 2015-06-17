@@ -361,8 +361,17 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\tfill!(system_transfer_rate_vector,0.0)\n"
         
         buffer+="\n"
-        buffer+="\t# Return the rate vectors to the caller - \n"
-        buffer+="\treturn (gene_expression_rate_vector, metabolic_rate_vector, mRNA_degradation_rate_vector, protein_degradation_rate_vector, system_transfer_rate_vector)\n"
+        buffer+="\t# Return the rate vectors to the caller in a dictionary - \n"
+        buffer+="\t# - DO NOT EDIT BELOW THIS LINE ------------------------------ \n"
+        buffer+="\tkinetics_dictionary = Dict()\n"
+        buffer+="\tkinetics_dictionary[\"gene_expression_rate_vector\"] = gene_expression_rate_vector\n"
+        buffer+="\tkinetics_dictionary[\"metabolic_rate_vector\"] = metabolic_rate_vector\n"
+        buffer+="\tkinetics_dictionary[\"mRNA_degradation_rate_vector\"] = mRNA_degradation_rate_vector\n"
+        buffer+="\tkinetics_dictionary[\"protein_degradation_rate_vector\"] = protein_degradation_rate_vector\n"
+        buffer+="\tkinetics_dictionary[\"system_transfer_rate_vector\"] = system_transfer_rate_vector\n"
+        buffer+="\t# - DO NOT EDIT ABOVE THIS LINE ------------------------------ \n"
+        buffer+="\treturn kinetics_dictionary\n"
+    
         buffer+="end"
         
         // return -
@@ -483,7 +492,13 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         
         buffer+="\t# Define the rate_vector - \n"
-        buffer+="\t(gene_expression_rate_vector, metabolic_rate_vector, mRNA_degradation_rate_vector, protein_degradation_rate_vector, system_transfer_rate_vector) = Kinetics(t,x,DF);\n"
+        buffer+="\tkinetics_dictionary = Kinetics(t,x,DF);\n"
+        buffer+="\tgene_expression_rate_vector = kinetics_dictionary[\"gene_expression_rate_vector\"];\n"
+        buffer+="\ttranslation_rate_vector = kinetics_dictionary[\"translation_rate_vector\"];\n"
+        buffer+="\tmetabolic_rate_vector = kinetics_dictionary[\"metabolic_rate_vector\"];\n"
+        buffer+="\tmRNA_degradation_rate_vector = kinetics_dictionary[\"mRNA_degradation_rate_vector\"];\n"
+        buffer+="\tprotein_degradation_rate_vector = kinetics_dictionary[\"protein_degradation_rate_vector\"];\n"
+        
         buffer+="\n"
         
         buffer+="\t# Define the control_vector - \n"
@@ -498,10 +513,59 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
         buffer+="\tmetabolic_rate_vector = metabolic_rate_vector.*metabolic_control_vector;\n"
         buffer+="\n"
         
-        buffer+="\t# Define the dxdt_vector - \n"
+        var model_root = node as! SyntaxTreeComposite
+        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
         
-        
-        
+            buffer+="\t# Define the dxdt_vector - \n"
+            
+            // process the genes -
+            var gene_counter = 1
+            for proxy_object in species_list {
+                
+                if (proxy_object.token_type == TokenType.DNA) {
+                    buffer+="\tdxdt_vector[\(gene_counter)] = 0.0;\n"
+                    
+                    // update gene counter -
+                    gene_counter++
+                }
+            }
+            
+            // process the mRNA -
+            var mRNA_counter = gene_counter
+            var rate_counter = 1
+            for proxy_object in species_list {
+                
+                if (proxy_object.token_type == TokenType.MESSENGER_RNA){
+                        
+                    buffer+="\tdxdt_vector[\(mRNA_counter)] = gene_expression_rate_vector[\(rate_counter)] - mRNA_degradation_rate_vector[\(rate_counter)];\n"
+                    
+                    // update the counter -
+                    mRNA_counter++
+                    
+                    // update the rate counter -
+                    rate_counter++
+                    
+                }
+            }
+            
+            // process the proteins -
+            var protein_counter = mRNA_counter
+            rate_counter = 1
+            for proxy_object in species_list {
+                
+                if (proxy_object.token_type == TokenType.PROTEIN){
+                    
+                    buffer+="\tdxdt_vector[\(protein_counter)] = translation_rate_vector[\(rate_counter)] - protein_degradation_rate_vector[\(rate_counter)];\n"
+                    
+                    // update the counter -
+                    protein_counter++
+                    
+                    // update the rate counter -
+                    rate_counter++
+                }
+            }
+        }
+
         buffer+="\treturn dxdt_vector;\n"
         buffer+="end"
         
