@@ -584,18 +584,23 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
         if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root), var _target_list = JuliaLanguageStrategyLibrary.extractTargetList(model_root) where (species_list as? [VLEMSpeciesProxy]) != nil  {
         
             buffer+="\t# Define the dxdt_vector - \n"
-            
+            buffer+="\t# Gene balances - \n"
             // process the genes -
             var gene_counter = 1
             for proxy_object in species_list {
                 
                 if ((proxy_object as! VLEMSpeciesProxy).token_type == TokenType.DNA) {
-                    buffer+="\tdxdt_vector[\(gene_counter)] = 0.0;\n"
+                    
+                    let state_symbol = (proxy_object as! VLEMSpeciesProxy).state_symbol_string
+                    buffer+="\tdxdt_vector[\(gene_counter)] = 0.0;\t#\t\(gene_counter)\t\(state_symbol!)\n"
                     
                     // update gene counter -
                     gene_counter++
                 }
             }
+            
+            buffer+="\n"
+            buffer+="\t# mRNA balances - \n"
             
             // process the mRNA -
             var mRNA_counter = gene_counter
@@ -604,16 +609,19 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
                 
                 if ((proxy_object as! VLEMSpeciesProxy).token_type == TokenType.MESSENGER_RNA){
                     
+                    let state_symbol = (proxy_object as! VLEMSpeciesProxy).state_symbol_string!
+                    
                     // ok, is this proxy in the target?
                     if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(_target_list, node: proxy_object) == true){
                         
-                        buffer+="\tdxdt_vector[\(mRNA_counter)] = gene_expression_rate_vector[\(rate_counter)] - mRNA_degradation_rate_vector[\(rate_counter)];\n"
+                        
+                        buffer+="\tdxdt_vector[\(mRNA_counter)] = gene_expression_rate_vector[\(rate_counter)] - mRNA_degradation_rate_vector[\(rate_counter)];\t#\t\(mRNA_counter)\t\(state_symbol)\n"
                         
                         // update the rate counter -
                         rate_counter++
                     }
                     else {
-                        buffer+="\tdxdt_vector[\(mRNA_counter)] = 0.0;\n"
+                        buffer+="\tdxdt_vector[\(mRNA_counter)] = 0.0;\t#\t\(mRNA_counter)\t\(state_symbol)\n"
                     }
                     
                     // update the counter -
@@ -621,6 +629,10 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
                 }
             }
             
+            
+            buffer+="\n"
+            buffer+="\t# Protein balances - \n"
+        
             // process the proteins -
             var protein_counter = mRNA_counter
             rate_counter = 1
@@ -628,16 +640,18 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
                 
                 if ((proxy_object as! VLEMSpeciesProxy).token_type == TokenType.PROTEIN){
                     
+                    let state_symbol = (proxy_object as! VLEMSpeciesProxy).state_symbol_string!
+                    
                     // ok, is this proxy in the target?
                     if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(_target_list, node: proxy_object) == true){
                         
-                        buffer+="\tdxdt_vector[\(protein_counter)] = translation_rate_vector[\(rate_counter)] - protein_degradation_rate_vector[\(rate_counter)];\n"
+                        buffer+="\tdxdt_vector[\(protein_counter)] = translation_rate_vector[\(rate_counter)] - protein_degradation_rate_vector[\(rate_counter)];\t#\t\(protein_counter)\t\(state_symbol)\n"
                         
                         // update the rate counter -
                         rate_counter++
                     }
                     else {
-                        buffer+="\tdxdt_vector[\(protein_counter)] = 0.0;\n"
+                        buffer+="\tdxdt_vector[\(protein_counter)] = 0.0;\t#\t\(protein_counter)\t\(state_symbol)\n"
                     }
                     
                     // update the counter -
