@@ -140,6 +140,60 @@ class VLEMMessengerRNADegradationKineticsFunctionProxy: VLEMProxyNode {
     }
 }
 
+class VLEMProteinTranslationKineticsFunctionProxy: VLEMProxyNode {
+    
+    // Declarations -
+    private var syntax_tree_component:SyntaxTreeComponent
+    private var token_type:TokenType
+    var parameter_array_base_index:Int = 0
+    
+    var protein_index:Int = 1
+    var parameter_index:Int {
+        get {
+            
+            var tmp = 2*protein_index + 3*parameter_array_base_index - 1
+            return tmp
+        }
+    }
+    
+    var proxy_symbol:String {
+        get {
+            if let _lexeme = syntax_tree_component.lexeme {
+                return _lexeme
+            }
+            else {
+                return "magic_white_powder"
+            }
+        }
+    }
+    
+    // initialize -
+    init(node:SyntaxTreeComponent){
+        self.syntax_tree_component = node
+        self.token_type = node.tokenType
+    }
+    
+    func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
+        
+        // check the class -
+        if let _test_node = node as? VLEMProteinTranslationKineticsFunctionProxy {
+            
+            // check the token type -
+            if (_test_node.token_type == token_type){
+                
+                // check the lexeme -
+                if (syntax_tree_component.lexeme == _test_node.syntax_tree_component.lexeme){
+                    
+                    return true
+                    
+                }
+            }
+        }
+        
+        return false
+    }
+}
+
 class VLEMProteinDegradationKineticsFunctionProxy: VLEMProxyNode {
     
     // Declarations -
@@ -329,6 +383,21 @@ class VLEMSpeciesProxy: VLEMProxyNode {
     }
     
     func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
+        // check the class -
+        if let _test_node = node as? VLEMSpeciesProxy, let _syntax_tree_component = syntax_tree_node {
+            
+            // check the token type -
+            if (_test_node.token_type == token_type){
+                
+                // check the lexeme -
+                if (_syntax_tree_component.lexeme == _test_node.syntax_tree_node!.lexeme!){
+                    
+                    return true
+                    
+                }
+            }
+        }
+        
         return false
     }
 }

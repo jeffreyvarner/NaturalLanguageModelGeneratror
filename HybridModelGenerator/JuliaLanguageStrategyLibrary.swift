@@ -46,6 +46,28 @@ class JuliaLanguageStrategyLibrary: NSObject {
         return nil
     }
     
+    static func extractProteinTranslationKineticsList(root:SyntaxTreeComposite) -> [VLEMProxyNode]? {
+        
+        // Get type dictionary -
+        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        for child_node in root.children_array {
+            child_node.accept(type_dictionary_visitor)
+        }
+        
+        // type dictionary -
+        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+            
+            // Build the transfer function tree visitor -
+            var translation_kinetics_visitor = ProteinTranslationKineticsFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            for child_node in root.children_array {
+                child_node.accept(translation_kinetics_visitor)
+            }
+            return translation_kinetics_visitor.getSyntaxTreeVisitorData() as? [VLEMProxyNode]
+        }
+        
+        return nil
+    }
+
     static func extractProteinDegradationKineticsList(root:SyntaxTreeComposite) -> [VLEMProxyNode]? {
         
         // Get type dictionary -
@@ -125,7 +147,30 @@ class JuliaLanguageStrategyLibrary: NSObject {
         return rate_visitor.getSyntaxTreeVisitorData() as? [VLEMGeneExpressionRateProcessProxy]
     }
     
-    static func extractSpeciesList(root:SyntaxTreeComposite) -> [VLEMSpeciesProxy]? {
+    
+    static func extractTargetList(root:SyntaxTreeComposite) -> [VLEMProxyNode]? {
+    
+        // Get type dictionary -
+        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        for child_node in root.children_array {
+            child_node.accept(type_dictionary_visitor)
+        }
+        
+        // type dictionary -
+        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+            
+            // Build the transfer function tree visitor -
+            var target_visitor = BiologicalTargetSymbolSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            for child_node in root.children_array {
+                child_node.accept(target_visitor)
+            }
+            return target_visitor.getSyntaxTreeVisitorData() as? [VLEMProxyNode]
+        }
+        
+        return nil
+    }
+    
+    static func extractSpeciesList(root:SyntaxTreeComposite) -> [VLEMProxyNode]? {
         
         // Get the list of species using the vistor pattern -
         var species_visitor = BiologicalSymbolSyntaxTreeVisitor()
@@ -133,7 +178,7 @@ class JuliaLanguageStrategyLibrary: NSObject {
             child_node.accept(species_visitor)
         }
         
-        return species_visitor.getSyntaxTreeVisitorData() as? [VLEMSpeciesProxy]
+        return species_visitor.getSyntaxTreeVisitorData() as? [VLEMProxyNode]
     }
     
     static func extractGeneExpressionControlTransferFunctionList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionControlTransferFunctionProxy]? {
@@ -264,20 +309,21 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\t# Initialize empty *_rate_vectors - \n"
         buffer+="\tgene_expression_rate_vector = Float64[]\n"
         buffer+="\tmetabolic_rate_vector = Float64[]\n"
+        buffer+="\ttranslation_rate_vector = Float64[]\n"
         buffer+="\tmRNA_degradation_rate_vector = Float64[]\n"
         buffer+="\tprotein_degradation_rate_vector = Float64[]\n"
         buffer+="\tsystem_transfer_rate_vector = Float64[]\n"
         buffer+="\n"
         
         buffer+="\t# Alias state vector - \n"
-        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
+        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) where ((species_list as? [VLEMSpeciesProxy]) != nil) {
             
             var counter = 1
             for proxy_object in species_list {
                 
                 // Get the default value -
-                let default_value = proxy_object.default_value
-                let state_symbol = proxy_object.state_symbol_string!
+                let default_value = (proxy_object as! VLEMSpeciesProxy).default_value
+                let state_symbol = (proxy_object as! VLEMSpeciesProxy).state_symbol_string!
                 
                 buffer+="\t"
                 buffer+=state_symbol
@@ -315,8 +361,23 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         }
         
         buffer+="\n"
-        buffer+="\t# Define the metabolic rate vector - \n"
-        buffer+="\tfill!(metabolic_rate_vector,0.0)\n"
+        buffer+="\t# Define the translation rate vector - \n"
+        buffer+="\tfill!(translation_rate_vector,0.0)\n"
+        if var translation_kinetics_list = JuliaLanguageStrategyLibrary.extractProteinTranslationKineticsList(model_root){
+            
+            for proxy_object in translation_kinetics_list {
+             
+                if let _proxy_node = proxy_object as? VLEMProteinTranslationKineticsFunctionProxy {
+                    
+                    // Get the data in the proxy -
+                    let parameter_index = _proxy_node.parameter_index
+                    let mrna_symbol = _proxy_node.proxy_symbol
+                    
+                    // write the buffer entry -
+                    buffer+="\tpush!(translation_rate_vector,gene_expression_parameter_vector[\(parameter_index)]*\(mrna_symbol))\n"
+                }
+            }
+        }
         
         buffer+="\n"
         buffer+="\t# Define the mRNA degradation rate vector - \n"
@@ -357,6 +418,10 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         }
 
         buffer+="\n"
+        buffer+="\t# Define the metabolic rate vector - \n"
+        buffer+="\tfill!(metabolic_rate_vector,0.0)\n"
+        
+        buffer+="\n"
         buffer+="\t# Define the system transfer rate vector - \n"
         buffer+="\tfill!(system_transfer_rate_vector,0.0)\n"
         
@@ -365,9 +430,10 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\t# - DO NOT EDIT BELOW THIS LINE ------------------------------ \n"
         buffer+="\tkinetics_dictionary = Dict()\n"
         buffer+="\tkinetics_dictionary[\"gene_expression_rate_vector\"] = gene_expression_rate_vector\n"
-        buffer+="\tkinetics_dictionary[\"metabolic_rate_vector\"] = metabolic_rate_vector\n"
+        buffer+="\tkinetics_dictionary[\"translation_rate_vector\"] = translation_rate_vector\n"
         buffer+="\tkinetics_dictionary[\"mRNA_degradation_rate_vector\"] = mRNA_degradation_rate_vector\n"
         buffer+="\tkinetics_dictionary[\"protein_degradation_rate_vector\"] = protein_degradation_rate_vector\n"
+        buffer+="\tkinetics_dictionary[\"metabolic_rate_vector\"] = metabolic_rate_vector\n"
         buffer+="\tkinetics_dictionary[\"system_transfer_rate_vector\"] = system_transfer_rate_vector\n"
         buffer+="\t# - DO NOT EDIT ABOVE THIS LINE ------------------------------ \n"
         buffer+="\treturn kinetics_dictionary\n"
@@ -405,14 +471,14 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
         
         // Build species list -
         var model_root = node as! SyntaxTreeComposite
-        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
+        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) where ((species_list as? [VLEMSpeciesProxy]) != nil) {
             
             var counter = 1
             for proxy_object in species_list {
                 
                 // Get the default value -
-                let default_value = proxy_object.default_value
-                let state_symbol = proxy_object.state_symbol_string!
+                let default_value = (proxy_object as! VLEMSpeciesProxy).default_value
+                let state_symbol = (proxy_object as! VLEMSpeciesProxy).state_symbol_string!
                 
                 buffer+="\t"
                 buffer+=state_symbol
@@ -429,11 +495,11 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
         var counter = 0
         if var gene_expression_control_model = JuliaLanguageStrategyLibrary.extractGeneExpressionControlModel(model_root){
             
-            if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
+            if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) where ((species_list as? [VLEMSpeciesProxy]) != nil) {
                 
                 for proxy_object in species_list {
                     
-                    let target_lexeme = proxy_object.state_symbol_string!
+                    let target_lexeme = (proxy_object as! VLEMSpeciesProxy).state_symbol_string!
                     if let control_tree_array = gene_expression_control_model[target_lexeme] {
                         
                         buffer+="\t# Control structure for \(target_lexeme)\n"
@@ -513,8 +579,9 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
         buffer+="\tmetabolic_rate_vector = metabolic_rate_vector.*metabolic_control_vector;\n"
         buffer+="\n"
         
+        // Get the model_root -
         var model_root = node as! SyntaxTreeComposite
-        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
+        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root), var _target_list = JuliaLanguageStrategyLibrary.extractTargetList(model_root) where (species_list as? [VLEMSpeciesProxy]) != nil  {
         
             buffer+="\t# Define the dxdt_vector - \n"
             
@@ -522,7 +589,7 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
             var gene_counter = 1
             for proxy_object in species_list {
                 
-                if (proxy_object.token_type == TokenType.DNA) {
+                if ((proxy_object as! VLEMSpeciesProxy).token_type == TokenType.DNA) {
                     buffer+="\tdxdt_vector[\(gene_counter)] = 0.0;\n"
                     
                     // update gene counter -
@@ -535,16 +602,22 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
             var rate_counter = 1
             for proxy_object in species_list {
                 
-                if (proxy_object.token_type == TokenType.MESSENGER_RNA){
+                if ((proxy_object as! VLEMSpeciesProxy).token_type == TokenType.MESSENGER_RNA){
+                    
+                    // ok, is this proxy in the target?
+                    if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(_target_list, node: proxy_object) == true){
                         
-                    buffer+="\tdxdt_vector[\(mRNA_counter)] = gene_expression_rate_vector[\(rate_counter)] - mRNA_degradation_rate_vector[\(rate_counter)];\n"
+                        buffer+="\tdxdt_vector[\(mRNA_counter)] = gene_expression_rate_vector[\(rate_counter)] - mRNA_degradation_rate_vector[\(rate_counter)];\n"
+                        
+                        // update the rate counter -
+                        rate_counter++
+                    }
+                    else {
+                        buffer+="\tdxdt_vector[\(mRNA_counter)] = 0.0;\n"
+                    }
                     
                     // update the counter -
                     mRNA_counter++
-                    
-                    // update the rate counter -
-                    rate_counter++
-                    
                 }
             }
             
@@ -553,15 +626,22 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
             rate_counter = 1
             for proxy_object in species_list {
                 
-                if (proxy_object.token_type == TokenType.PROTEIN){
+                if ((proxy_object as! VLEMSpeciesProxy).token_type == TokenType.PROTEIN){
                     
-                    buffer+="\tdxdt_vector[\(protein_counter)] = translation_rate_vector[\(rate_counter)] - protein_degradation_rate_vector[\(rate_counter)];\n"
+                    // ok, is this proxy in the target?
+                    if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(_target_list, node: proxy_object) == true){
+                        
+                        buffer+="\tdxdt_vector[\(protein_counter)] = translation_rate_vector[\(rate_counter)] - protein_degradation_rate_vector[\(rate_counter)];\n"
+                        
+                        // update the rate counter -
+                        rate_counter++
+                    }
+                    else {
+                        buffer+="\tdxdt_vector[\(protein_counter)] = 0.0;\n"
+                    }
                     
                     // update the counter -
                     protein_counter++
-                    
-                    // update the rate counter -
-                    rate_counter++
                 }
             }
         }
@@ -664,21 +744,24 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         
         // Build IC list -
         var model_root = root as! SyntaxTreeComposite
-        if var species_list = extractSpeciesList(model_root) {
+        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
             
             var counter = 1
             for proxy_object in species_list {
                 
-                // Get the default value -
-                let default_value = proxy_object.default_value
-                let state_symbol = proxy_object.state_symbol_string
-                
-                // write the record -
-                buffer+="\tpush!(IC_ARRAY,\(default_value!))\t"
-                buffer+="#\t\(counter)\t\(state_symbol!)\n"
-                
-                // update the counter -
-                counter++
+                if let _proxy_object = proxy_object as? VLEMSpeciesProxy {
+                 
+                    // Get the default value -
+                    let default_value = _proxy_object.default_value
+                    let state_symbol = _proxy_object.state_symbol_string
+                    
+                    // write the record -
+                    buffer+="\tpush!(IC_ARRAY,\(default_value!))\t"
+                    buffer+="#\t\(counter)\t\(state_symbol!)\n"
+                    
+                    // update the counter -
+                    counter++
+                }
             }
         }
         
@@ -764,19 +847,6 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         
         // return -
         return buffer
-    }
-    
-    // MARK: - Helper methods
-    
-    func extractSpeciesList(root:SyntaxTreeComposite) -> [VLEMSpeciesProxy]? {
-        
-        // Get the list of species using the vistor pattern -
-        var species_visitor = BiologicalSymbolSyntaxTreeVisitor()
-        for child_node in root.children_array {
-            child_node.accept(species_visitor)
-        }
-        
-        return species_visitor.getSyntaxTreeVisitorData() as? [VLEMSpeciesProxy]
     }
 }
 
