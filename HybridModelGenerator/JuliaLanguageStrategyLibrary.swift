@@ -48,7 +48,8 @@ class JuliaLanguageStrategyLibrary: NSObject {
                     child_node.accept(tree_visitor)
                 }
                 
-                return tree_visitor.getSyntaxTreeVisitorData()
+                let tmp_vector = tree_visitor.getSyntaxTreeVisitorData()
+                return tmp_vector
             }
         }
         
@@ -400,14 +401,13 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
             
             for proxy_object in _basal_expression_kinetics_list {
                 
-                if var _proxy_node = proxy_object as? VLEMGeneExpressionKineticsFunctionProxy {
+                if var _proxy_node = proxy_object as? VLEMBasalGeneExpressionKineticsFunctionProxy {
                     
                     // Get the data in the proxy -
                     let parameter_index = _proxy_node.parameter_index
-                    let gene_symbol = _proxy_node.gene_symbol
                     
                     // write the buffer entry -
-                    buffer+="\tpush!(basal_gene_expression_rate_vector,gene_expression_parameter_vector[\(parameter_index)]*\(gene_symbol))\n"
+                    buffer+="\tpush!(basal_gene_expression_rate_vector,gene_expression_parameter_vector[\(parameter_index)]);\n"
                 }
             }
         }
@@ -481,12 +481,13 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\t# Return the rate vectors to the caller in a dictionary - \n"
         buffer+="\t# - DO NOT EDIT BELOW THIS LINE ------------------------------ \n"
         buffer+="\tkinetics_dictionary = Dict()\n"
-        buffer+="\tkinetics_dictionary[\"gene_expression_rate_vector\"] = gene_expression_rate_vector\n"
-        buffer+="\tkinetics_dictionary[\"translation_rate_vector\"] = translation_rate_vector\n"
-        buffer+="\tkinetics_dictionary[\"mRNA_degradation_rate_vector\"] = mRNA_degradation_rate_vector\n"
-        buffer+="\tkinetics_dictionary[\"protein_degradation_rate_vector\"] = protein_degradation_rate_vector\n"
-        buffer+="\tkinetics_dictionary[\"metabolic_rate_vector\"] = metabolic_rate_vector\n"
-        buffer+="\tkinetics_dictionary[\"system_transfer_rate_vector\"] = system_transfer_rate_vector\n"
+        buffer+="\tkinetics_dictionary[\"gene_expression_rate_vector\"] = gene_expression_rate_vector;\n"
+        buffer+="\tkinetics_dictionary[\"basal_gene_expression_rate_vector\"] = basal_gene_expression_rate_vector;\n"
+        buffer+="\tkinetics_dictionary[\"translation_rate_vector\"] = translation_rate_vector;\n"
+        buffer+="\tkinetics_dictionary[\"mRNA_degradation_rate_vector\"] = mRNA_degradation_rate_vector;\n"
+        buffer+="\tkinetics_dictionary[\"protein_degradation_rate_vector\"] = protein_degradation_rate_vector;\n"
+        buffer+="\tkinetics_dictionary[\"metabolic_rate_vector\"] = metabolic_rate_vector;\n"
+        buffer+="\tkinetics_dictionary[\"system_transfer_rate_vector\"] = system_transfer_rate_vector;\n"
         buffer+="\t# - DO NOT EDIT ABOVE THIS LINE ------------------------------ \n"
         buffer+="\treturn kinetics_dictionary\n"
     
@@ -622,6 +623,7 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
         buffer+="\t# Define the rate_vector - \n"
         buffer+="\tkinetics_dictionary = Kinetics(t,x,DF);\n"
         buffer+="\tgene_expression_rate_vector = kinetics_dictionary[\"gene_expression_rate_vector\"];\n"
+        buffer+="\tbasal_gene_expression_rate_vector = kinetics_dictionary[\"basal_gene_expression_rate_vector\"];\n"
         buffer+="\ttranslation_rate_vector = kinetics_dictionary[\"translation_rate_vector\"];\n"
         buffer+="\tmetabolic_rate_vector = kinetics_dictionary[\"metabolic_rate_vector\"];\n"
         buffer+="\tmRNA_degradation_rate_vector = kinetics_dictionary[\"mRNA_degradation_rate_vector\"];\n"
@@ -677,7 +679,7 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
                     if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(_target_list, node: proxy_object) == true){
                         
                         
-                        buffer+="\tdxdt_vector[\(mRNA_counter)] = gene_expression_rate_vector[\(rate_counter)] - mRNA_degradation_rate_vector[\(rate_counter)];\t#\t\(mRNA_counter)\t\(state_symbol)\n"
+                        buffer+="\tdxdt_vector[\(mRNA_counter)] = gene_expression_rate_vector[\(rate_counter)] - mRNA_degradation_rate_vector[\(rate_counter)] + basal_gene_expression_rate_vector[\(rate_counter)];\t#\t\(mRNA_counter)\t\(state_symbol)\n"
                         
                         // update the rate counter -
                         rate_counter++

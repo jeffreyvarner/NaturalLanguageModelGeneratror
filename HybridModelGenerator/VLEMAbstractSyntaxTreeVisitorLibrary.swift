@@ -707,6 +707,7 @@ final class BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisit
     
     // Declarations -
     private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    private var state_node_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
     
     // We require the type dictionary -
     init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
@@ -716,21 +717,52 @@ final class BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisit
     init() {
     }
     
+    
+    
     func willVisit(node:SyntaxTreeComponent) -> Void {
     }
     
-    func visit(node:SyntaxTreeComponent) -> Void {
-    }
     
-    func didVisit(node: SyntaxTreeComponent) -> Void {
+    func visit(node:SyntaxTreeComponent) -> Void {
+        
+        // Grab the target node ...
+        if (node.tokenType == TokenType.BIOLOGICAL_SYMBOL && node.parent_pointer?.parent_pointer?.tokenType == TokenType.TRANSCRIPTION){
+            
+            if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsSyntaxNode(state_node_array, node: node) == false){
+                state_node_array.append(node)
+            }
+        }
     }
     
     func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        
+        // Don't walk down the control part of the tree ...
+        if (node.tokenType == TokenType.INDUCE || node.tokenType == TokenType.REPRESS || node.tokenType == TokenType.REPRESSES || node.tokenType == TokenType.INDUCES){
+            return false
+        }
+        
         return true
+    }
+
+    func didVisit(node: SyntaxTreeComponent) -> Void {
     }
     
     func getSyntaxTreeVisitorData() -> Any? {
-        return nil
+        
+        // set the counter -
+        var proxy_node_array = [VLEMProxyNode]()
+        var counter = 1
+        for node in state_node_array {
+            
+            // build basal term -
+            var proxy = VLEMBasalGeneExpressionKineticsFunctionProxy(node: node)
+            proxy.gene_index = (counter++)
+            
+            // add -
+            proxy_node_array.append(proxy)
+        }
+        
+        return proxy_node_array
     }
 }
 
