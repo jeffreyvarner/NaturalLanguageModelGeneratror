@@ -27,7 +27,7 @@ class VLEMControlRelationshipProxy:VLEMProxyNode {
     
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
-    private var token_type:TokenType
+    var token_type:TokenType
     var target_index:Int = 1
     
     func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {

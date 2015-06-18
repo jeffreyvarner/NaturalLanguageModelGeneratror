@@ -24,6 +24,37 @@ class JuliaLanguageStrategyLibrary: NSObject {
         buffer+="\n"
     }
     
+    
+    static func dispatchGenericTreeVisitorOnTreeWithTypeDictionary(root:SyntaxTreeComposite,visitorClassName:String) -> Any? {
+        
+        // Get type dictionary -
+        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        for child_node in root.children_array {
+            child_node.accept(type_dictionary_visitor)
+        }
+        
+        // create visitor dictionary -
+        var visitor_dictionary = [
+            "BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor" : BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor.self
+        ]
+        
+        // type dictionary -
+        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+            
+            if let class_value = visitor_dictionary[visitorClassName] {
+                
+                var tree_visitor = class_value(typeDictionary: _type_dictionary)
+                for child_node in root.children_array {
+                    child_node.accept(tree_visitor)
+                }
+                
+                return tree_visitor.getSyntaxTreeVisitorData()
+            }
+        }
+        
+        return nil
+    }
+    
     static func extractGeneExpressionControlModel(root:SyntaxTreeComposite) -> Dictionary<String,Array<VLEMControlRelationshipProxy>>? {
     
         // Get type dictionary -
@@ -308,6 +339,7 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         // initialize the rate vectors -
         buffer+="\t# Initialize empty *_rate_vectors - \n"
         buffer+="\tgene_expression_rate_vector = Float64[]\n"
+        buffer+="\tbasal_gene_expression_rate_vector = Float64[]\n"
         buffer+="\tmetabolic_rate_vector = Float64[]\n"
         buffer+="\ttranslation_rate_vector = Float64[]\n"
         buffer+="\tmRNA_degradation_rate_vector = Float64[]\n"
@@ -342,7 +374,7 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\tmetabolic_parameter_vector = DF[\"METABOLIC_KINETIC_PARAMETER_VECTOR\"]\n"
         
         buffer+="\n"
-        buffer+="\t# Gene expression rates - \n"
+        buffer+="\t# Regulated gene expression rate vector - \n"
         buffer+="\tfill!(gene_expression_rate_vector,0.0)\n"
         if var expression_kinetics_list = JuliaLanguageStrategyLibrary.extractGeneExpressionKineticsList(model_root) {
             
@@ -360,6 +392,26 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
             }
         }
         
+        buffer+="\n"
+        buffer+="\t# Basal gene expression rate vector - \n"
+        buffer+="\tfill!(basal_gene_expression_rate_vector,0.0)\n"
+        if var basal_expression_kinetics_list = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, visitorClassName: "BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor"),
+        let _basal_expression_kinetics_list = basal_expression_kinetics_list as? [VLEMProxyNode] {
+            
+            for proxy_object in _basal_expression_kinetics_list {
+                
+                if var _proxy_node = proxy_object as? VLEMGeneExpressionKineticsFunctionProxy {
+                    
+                    // Get the data in the proxy -
+                    let parameter_index = _proxy_node.parameter_index
+                    let gene_symbol = _proxy_node.gene_symbol
+                    
+                    // write the buffer entry -
+                    buffer+="\tpush!(basal_gene_expression_rate_vector,gene_expression_parameter_vector[\(parameter_index)]*\(gene_symbol))\n"
+                }
+            }
+        }
+
         buffer+="\n"
         buffer+="\t# Define the translation rate vector - \n"
         buffer+="\tfill!(translation_rate_vector,0.0)\n"
@@ -507,17 +559,27 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
                         
                         for proxy:VLEMControlRelationshipProxy in control_tree_array {
                             
-                            if let _effector_lexeme_array = proxy.effector_lexeme_array {
+                            if (proxy.token_type == TokenType.INDUCE || proxy.token_type == TokenType.INDUCES) {
                                 
-                                for _effector_lexeme in _effector_lexeme_array {
-                                    buffer+="\tpush!(f_vector,(g[\(++counter)]*(\(_effector_lexeme))^g[\(++counter)])/(1 + g[\(--counter)]*(\(_effector_lexeme))^g[\(++counter)]))"
+                                if let _effector_lexeme_array = proxy.effector_lexeme_array {
+                                    
+                                    for _effector_lexeme in _effector_lexeme_array {
+                                        buffer+="\tpush!(f_vector,(g[\(++counter)]*(\(_effector_lexeme))^g[\(++counter)])/(1 + g[\(--counter)]*(\(_effector_lexeme))^g[\(++counter)]));\n"
+                                    }
                                 }
                             }
-                            
-                            buffer+="\n"
+                            else if (proxy.token_type == TokenType.REPRESS || proxy.token_type == TokenType.REPRESSES){
+                             
+                                if let _effector_lexeme_array = proxy.effector_lexeme_array {
+                                    
+                                    for _effector_lexeme in _effector_lexeme_array {
+                                        buffer+="\tpush!(f_vector,1.0 - (g[\(++counter)]*(\(_effector_lexeme))^g[\(++counter)])/(1 + g[\(--counter)]*(\(_effector_lexeme))^g[\(++counter)]));\n"
+                                    }
+                                }
+                            }
                         }
                         
-                        buffer+="\tpush!(control_vector_gene_expression,mean(f_vector))\n"
+                        buffer+="\tpush!(control_vector_gene_expression,mean(f_vector));\n"
                         buffer+="\n"
                     }
                 }

@@ -8,6 +8,19 @@
 
 import Cocoa
 
+protocol SyntaxTreeVisitor {
+    
+    // Require the type dictionary for init ...
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>)
+    init()
+    
+    func visit(node:SyntaxTreeComponent) -> Void
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool
+    func getSyntaxTreeVisitorData() -> Any?
+    func willVisit(node:SyntaxTreeComponent) -> Void
+    func didVisit(node:SyntaxTreeComponent) -> Void
+}
+
 final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
 
     static func classifyTypeOfNode(node:SyntaxTreeComponent,type_dictionary:Dictionary<String,SyntaxTreeComponent>) -> TokenType? {
@@ -124,6 +137,8 @@ final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
     }
 }
 
+
+
 final class GeneExpressionControlModelSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
@@ -134,6 +149,10 @@ final class GeneExpressionControlModelSyntaxTreeVisitor:SyntaxTreeVisitor {
     // We require the type dictionary -
     init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
         self.type_dictionary = typeDictionary
+    }
+    
+    init() {
+        self.type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     }
     
     func visit(node:SyntaxTreeComponent) -> Void {
@@ -209,6 +228,10 @@ final class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
     // We require the type dictionary -
     init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
         self.type_dictionary = typeDictionary
+    }
+    
+    init() {
+        self.type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     }
     
     func visit(node:SyntaxTreeComponent) -> Void {
@@ -336,6 +359,13 @@ final class BiologicalTypeDictionarySyntaxTreeVisitor:SyntaxTreeVisitor {
     // Declarations -
     private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     
+    init() {
+    }
+    
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
+        self.type_dictionary = typeDictionary
+    }
+    
     func visit(node:SyntaxTreeComponent) -> Void {
         
         // ok, if we are visiting a type node, grab the types
@@ -377,6 +407,10 @@ final class ProteinTranslationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
     // We require the type dictionary -
     init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
         self.type_dictionary = typeDictionary
+    }
+    
+    init() {
+        
     }
     
     func willVisit(node:SyntaxTreeComponent) -> Void {
@@ -462,6 +496,10 @@ final class ProteinDegradationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
     // We require the type dictionary -
     init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
         self.type_dictionary = typeDictionary
+    }
+    
+    init() {
+        
     }
     
     func willVisit(node:SyntaxTreeComponent) -> Void {
@@ -557,6 +595,10 @@ final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVi
     // We require the type dictionary -
     init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
         self.type_dictionary = typeDictionary
+    }
+    
+    init() {
+        
     }
     
     func willVisit(node:SyntaxTreeComponent) -> Void {
@@ -661,6 +703,37 @@ final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVi
 
 }
 
+final class BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
+    
+    // Declarations -
+    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    
+    // We require the type dictionary -
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
+        self.type_dictionary = typeDictionary
+    }
+    
+    init() {
+    }
+    
+    func willVisit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func visit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func didVisit(node: SyntaxTreeComponent) -> Void {
+    }
+    
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        return true
+    }
+    
+    func getSyntaxTreeVisitorData() -> Any? {
+        return nil
+    }
+}
+
 final class GeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
 
     // Declarations -
@@ -670,6 +743,10 @@ final class GeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
     // We require the type dictionary -
     init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
         self.type_dictionary = typeDictionary
+    }
+    
+    init() {
+        
     }
     
     func willVisit(node:SyntaxTreeComponent) -> Void {
@@ -759,6 +836,9 @@ final class GeneExpressionControlFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
         self.type_dictionary = typeDictionary
     }
 
+    init() {
+        
+    }
     
     func willVisit(node:SyntaxTreeComponent) -> Void {
     }
@@ -788,6 +868,13 @@ final class GeneExpressionRateParameterSyntaxTreeVistor:SyntaxTreeVisitor {
         willSet(newValue) {
             
         }
+    }
+    
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
+        self.type_dictionary = typeDictionary
+    }
+    
+    init() {
     }
     
     func visit(node:SyntaxTreeComponent) -> Void {
@@ -934,6 +1021,10 @@ final class BiologicalTargetSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
         self.type_dictionary = typeDictionary
     }
     
+    init() {
+        
+    }
+    
     func visit(node:SyntaxTreeComponent) -> Void {
         
         // Grab the target node ...
@@ -1046,6 +1137,14 @@ final class BiologicalSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
     // declarations -
     private var state_node_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
     private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
+        self.type_dictionary = typeDictionary
+    }
+    
+    init() {
+        
+    }
     
     func visit(node:SyntaxTreeComponent) -> Void {
         
