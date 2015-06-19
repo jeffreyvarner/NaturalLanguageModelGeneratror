@@ -134,12 +134,30 @@ class VLEMParser: NSObject {
                     if (action_token_type == TokenType.EXPRESSION || action_token_type == TokenType.TRANSCRIPTION){
                         
                         // We have an expression statement -
-                        doParseWithGrammarAndScanner(scanner!, grammar:ExpressionStatementGrammarStrategy())
+                        if let _error = doParseWithGrammarAndScanner(scanner!, grammar:ExpressionStatementGrammarStrategy()){
+                            myParserErrorArray.append(_error)
+                        }
                     }
                     else if (scanner!.getTypeTokenType() == TokenType.TYPE){
                         
                         // ok, we have a TYPE token, so this must be a type of assingment -
-                        doParseWithGrammarAndScanner(scanner!, grammar: TypeAssignmentStatementGrammarStrategy())
+                        if let _error = doParseWithGrammarAndScanner(scanner!, grammar: TypeAssignmentStatementGrammarStrategy()){
+                            myParserErrorArray.append(_error)
+                        }
+                    }
+                    else {
+                        
+                        // We don't have a grammer strategy for this sentence ... build an error
+                        var error_information_dictionary = Dictionary<String,String>()
+                        error_information_dictionary["TOKEN"] = sentence_wrapper.sentence
+                        error_information_dictionary["LOCATION"] = "Line: \(sentence_wrapper.line_number) col: 1"
+                        error_information_dictionary["MESSAGE"] = "Incorrect statement. Found: \(sentence_wrapper.sentence). We do not understand this sentence."
+                        error_information_dictionary["METHOD"] = "parse"
+                        error_information_dictionary["CLASS"] = "VLEMParser"
+                        let local_error_object = VLError(code: VLErrorCode.INCORRECT_GRAMMAR_ERROR, domain: "VLEMParser", userInfo: error_information_dictionary)
+                        
+                        // cache the error -
+                        myParserErrorArray.append(local_error_object)
                     }
                 }
                 else {
@@ -208,28 +226,7 @@ class VLEMParser: NSObject {
         return local_model_sentences
     }
     
-    private func doParseWithGrammarAndScanner(scanner:VLEMScanner,grammar:GrammarStrategy) -> Void {
-        
-        if let error = grammar.parse(scanner) {
-            
-            // cache the error in the error array -
-            myParserErrorArray.append(error)
-            
-            let user_information = error.userInfo
-            if (VLErrorCode.MISSION_TOKEN_ERROR == error.code){
-                
-                let method_name = user_information["METHOD"]
-                println("Opps - error found: Missing token in method \(method_name)")
-            }
-            else if (VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR == error.code){
-                
-                if let location = user_information["LOCATION"], method_name = user_information["METHOD"], message = user_information["MESSAGE"] {
-                    println("Ooops! Error in method \(method_name) found at \(location). \(message)")
-                }
-            }
-        }
-        else {
-            println("Parse succeded!")
-        }
+    private func doParseWithGrammarAndScanner(scanner:VLEMScanner,grammar:GrammarStrategy) -> VLError? {
+        return grammar.parse(scanner)
     }
 }

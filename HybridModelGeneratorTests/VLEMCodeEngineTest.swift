@@ -61,6 +61,28 @@ class VLEMCodeEngineTest: XCTestCase {
                     local_code_engine.generate(local_model_tree, modelDictionary: dictionary_of_model_files)
                 }
             }
+            else {
+                
+                // ok, we have some errors ...
+                if let _error_array = return_data.error {
+                    
+                    for error in _error_array {
+                        
+                        let user_information = error.userInfo
+                        if (VLErrorCode.MISSION_TOKEN_ERROR == error.code){
+                            
+                            let method_name = user_information["METHOD"]
+                            println("Opps - error found: Missing token in method \(method_name)")
+                        }
+                        else if (VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR == error.code || VLErrorCode.INCORRECT_GRAMMAR_ERROR == error.code){
+                            
+                            if let location = user_information["LOCATION"], method_name = user_information["METHOD"], message = user_information["MESSAGE"] {
+                                println("Ooops! Error in method \(method_name) found at \(location). \(message)")
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

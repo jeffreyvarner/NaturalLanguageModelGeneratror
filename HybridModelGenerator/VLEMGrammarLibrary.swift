@@ -177,7 +177,7 @@ class TypeAssignmentStatementGrammarStrategy:GrammarStrategy {
 
 }
 
-
+// MARK: - Grammer specific class for Induce statement
 class ExpressionStatementGrammarStrategy:GrammarStrategy {
     
     // Top level method
@@ -226,7 +226,6 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
         return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
     
-    // MARK: - Grammer specific methods for Induce statement
     func parseProteinList(scanner:VLEMScanner) -> VLError? {
         
         // Get the next token -

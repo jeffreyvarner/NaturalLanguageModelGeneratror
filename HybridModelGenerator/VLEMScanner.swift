@@ -18,6 +18,7 @@ enum VLErrorCode {
     case TOKEN_ARRAY_BOUNDS_ERROR
     case SYNTAX_ERROR
     case INCOMPLETE_SENTENCE_SYNTAX_ERROR
+    case INCORRECT_GRAMMAR_ERROR
 }
 
 enum TokenType {
