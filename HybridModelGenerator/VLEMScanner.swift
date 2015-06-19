@@ -143,6 +143,10 @@ class VLEMScanner: NSObject {
         return (local_return_data.success,local_return_data.error)
     }
     
+    func getNumberOfTokens() -> Int {
+        return token_array.count
+    }
+    
     func hasMoreTokens() -> Bool {
         
         let number_of_tokens = token_array.count
@@ -237,6 +241,28 @@ class VLEMScanner: NSObject {
         }
         
         return TokenType.NULL
+    }
+    
+    func matchingRightParenthesisOnTokenStack(index:Int) -> Bool {
+        
+        if (peekAtTokenTypeAtIndex(index) != TokenType.RPAREN && peekAtTokenTypeAtIndex(index) != TokenType.NULL){
+            var next_index = index - 1
+            if (next_index<0){
+                // we hit bottom ... no )
+                return false
+            }
+            else {
+                return matchingRightParenthesisOnTokenStack(next_index)
+            }
+        }
+        else if (peekAtTokenTypeAtIndex(index) == TokenType.RPAREN){
+            return true
+        }
+        else if (peekAtTokenTypeAtIndex(index) == TokenType.NULL) {
+            return false
+        }
+        
+        return false
     }
     
     func peekAtTokenTypeAtIndex(index:Int) -> TokenType {

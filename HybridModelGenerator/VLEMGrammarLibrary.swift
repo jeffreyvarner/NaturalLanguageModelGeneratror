@@ -22,6 +22,7 @@ class VLEMGrammarLibrary: NSObject {
     }
 }
 
+// MARK: - Grammer specific class for type assignments
 class TypeAssignmentStatementGrammarStrategy:GrammarStrategy {
     
     // Top level method
@@ -198,10 +199,30 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
             // For this type of statement, we would expect a LPAREN or a SYMBOL
             if (first_token.token_type == TokenType.LPAREN){
                 
-                // We could have a protein list ...
-                return parseProteinList(scanner)
+                // check ahead .. do we have a closing )?
+                // How many tokens do we have?
+                let number_of_tokens = scanner.getNumberOfTokens()
+                if scanner.matchingRightParenthesisOnTokenStack(number_of_tokens - 1){
+                    
+                    // We could have a protein list ...
+                    return parseProteinList(scanner)
+                }
+                else {
+                    
+                    // return mismatch () error
+                    var error_information_dictionary = Dictionary<String,String>()
+                    error_information_dictionary["TOKEN"] = first_token.lexeme
+                    error_information_dictionary["LOCATION"] = "Line: \(first_token.line_number) col: \(first_token.column_number)"
+                    error_information_dictionary["MESSAGE"] = "Mismatched parenthesis? Check for extra or missing ) -or- a list without enclosing (...)."
+                    error_information_dictionary["METHOD"] = "parse"
+                    error_information_dictionary["CLASS"] = "InduceStatementStrategy"
+                    return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+                }
             }
-            else if (first_token.token_type == TokenType.BIOLOGICAL_SYMBOL && scanner.peekAtNextTokenType() != TokenType.RPAREN){
+            else if (first_token.token_type == TokenType.BIOLOGICAL_SYMBOL &&
+                scanner.peekAtNextTokenType() != TokenType.RPAREN &&
+                scanner.peekAtNextTokenType() != TokenType.AND &&
+                scanner.peekAtNextTokenType() != TokenType.OR){
                 
                 // We could have a single protein -
                 return parseProteinSymbol(scanner)
@@ -212,7 +233,7 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
                 var error_information_dictionary = Dictionary<String,String>()
                 error_information_dictionary["TOKEN"] = first_token.lexeme
                 error_information_dictionary["LOCATION"] = "Line: \(first_token.line_number) col: \(first_token.column_number)"
-                error_information_dictionary["MESSAGE"] = "Expected either \"(\" or a biological symbol, found \"\(first_token.lexeme!)\" instead. Check for extra )?"
+                error_information_dictionary["MESSAGE"] = "Expected either \"(\" or a biological symbol, found \"\(first_token.lexeme!)\" instead. Check for extra ) -or- a list without enclosing (...)?"
                 error_information_dictionary["METHOD"] = "parse"
                 error_information_dictionary["CLASS"] = "InduceStatementStrategy"
                 return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
@@ -393,7 +414,9 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
                     
                     // ok, so we may have another list here.
                     // Peek one token ahead ...
-                    if (scanner.peekAtNextTokenType() == TokenType.LPAREN){
+                    let number_of_tokens = scanner.getNumberOfTokens()
+                    if (scanner.peekAtNextTokenType() == TokenType.LPAREN &&
+                        scanner.matchingRightParenthesisOnTokenStack(number_of_tokens - 1) == true){
                         
                         if let local_next_token = scanner.getNextToken() {
                             if (VLEMGrammarLibrary.mustBeTokenOfType(local_next_token, tokenType: TokenType.LPAREN)){
@@ -401,11 +424,21 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
                             }
                         }
                     }
-                    else {
+                    else if (scanner.peekAtNextTokenType() == TokenType.BIOLOGICAL_SYMBOL) {
                         
                        return parseProteinSymbol(scanner)
                     }
+                    else {
                     
+                        // return false
+                        var error_information_dictionary = Dictionary<String,String>()
+                        error_information_dictionary["TOKEN"] = next_token.lexeme
+                        error_information_dictionary["LOCATION"] = "Line: \(next_token.line_number) col: \(next_token.column_number)"
+                        error_information_dictionary["MESSAGE"] = "Expected biological symbol list, found \"\(next_token.lexeme!)\" instead. Check for missing or mismatch parentheses."
+                        error_information_dictionary["METHOD"] = "parseInducesToken"
+                        error_information_dictionary["CLASS"] = "InduceStatementStrategy"
+                        return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+                    }
             }
             else {
                 

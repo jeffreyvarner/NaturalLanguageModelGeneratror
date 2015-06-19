@@ -35,7 +35,7 @@ class VLEMParser: NSObject {
         }
     }
     
-    // MARK: - Main tree creation method 
+    // MARK: - Main syntax tree creation method
     func buildAbstractSyntaxTree() -> SyntaxTreeComposite? {
         
         // Declarations -
