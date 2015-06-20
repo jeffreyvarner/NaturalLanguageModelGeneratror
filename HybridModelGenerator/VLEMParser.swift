@@ -151,7 +151,7 @@ class VLEMParser: NSObject {
                         var error_information_dictionary = Dictionary<String,String>()
                         error_information_dictionary["TOKEN"] = sentence_wrapper.sentence
                         error_information_dictionary["LOCATION"] = "Line: \(sentence_wrapper.line_number) col: 1"
-                        error_information_dictionary["MESSAGE"] = "Incorrect statement. Found: \(sentence_wrapper.sentence). We do not understand this sentence."
+                        error_information_dictionary["MESSAGE"] = "Incorrect statement. Found: \(sentence_wrapper.sentence). However, we do not understand this sentence! Sorry."
                         error_information_dictionary["METHOD"] = "parse"
                         error_information_dictionary["CLASS"] = "VLEMParser"
                         let local_error_object = VLError(code: VLErrorCode.INCORRECT_GRAMMAR_ERROR, domain: "VLEMParser", userInfo: error_information_dictionary)

@@ -200,9 +200,7 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
             if (first_token.token_type == TokenType.LPAREN){
                 
                 // check ahead .. do we have a closing )?
-                // How many tokens do we have?
-                let number_of_tokens = scanner.getNumberOfTokens()
-                if scanner.matchingRightParenthesisOnTokenStack(number_of_tokens - 1){
+                if scanner.isMatchingRightParenthesisOnTokenStack() == true {
                     
                     // We could have a protein list ...
                     return parseProteinList(scanner)
@@ -412,20 +410,30 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
             if (VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.TRANSCRIPTION) ||
                 VLEMGrammarLibrary.mustBeTokenOfType(next_token, tokenType: TokenType.EXPRESSION)){
                     
-                    // ok, so we may have another list here.
+                    // ok, so we *may* have another list here.
                     // Peek one token ahead ...
-                    let number_of_tokens = scanner.getNumberOfTokens()
-                    if (scanner.peekAtNextTokenType() == TokenType.LPAREN &&
-                        scanner.matchingRightParenthesisOnTokenStack(number_of_tokens - 1) == true){
+                    if (scanner.peekAtNextTokenType() == TokenType.LPAREN){
                         
                         if let local_next_token = scanner.getNextToken() {
-                            if (VLEMGrammarLibrary.mustBeTokenOfType(local_next_token, tokenType: TokenType.LPAREN)){
-                                return parseProteinList(scanner)
+                            if (VLEMGrammarLibrary.mustBeTokenOfType(local_next_token, tokenType: TokenType.LPAREN) &&
+                                scanner.isMatchingRightParenthesisOnTokenStack() == true){
+                                
+                                    return parseProteinList(scanner)
+                            }
+                            else {
+                                
+                                // return false
+                                var error_information_dictionary = Dictionary<String,String>()
+                                error_information_dictionary["TOKEN"] = next_token.lexeme
+                                error_information_dictionary["LOCATION"] = "Line: \(next_token.line_number) col: \(local_next_token.column_number)"
+                                error_information_dictionary["MESSAGE"] = "Expected a \"(\" with a matching \")\", found only \"\(local_next_token.lexeme!)\". Check for missing or mismatch parentheses."
+                                error_information_dictionary["METHOD"] = "parseInducesToken"
+                                error_information_dictionary["CLASS"] = "InduceStatementStrategy"
+                                return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
                             }
                         }
                     }
                     else if (scanner.peekAtNextTokenType() == TokenType.BIOLOGICAL_SYMBOL) {
-                        
                        return parseProteinSymbol(scanner)
                     }
                     else {

@@ -243,17 +243,44 @@ class VLEMScanner: NSObject {
         return TokenType.NULL
     }
     
-    func matchingRightParenthesisOnTokenStack(index:Int) -> Bool {
+    func isMatchingRightParenthesisOnTokenStack() -> Bool {
+    
+        // make a copy of the token stack -
+        var _token_array = token_array
+        return recursiveSearchForTokenType(TokenType.RPAREN, failureTokenType:TokenType.LPAREN,tokenArray: _token_array)
+    }
+    
+    func recursiveSearchForTokenType(tokenType:TokenType,failureTokenType:TokenType,var tokenArray:[VLEMToken]) -> Bool {
         
-        if (peekAtTokenTypeAtIndex(index) != TokenType.RPAREN && peekAtTokenTypeAtIndex(index) != TokenType.NULL){
-            var next_index = index - 1
-            if (next_index<0){
-                // we hit bottom ... no )
+        if let next_token = tokenArray.last {
+            if next_token.token_type == tokenType {
+                return true
+            }
+            else if next_token.token_type == failureTokenType {
                 return false
             }
             else {
-                return matchingRightParenthesisOnTokenStack(next_index)
+                tokenArray.removeLast()
+                return recursiveSearchForTokenType(tokenType, failureTokenType: failureTokenType, tokenArray:tokenArray)
             }
+        }
+        else {
+            // no more elements ..
+            return false
+        }
+    }
+    
+    func matchingRightParenthesisOnTokenStack(index:Int) -> Bool {
+        
+        if (index == 0){
+            // we hit bottom ... no )
+            return false
+        }
+        
+        if (peekAtTokenTypeAtIndex(index) != TokenType.RPAREN &&
+            peekAtTokenTypeAtIndex(index) != TokenType.NULL){
+            var next_index = index - 1
+            return matchingRightParenthesisOnTokenStack(next_index)
         }
         else if (peekAtTokenTypeAtIndex(index) == TokenType.RPAREN){
             return true
@@ -262,7 +289,7 @@ class VLEMScanner: NSObject {
             return false
         }
         
-        return false
+        return true
     }
     
     func peekAtTokenTypeAtIndex(index:Int) -> TokenType {
