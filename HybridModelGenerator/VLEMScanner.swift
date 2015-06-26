@@ -243,6 +243,11 @@ class VLEMScanner: NSObject {
         return TokenType.NULL
     }
     
+    func doesStatementContainParenthesisMismatch() -> Bool {
+        
+        return false
+    }
+    
     func isMatchingRightParenthesisOnTokenStack() -> Bool {
     
         // make a copy of the token stack -
@@ -250,7 +255,7 @@ class VLEMScanner: NSObject {
         return recursiveSearchForTokenType(TokenType.RPAREN, failureTokenType:TokenType.LPAREN,tokenArray: _token_array)
     }
     
-    func recursiveSearchForTokenType(tokenType:TokenType,failureTokenType:TokenType,var tokenArray:[VLEMToken]) -> Bool {
+    private func recursiveSearchForTokenType(tokenType:TokenType,failureTokenType:TokenType,var tokenArray:[VLEMToken]) -> Bool {
         
         if let next_token = tokenArray.last {
             if next_token.token_type == tokenType {
@@ -268,28 +273,6 @@ class VLEMScanner: NSObject {
             // no more elements ..
             return false
         }
-    }
-    
-    func matchingRightParenthesisOnTokenStack(index:Int) -> Bool {
-        
-        if (index == 0){
-            // we hit bottom ... no )
-            return false
-        }
-        
-        if (peekAtTokenTypeAtIndex(index) != TokenType.RPAREN &&
-            peekAtTokenTypeAtIndex(index) != TokenType.NULL){
-            var next_index = index - 1
-            return matchingRightParenthesisOnTokenStack(next_index)
-        }
-        else if (peekAtTokenTypeAtIndex(index) == TokenType.RPAREN){
-            return true
-        }
-        else if (peekAtTokenTypeAtIndex(index) == TokenType.NULL) {
-            return false
-        }
-        
-        return true
     }
     
     func peekAtTokenTypeAtIndex(index:Int) -> TokenType {

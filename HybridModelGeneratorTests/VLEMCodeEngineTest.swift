@@ -47,7 +47,6 @@ class VLEMCodeEngineTest: XCTestCase {
         dictionary_of_model_files["Control.jl"] = JuliaControlFileStrategy()
         dictionary_of_model_files["Kinetics.jl"] = JuliaKineticsFileStrategy()
        
-        // execute -
         // execute the parse function -
         if let local_parser = parser {
             let return_data = local_parser.parse()

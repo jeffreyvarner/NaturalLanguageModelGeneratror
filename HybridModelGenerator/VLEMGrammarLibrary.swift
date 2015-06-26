@@ -192,6 +192,19 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
             return VLError(code: VLErrorCode.EMPTY_SENTENCE_ERROR, domain: "VLEMGrammarLibrary", userInfo: nil)
         }
      
+        // check for balanced parentheses in this statement -
+        if (scanner.doesStatementContainParenthesisMismatch() == true){
+            
+            let first_token = scanner.getNextToken()
+            var error_information_dictionary = Dictionary<String,String>()
+            error_information_dictionary["TOKEN"] = first_token!.lexeme
+            error_information_dictionary["LOCATION"] = "Line: \(first_token!.line_number) col: \(first_token!.column_number)"
+            error_information_dictionary["MESSAGE"] = "Mismatched parenthesis? Check for extra or missing ) -or- a list without enclosing (...)."
+            error_information_dictionary["METHOD"] = "parse"
+            error_information_dictionary["CLASS"] = "InduceStatementStrategy"
+            return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+        }
+        
         // get the first token and go ...
         if let first_token = scanner.getNextToken() {
             
