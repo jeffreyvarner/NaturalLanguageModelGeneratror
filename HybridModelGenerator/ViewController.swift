@@ -8,6 +8,11 @@
 
 import Cocoa
 
+enum UserStatusMessageType {
+    
+    case NOMINAL_MESSAGE
+    case ERROR_MESSAGE
+}
 
 class ViewController: NSViewController,Subscriber {
     
@@ -37,6 +42,7 @@ class ViewController: NSViewController,Subscriber {
         // I would rather do this in the app delegate ... I don't want the VC to know anything about anything ...
         // however, for now let's put it here -
         _messageBroker.subscribe(self, messageKey:VLEMMessageLibrary.VLEM_COMPILER_ERROR_MESSAGE)
+        _messageBroker.subscribe(self, messageKey: VLEMMessageLibrary.VLEM_COMPILER_COMPLETION_MESSAGE)
     }
 
     override var representedObject: AnyObject? {
@@ -68,44 +74,11 @@ class ViewController: NSViewController,Subscriber {
         if (message.messageKey() == VLEMMessageLibrary.VLEM_COMPILER_ERROR_MESSAGE){
             
             // ok, we have a compiler error message. For this type of message, we expect an array
-            // of errors -
-            
-        }
-    }
-    
-    
-    // MARK: - IBOutlet actions
-    @IBAction func myModelGenerateActionButtonWasPushed(button:NSButton){
-        
-        // parser -
-        var code_engine:VLEMCodeEngine = VLEMCodeEngine(inputURL: myInputFileURL!, outputURL:myOutputFileURL!, language: ModelCodeLanguage.LANGUAGE_JULIA)
-        var parser:VLEMParser = VLEMParser(inputURL:myInputFileURL!)
-        
-        // Array for files we need to generate -
-        var dictionary_of_model_files = Dictionary<String,CodeGenerationStrategy>()
-        dictionary_of_model_files["DataFile.jl"] = JuliaDataFileFileStrategy()
-        dictionary_of_model_files["SolveBalanceEquations.jl"] = JuliaSolveBalanceEquationsFileStrategy()
-        dictionary_of_model_files["Project.jl"] = JuliaProjectIncludeFileStrategy()
-        dictionary_of_model_files["Balances.jl"] = JuliaBalanceEquationsFileStrategy()
-        dictionary_of_model_files["Control.jl"] = JuliaControlFileStrategy()
-        dictionary_of_model_files["Kinetics.jl"] = JuliaKineticsFileStrategy()
-        
-        // execute the parse function -
-        let return_data = parser.parse()
-        if (return_data.success == true){
-            
-            // ok, the input was parsed ok, Let's have the parser build the
-            // syntax tree for this file...
-            var model_tree = parser.buildAbstractSyntaxTree()
-            code_engine.generate(model_tree!, modelDictionary: dictionary_of_model_files)
-        }
-        else {
-            
-            // ok, we have some errors ...
-            if let _error_array = return_data.error {
+            // full of crunchy errors -
+            if let _error_array = message.messagePayload() as? [VLError] {
                 
                 for error in _error_array {
-                    
+                 
                     let user_information = error.userInfo
                     if (VLErrorCode.MISSION_TOKEN_ERROR == error.code){
                         
@@ -118,8 +91,78 @@ class ViewController: NSViewController,Subscriber {
                             println("Ooops! Error in method \(method_name) found at \(location). \(message)")
                         }
                     }
+                    else if (VLErrorCode.ILLEGAL_CHARACTER_ERROR == error.code){
+                        
+                        if let _bad_token = user_information["TOKEN"] {
+                            
+                            // What is the input file?
+                            if let _last_url_component = myInputFileURL?.lastPathComponent {
+                                let text_message = "Ooops! The scanner does not understand the symbol \"\(_bad_token)\". Please check the input file \"\(_last_url_component)\"\n"
+                                println(text_message)
+                                postStringMessageToTextView(text_message, type: UserStatusMessageType.ERROR_MESSAGE)
+                            }
+                            else {
+                                println("Ooops! The scanner does not understand the symbol \"\(_bad_token)\". Please check your input file.")
+                            }
+                        }
+                    }
                 }
             }
+        }
+        else if (message.messageKey() == VLEMMessageLibrary.VLEM_COMPILER_COMPLETION_MESSAGE){
+            
+            // ok, we recieved the completion message -
+            // post to textview -
+            var completion_message = "Model code generation was succesful\n"
+            postStringMessageToTextView(completion_message, type: UserStatusMessageType.NOMINAL_MESSAGE)
+        }
+    }
+    
+    
+    // MARK: - IBOutlet actions
+    @IBAction func myModelGenerateActionButtonWasPushed(button:NSButton){
+    
+        // ok, so we need to post the required data to the compiler, and then send the start button -
+        
+        // Get the message broker -
+        let _broker = VLEMMessageBroker.sharedMessageBroker
+        
+        // For now only Julia -
+        let _language = ModelCodeLanguage.LANGUAGE_JULIA
+        
+        // do we have all of the required data?
+        if let _input_url = myInputFileURL, _output_url = myOutputFileURL {
+            
+            // Input URL message -
+            var payload_dictionary_input_url = [VLEMMessageLibrary.VLEM_COMPILER_INPUT_URL_MESSAGE:_input_url]
+            var input_url_message = VLEMCompilerInputURLMessage(payload: payload_dictionary_input_url)
+            _broker.publish(message: input_url_message)
+            
+            // Output URL message -
+            var payload_dictionary_output_url = [VLEMMessageLibrary.VLEM_COMPILER_OUTPUT_URL_MESSAGE:_output_url]
+            var output_url_message = VLEMCompilerOutputURLMessage(payload: payload_dictionary_output_url)
+            _broker.publish(message: output_url_message)
+            
+            // Model language message -
+            var payload_dictionary_model_language = [VLEMMessageLibrary.VLEM_COMPILER_OUTPUT_LANGUAGE_MESSAGE:_language]
+            var language_message = VLEMCompilerOutputLanguageMessage(payload: payload_dictionary_model_language)
+            _broker.publish(message: language_message)
+            
+            // Let the user know that we are starting ...
+            let url_string:NSString? = _input_url.lastPathComponent
+            if let local_url_string = url_string {
+                var starting_message = "Sending \"\(local_url_string)\" to the compiler ... trying to generate Julia code\n"
+                postStringMessageToTextView(starting_message, type: UserStatusMessageType.NOMINAL_MESSAGE)
+            }
+            
+            // Start message -
+            var start_message = VLEMCompilerStartMessage()
+            _broker.publish(message: start_message)
+        }
+        else {
+            
+            // Post error to user -
+            // ...
         }
     }
     
@@ -199,7 +242,6 @@ class ViewController: NSViewController,Subscriber {
                         if (weak_self.changeGenerateButtonStatus()){
                          
                             weak_self.myModelGenerateActionButton?.enabled = true
-                            
                         }
                     }
                 }
@@ -248,7 +290,6 @@ class ViewController: NSViewController,Subscriber {
                         if (weak_self.changeGenerateButtonStatus()){
                             
                             weak_self.myModelGenerateActionButton?.enabled = true
-                            
                         }
                     }
                 }
@@ -257,6 +298,28 @@ class ViewController: NSViewController,Subscriber {
         
         // open the panel ...
         myOpenFilePanel.beginSheetModalForWindow(self.view.window!, completionHandler:myCompletionHandler)
+    }
+    
+    // MARK: - Helper methods
+    private func postStringMessageToTextView(message:String,type:UserStatusMessageType){
+        
+        // ok, what type is this?
+        if (type == UserStatusMessageType.ERROR_MESSAGE){
+            
+            let attrString = NSAttributedString (
+                string: message,
+                attributes: [NSForegroundColorAttributeName:NSColor.redColor()])
+            
+            self.myModelStatusTextView!.textStorage?.appendAttributedString(attrString)
+        }
+        else {
+            
+            // We have a nominal message -
+            self.myModelStatusTextView?.string! += String(message)
+        }
+        
+        // add new line -
+        // self.myModelStatusTextView?.string! += String("\n")
     }
 }
 

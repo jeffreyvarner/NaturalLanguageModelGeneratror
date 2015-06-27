@@ -21,6 +21,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Let's configure the message system ...
         _messageBroker.subscribe(_compiler, messageKey: VLEMMessageLibrary.VLEM_COMPILER_INPUT_URL_MESSAGE)
+        _messageBroker.subscribe(_compiler, messageKey: VLEMMessageLibrary.VLEM_COMPILER_OUTPUT_URL_MESSAGE)
+        _messageBroker.subscribe(_compiler, messageKey: VLEMMessageLibrary.VLEM_COMPILER_OUTPUT_LANGUAGE_MESSAGE)
+        _messageBroker.subscribe(_compiler, messageKey: VLEMMessageLibrary.VLEM_COMPILER_START_MESSAGE)
     }
 
     func applicationWillTerminate(aNotification: NSNotification) {

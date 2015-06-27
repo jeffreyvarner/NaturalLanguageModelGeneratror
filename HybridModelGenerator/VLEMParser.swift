@@ -95,9 +95,6 @@ class VLEMParser: NSObject {
     }
     
     
-        
-
-    
     // MARK: - Main parse method
     func parse() -> (success:Bool,error:[VLError]?) {
     

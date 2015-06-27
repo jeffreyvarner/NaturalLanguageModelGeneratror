@@ -14,7 +14,6 @@ private let _messageBroker = VLEMMessageBroker()
 // Protocols
 protocol Message    {
     
-    init(payload:Dictionary<MessageKey,Any>)
     func messageKey() -> MessageKey
     func messagePayload() -> Any?
 }
@@ -49,6 +48,11 @@ class VLEMMessageBroker: NSObject {
             
             // reset -
             _subscriber_dictionary[messageKey] = _subscriber_array
+        }
+        else {
+            
+            // ok, we have *not yet* seen this key -
+            _subscriber_dictionary[messageKey] = [subscriber]
         }
     }
     
