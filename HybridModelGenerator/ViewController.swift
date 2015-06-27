@@ -19,6 +19,7 @@ class ViewController: NSViewController,Subscriber {
     // instance variables -
     private var myInputFileURL:NSURL?
     private var myOutputFileURL:NSURL?
+    private var compile_start_date:NSDate?
     private var _messageBroker = VLEMMessageBroker.sharedMessageBroker
     
     // outlets -
@@ -88,7 +89,8 @@ class ViewController: NSViewController,Subscriber {
                     else if (VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR == error.code || VLErrorCode.INCORRECT_GRAMMAR_ERROR == error.code){
                         
                         if let location = user_information["LOCATION"], method_name = user_information["METHOD"], message = user_information["MESSAGE"] {
-                            println("Ooops! Error in method \(method_name) found at \(location). \(message)")
+                            let error_message = "Ooops! Error in method \(method_name) found at \(location). \(message)\n"
+                            postStringMessageToTextView(error_message, type: UserStatusMessageType.ERROR_MESSAGE)
                         }
                     }
                     else if (VLErrorCode.ILLEGAL_CHARACTER_ERROR == error.code){
@@ -112,8 +114,13 @@ class ViewController: NSViewController,Subscriber {
         else if (message.messageKey() == VLEMMessageLibrary.VLEM_COMPILER_COMPLETION_MESSAGE){
             
             // ok, we recieved the completion message -
+            
+            // calculate the elapsed time -
+            let compiler_end_date = NSDate()
+            let timeInterval: Double = compiler_end_date.timeIntervalSinceDate(compile_start_date!);
+            
             // post to textview -
-            var completion_message = "Model code generation was succesful\n"
+            var completion_message = "Model code generation was succesfully generated in \(timeInterval) s \n"
             postStringMessageToTextView(completion_message, type: UserStatusMessageType.NOMINAL_MESSAGE)
         }
     }
@@ -156,6 +163,7 @@ class ViewController: NSViewController,Subscriber {
             }
             
             // Start message -
+            compile_start_date = NSDate()
             var start_message = VLEMCompilerStartMessage()
             _broker.publish(message: start_message)
         }
