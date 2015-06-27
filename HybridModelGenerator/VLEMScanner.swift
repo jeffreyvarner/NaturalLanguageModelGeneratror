@@ -499,8 +499,6 @@ class VLEMScanner: NSObject {
                             let token = VLEMToken(token_type:TokenType.TRANSCRIPTION, line_number: lineNumber, column_number: column_index, lexeme: "transcription", value: nil)
                             token_array.append(token)
                             
-                            
-                            
                             // clear the stack -
                             local_character_stack.removeAll(keepCapacity: true)
                         }
@@ -880,7 +878,7 @@ class VLEMScanner: NSObject {
         }
         
         // ok, we have a string that we can do regex on -
-        if local_string ~= /"^[A-Za-z_][A-Za-z0-9_].+" {
+        if local_string ~= /"^[A-Za-z][A-Za-z0-9_].*" {
             
             // my string matches this pattern ...
             return (true,local_string)
