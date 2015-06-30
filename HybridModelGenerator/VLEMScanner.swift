@@ -58,7 +58,7 @@ enum TokenType {
     case TRANSLATES
     case TRANSLATE
     case SYSTEM
-    case TRANSFERED
+    case TRANSFERRED
     case TRANSFER
     case TO
     case FROM
@@ -208,6 +208,26 @@ class VLEMScanner: NSObject {
             // get the type -
             let test_token_type = token_item.token_type!
             if (test_token_type == TokenType.TYPE){
+                
+                // return the token type -
+                return test_token_type
+            }
+            
+            // update the index -
+            index++
+        }
+        
+        return TokenType.NULL
+    }
+    
+    func getSystemTokenType() -> TokenType {
+        
+        var index = 0
+        for token_item in token_array {
+            
+            // get the type -
+            let test_token_type = token_item.token_type!
+            if (test_token_type == TokenType.SYSTEM){
                 
                 // return the token type -
                 return test_token_type
@@ -584,6 +604,47 @@ class VLEMScanner: NSObject {
                             // clear the stack -
                             local_character_stack.removeAll(keepCapacity: true)
                         }
+                        else if (isSYSTEM(local_character_stack) == true){
+                            
+                            // capture SYSTEM -
+                            let token = VLEMToken(token_type:TokenType.SYSTEM, line_number: lineNumber, column_number: column_index, lexeme: "SYSTEM", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isTransferred(local_character_stack) == true) {
+                            // capture Transferred
+                            let token = VLEMToken(token_type:TokenType.TRANSFERRED, line_number: lineNumber, column_number: column_index, lexeme: "transferred", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isTransfer(local_character_stack) == true) {
+                            // capture Transferred
+                            let token = VLEMToken(token_type:TokenType.TRANSFER, line_number: lineNumber, column_number: column_index, lexeme: "transfer", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isFrom(local_character_stack) == true) {
+                            // capture Transferred
+                            let token = VLEMToken(token_type:TokenType.FROM, line_number: lineNumber, column_number: column_index, lexeme: "from", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isTo(local_character_stack) == true) {
+                            // capture Transferred
+                            let token = VLEMToken(token_type:TokenType.TO, line_number: lineNumber, column_number: column_index, lexeme: "to", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
                         else {
                             
                             // ok, we don't match *any* of our keywords. This *could* be an identifier of some sort ..
@@ -726,6 +787,18 @@ class VLEMScanner: NSObject {
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
+    private func isFrom(characterStack:[Character]) -> Bool {
+        
+        var match_array:[Character] = ["f","r","o","m"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+    
+    private func isTo(characterStack:[Character]) -> Bool {
+        
+        var match_array:[Character] = ["t","o"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+
     private func isOr(characterStack:[Character]) -> Bool {
         
         var match_array:[Character] = ["o","r"]
@@ -814,24 +887,11 @@ class VLEMScanner: NSObject {
         
     }
     
-    private func isTransfered(characterStack:[Character]) -> Bool {
+    private func isTransferred(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["t","r","a","n","s","f","e","r","e","d"]
+        var match_array:[Character] = ["t","r","a","n","s","f","e","r","r","e","d"]
         return (matchLogic(characterStack, matchArray: match_array))
         
-    }
-
-    private func isTo(characterStack:[Character]) -> Bool {
-        
-        var match_array:[Character] = ["t","o"]
-        return (matchLogic(characterStack, matchArray: match_array))
-        
-    }
-    
-    private func isFrom(characterStack:[Character]) -> Bool {
-        
-        var match_array:[Character] = ["f","r","o","m"]
-        return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isParameter(characterStack:[Character]) -> Bool {

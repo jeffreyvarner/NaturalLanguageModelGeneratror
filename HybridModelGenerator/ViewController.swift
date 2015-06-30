@@ -88,8 +88,8 @@ class ViewController: NSViewController,Subscriber {
                     }
                     else if (VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR == error.code || VLErrorCode.INCORRECT_GRAMMAR_ERROR == error.code){
                         
-                        if let location = user_information["LOCATION"], method_name = user_information["METHOD"], message = user_information["MESSAGE"] {
-                            let error_message = "Ooops! Error in method \(method_name) found at \(location). \(message)\n"
+                        if let location = user_information["LOCATION"], method_name = user_information["METHOD"], message = user_information["MESSAGE"], class_name = user_information["CLASS"] {
+                            let error_message = "Ooops! A syntax error was detected while processing the model statetment at \(location).\nThe error was detected by the \(method_name) method of the \(class_name) class.\n\(message).\n"
                             postStringMessageToTextView(error_message, type: UserStatusMessageType.ERROR_MESSAGE)
                         }
                     }

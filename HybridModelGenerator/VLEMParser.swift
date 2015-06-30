@@ -142,6 +142,14 @@ class VLEMParser: NSObject {
                             myParserErrorArray.append(_error)
                         }
                     }
+                    else if (scanner!.getSystemTokenType() == TokenType.SYSTEM){
+                        
+                        // ok, have a SYSTEM token. This means we are transfering material to or from the SYSTEM block
+                        // check to see if this is the correct grammer -
+                        if let _error = doParseWithGrammarAndScanner(scanner!, grammar:SystemTransferStatementGrammarStrategy()){
+                            myParserErrorArray.append(_error)
+                        }
+                    }
                     else {
                         
                         // We don't have a grammer strategy for this sentence ... build an error

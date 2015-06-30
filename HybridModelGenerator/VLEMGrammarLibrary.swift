@@ -20,6 +20,25 @@ class VLEMGrammarLibrary: NSObject {
             return false
         }
     }
+    
+    static func missingTokenErrorFactory(#className:String,methodName:String) -> VLError {
+    
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["METHOD"] = methodName
+        error_information_dictionary["CLASS"] = className
+        return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
+    
+    static func incompleteSentenceSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String)-> VLError {
+        
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["TOKEN"] = token.lexeme
+        error_information_dictionary["LOCATION"] = "Line: \(token.line_number) col: \(token.column_number)"
+        error_information_dictionary["MESSAGE"] = "Expected either \"(...)\" or a biological symbol, found \"\(token.lexeme!)\". Do you have an extra or missing \"(\" or \")\" -or- a list without enclosing (...)?"
+        error_information_dictionary["METHOD"] = methodName
+        error_information_dictionary["CLASS"] = className
+        return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
 }
 
 // MARK: - Grammer specific class for type assignments
@@ -176,6 +195,122 @@ class TypeAssignmentStatementGrammarStrategy:GrammarStrategy {
         return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
 
+}
+
+// MARK: - Grammer specific class for System transfer statements
+class SystemTransferStatementGrammarStrategy:GrammarStrategy {
+
+    // Top level method
+    func parse(scanner:VLEMScanner) -> VLError? {
+    
+        
+        // do we have any tokens?
+        if (scanner.hasMoreTokens() == false){
+            return VLError(code: VLErrorCode.EMPTY_SENTENCE_ERROR, domain: "VLEMGrammarLibrary", userInfo: nil)
+        }
+        
+        
+        
+        // get the first token and go ...
+        if let _first_token = scanner.getNextToken() {
+            
+            if (VLEMGrammarLibrary.mustBeTokenOfType(_first_token, tokenType: TokenType.LPAREN) == true &&
+                scanner.isMatchingRightParenthesisOnTokenStack() == true){
+                
+                // ok, we have a (...) statement -
+                return parseBiologicalSymbolList(scanner)
+            }
+            else if (VLEMGrammarLibrary.mustBeTokenOfType(_first_token, tokenType: TokenType.BIOLOGICAL_SYMBOL) == true &&
+                scanner.peekAtNextTokenType() != TokenType.RPAREN &&
+                scanner.peekAtNextTokenType() != TokenType.AND &&
+                scanner.peekAtNextTokenType() != TokenType.OR){
+                    
+                // we just have a biological symbol -
+                return parseBiologicalSymbolToken(scanner)
+            }
+            else {
+                
+                // ok, so we don't have a ( not do we have a biological symbol ... syntax error
+                // return false
+                var error_information_dictionary = Dictionary<String,String>()
+                error_information_dictionary["TOKEN"] = _first_token.lexeme
+                error_information_dictionary["LOCATION"] = "Line: \(_first_token.line_number) col: \(_first_token.column_number)"
+                error_information_dictionary["MESSAGE"] = "Expected either \"(...)\" or a biological symbol, found \"\(_first_token.lexeme!)\". Do you have an extra or missing \"(\" or \")\" -or- a list without enclosing (...)?"
+                error_information_dictionary["METHOD"] = "parse"
+                error_information_dictionary["CLASS"] = "\(self)"
+                return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+            }
+        }
+        
+        // create user dictionary -
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["METHOD"] = "parse"
+        error_information_dictionary["CLASS"] = "InduceStatementStrategy"
+        return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
+    
+    func parseBiologicalSymbolList(scanner:VLEMScanner) -> VLError? {
+    
+        if let _next_token = scanner.getNextToken() {
+            
+            // ok, we think we have a symbol (AND|OR) symbol ...) statement. _next_token could be a biological symbol
+            if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.BIOLOGICAL_SYMBOL) == true && scanner.peekAtNextTokenType() == TokenType.AND){
+                return parseAndToken(scanner)
+            }
+            else {
+                
+                var error_information_dictionary = Dictionary<String,String>()
+                error_information_dictionary["TOKEN"] = _next_token.lexeme
+                error_information_dictionary["LOCATION"] = "Line: \(_next_token.line_number) col: \(_next_token.column_number)"
+                error_information_dictionary["MESSAGE"] = "Expected \"and\", found \"\(_next_token.lexeme!)\"."
+                error_information_dictionary["METHOD"] = "\(__FUNCTION__)"
+                error_information_dictionary["CLASS"] = "\(self)"
+                return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+            }
+        }
+        
+        // return false
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["METHOD"] = "\(__FUNCTION__)"
+        error_information_dictionary["CLASS"] = "\(self)"
+        return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
+    
+    func parseAndToken(scanner:VLEMScanner) -> VLError? {
+    
+        if let _next_token = scanner.getNextToken() {
+            
+            // ok, we think we have a symbol (AND|OR) symbol ...) statement. _next_token could be a biological symbol
+            if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.BIOLOGICAL_SYMBOL) == true){
+                
+            }
+            else {
+                
+                var error_information_dictionary = Dictionary<String,String>()
+                error_information_dictionary["TOKEN"] = _next_token.lexeme
+                error_information_dictionary["LOCATION"] = "Line: \(_next_token.line_number) col: \(_next_token.column_number)"
+                error_information_dictionary["MESSAGE"] = "Expected a biological symbol, found \"\(_next_token.lexeme!)\"."
+                error_information_dictionary["METHOD"] = "\(__FUNCTION__)"
+                error_information_dictionary["CLASS"] = "\(self)"
+                return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+            }
+        }
+        
+        // return false
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["METHOD"] = "\(__FUNCTION__)"
+        error_information_dictionary["CLASS"] = "\(self)"
+        return VLError(code: VLErrorCode.MISSION_TOKEN_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
+    
+    func parseBiologicalSymbolToken(scanner:VLEMScanner) -> VLError? {
+    
+        if let _next_token = scanner.getNextToken() {
+        
+        }
+        
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+    }
 }
 
 // MARK: - Grammer specific class for Induce statement
