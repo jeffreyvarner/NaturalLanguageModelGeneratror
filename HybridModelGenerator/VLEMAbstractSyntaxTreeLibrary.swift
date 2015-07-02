@@ -17,6 +17,55 @@ class VLEMAbstractSyntaxTreeLibrary: NSObject {
 
 }
 
+// MARK: - System transfer abstract syntax tree -
+class SystemTransferSyntaxTreeBuilderLogic:ASTBuilder {
+    
+    init (){
+        
+    }
+    
+    func build(scanner:VLEMScanner) -> SyntaxTreeComponent {
+        return buildSystemTransferSyntaxTreeWithScanner(scanner)
+    }
+    
+    private func buildSystemTransferSyntaxTreeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
+        
+        // Declarations -
+        var system_transfer_subtree = SyntaxTreeComposite(type:TokenType.SYSTEM)
+        system_transfer_subtree.lexeme = "system_transfer"
+        
+        // build -
+        return recursiveBuildSystemTransferSubtree(scanner, node: system_transfer_subtree) as! SyntaxTreeComposite
+    }
+    
+    func recursiveBuildSystemTransferSubtree(scanner:VLEMScanner,node:SyntaxTreeComponent?) -> SyntaxTreeComponent? {
+    
+        if let _next_token = scanner.getNextToken() {
+            
+            if (_next_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
+                
+                if let local_node = node where ((local_node as? SyntaxTreeComposite) != nil) {
+                    var composite = local_node as! SyntaxTreeComposite
+                    
+                    // Create leaf -
+                    var leaf_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                    leaf_node.lexeme = _next_token.lexeme
+                    
+                    // add the leaf to composite -
+                    composite.addNodeToTree(leaf_node)
+                    
+                    // keep going down the statement -
+                    return recursiveBuildSystemTransferSubtree(scanner, node: composite)
+                }
+            }
+        }
+        
+        return nil
+    }
+}
+
+
+// MARK: - Type assignment abstract syntax tree
 class TypeAssignmentSyntaxTreeBuilderLogic:ASTBuilder {
     
     init (){
@@ -89,6 +138,7 @@ class TypeAssignmentSyntaxTreeBuilderLogic:ASTBuilder {
     }
 }
 
+// MARK: - Transcription abstract syntax tree
 class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
     
     

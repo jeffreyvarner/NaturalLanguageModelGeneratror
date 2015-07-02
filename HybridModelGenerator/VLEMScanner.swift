@@ -39,6 +39,7 @@ enum TokenType {
     case COMMA
     case VERT
     case IS
+    case ARE
     case A
     case THE
     
@@ -72,6 +73,8 @@ enum TokenType {
     case RIOBOSOME
     case DLIT
     case ILIT
+    
+    case SEMICOLON
     
     static let control_token_array = [INDUCES,INDUCE,REPRESSES,REPRESS,ACTIVATES,ACTIVATE,INHIBITS,INHIBIT]
 }
@@ -371,7 +374,6 @@ class VLEMScanner: NSObject {
         var local_character_stack = [Character]()
         for sentence_character in sentence {
             
-            
             // ok, we need to do a bunch of checks ...
             
             // first is this char legit?
@@ -442,7 +444,7 @@ class VLEMScanner: NSObject {
                 
                 // ok, so we don't have a single character token, but it is *not* a comment
                 // However, we need to check to see if this is a whitespace char ..
-                if (sentence_character == " " || sentence_character == ";"){
+                if (sentence_character == " " || sentence_character == "\n" || sentence_character == ";"){
                     
                     // ok, we ran into whitespace ...
                     // if local_character_stack is elements, then we have captured a word ... need to check to see what it is ...
@@ -604,6 +606,15 @@ class VLEMScanner: NSObject {
                             // clear the stack -
                             local_character_stack.removeAll(keepCapacity: true)
                         }
+                        else if (isAre(local_character_stack) == true){
+                            
+                            // capture Is -
+                            let token = VLEMToken(token_type:TokenType.ARE, line_number: lineNumber, column_number: column_index, lexeme: "are", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
                         else if (isSYSTEM(local_character_stack) == true){
                             
                             // capture SYSTEM -
@@ -684,7 +695,9 @@ class VLEMScanner: NSObject {
                 else {
                     
                     // we do *not* have a whitespace char -> so we are still processing non whitespace. Grab the char and put into the array -
-                    local_character_stack.append(sentence_character)
+                    if (sentence_character != ";"){
+                        local_character_stack.append(sentence_character)
+                    }
                 }
             }
             
@@ -692,32 +705,27 @@ class VLEMScanner: NSObject {
             column_index++
         }
         
-        // ok, so if we get here *and* we have stack, then we need to process. We at the end of the sentence -
-        if (local_character_stack.count>0){
-            
-            if (isSYSTEM(local_character_stack) == true){
-                
-                // capture transcription -
-                let token = VLEMToken(token_type:TokenType.SYSTEM, line_number: lineNumber, column_number: column_index, lexeme: "SYSTEM", value: nil)
-                token_array.append(token)
-            }
-            else {
-                
-                let identifier_check = isLegalIdentifier(local_character_stack)
-                if (identifier_check.isIdentifier == true) {
-                    
-                    if let lexeme_value = identifier_check.lexeme {
-                        
-                        // ok, we matched on induce -
-                        let token = VLEMToken(token_type:TokenType.BIOLOGICAL_SYMBOL, line_number: lineNumber, column_number: column_index, lexeme:lexeme_value, value: nil)
-                        token_array.append(token)
-                    }
-                }
-            }
-            
-            // clear the stack -
-            local_character_stack.removeAll(keepCapacity: false)
-        }
+//        // ok, so if we get here *and* we have stack, then we need to process. We at the end of the sentence -
+//        if (local_character_stack.count>0){
+//            
+//            let identifier_check = isLegalIdentifier(local_character_stack)
+//            if (identifier_check.isIdentifier == true) {
+//                
+//                if let lexeme_value = identifier_check.lexeme {
+//                    
+//                    // ok, we matched on induce -
+//                    let token = VLEMToken(token_type:TokenType.BIOLOGICAL_SYMBOL, line_number: lineNumber, column_number: column_index, lexeme:lexeme_value, value: nil)
+//                    token_array.append(token)
+//                }
+//            }
+//            
+//            // clear the stack -
+//            local_character_stack.removeAll(keepCapacity: false)
+//        }
+        
+        // last thing - add a semicolon to the token array -
+        let semicolon_token = VLEMToken(token_type:TokenType.SEMICOLON, line_number: lineNumber, column_number: column_index, lexeme: ";", value: nil)
+        token_array.append(semicolon_token)
         
         // reverse the token array -
         token_array = token_array.reverse()
@@ -903,6 +911,12 @@ class VLEMScanner: NSObject {
     private func isIs(characterStack:[Character]) -> Bool {
         
         var match_array:[Character] = ["i","s"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+    
+    private func isAre(characterStack:[Character]) -> Bool {
+        
+        var match_array:[Character] = ["a","r","e"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
 
