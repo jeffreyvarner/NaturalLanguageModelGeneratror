@@ -32,36 +32,48 @@ class SystemTransferSyntaxTreeBuilderLogic:ASTBuilder {
         
         // Declarations -
         var system_transfer_subtree = SyntaxTreeComposite(type:TokenType.SYSTEM)
-        system_transfer_subtree.lexeme = "system_transfer"
+        system_transfer_subtree.lexeme = "system"
         
-        // build -
-        return recursiveBuildSystemTransferSubtree(scanner, node: system_transfer_subtree) as! SyntaxTreeComposite
-    }
-    
-    func recursiveBuildSystemTransferSubtree(scanner:VLEMScanner,node:SyntaxTreeComponent?) -> SyntaxTreeComponent? {
-    
-        if let _next_token = scanner.getNextToken() {
+        var direction_node:SyntaxTreeComposite?
+        var biological_species_array = [SyntaxTreeComponent]()
+        
+        // ok, iterate through the tokens and construct tree -
+        for _token in scanner {
             
-            if (_next_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
+            // Grab the direction token type -
+            if (_token.token_type == TokenType.FROM || _token.token_type == TokenType.TO){
+                direction_node = SyntaxTreeComposite(type: _token.token_type!)
+            }
+            
+            // Grab the species -
+            if (_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
                 
-                if let local_node = node where ((local_node as? SyntaxTreeComposite) != nil) {
-                    var composite = local_node as! SyntaxTreeComposite
-                    
-                    // Create leaf -
-                    var leaf_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
-                    leaf_node.lexeme = _next_token.lexeme
-                    
-                    // add the leaf to composite -
-                    composite.addNodeToTree(leaf_node)
-                    
-                    // keep going down the statement -
-                    return recursiveBuildSystemTransferSubtree(scanner, node: composite)
-                }
+                // Build species -
+                var species_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                species_node.lexeme = _token.lexeme
+                
+                // grab the species -
+                biological_species_array.append(species_node)
             }
         }
         
-        return nil
-    }
+        // ok -
+        for _species in biological_species_array {
+            
+            if let _direction_node = direction_node {
+                
+                _direction_node.addNodeToTree(_species)
+            }
+        }
+        
+        // add direction node to system -
+        if let _direction_node = direction_node {
+            system_transfer_subtree.addNodeToTree(_direction_node)
+        }
+        
+        // build -
+        return system_transfer_subtree
+    }    
 }
 
 
@@ -225,7 +237,7 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
                 var symbol_leaf = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
                 symbol_leaf.lexeme = next_token.lexeme
                 
-                if let local_parent_node = node as? SyntaxTreeComposite {
+                if let local_parent_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.AND || node?.tokenType == TokenType.OR) {
                     
                     // add my leaf to the node that was passed in -
                     local_parent_node.addNodeToTree(symbol_leaf)
@@ -241,7 +253,7 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
                 next_token.token_type == TokenType.OR){
                     
                     // ok, we have a relationship, do we have a node that was passed in?
-                    if let local_node = node {
+                    if let local_node = node where (node?.tokenType == TokenType.BIOLOGICAL_SYMBOL) {
                         
                         var relationship_node = SyntaxTreeComposite(type: next_token.token_type!)
                         relationship_node.lexeme = next_token.lexeme
@@ -252,6 +264,13 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
                         // call me again -
                         return buildRelationshipSubtreeNodeWithScanner(scanner, node: relationship_node)
                     }
+                    else if let local_node = node where (node?.tokenType == TokenType.AND || node?.tokenType == TokenType.OR) {
+                        
+                        // ok, we have another AND/OR, but we've already built the relationship node.
+                        // keep going down the stack -
+                        return buildRelationshipSubtreeNodeWithScanner(scanner, node: local_node)
+                    }
+        
             }
             else if (next_token.token_type == TokenType.RPAREN)
             {

@@ -25,7 +25,7 @@ class JuliaLanguageStrategyLibrary: NSObject {
     }
     
     
-    static func dispatchGenericTreeVisitorOnTreeWithTypeDictionary(root:SyntaxTreeComposite,visitorClassName:String) -> Any? {
+    static func dispatchGenericTreeVisitorOnTreeWithTypeDictionary(root:SyntaxTreeComposite,var treeVisitor:SyntaxTreeVisitor) -> Any? {
         
         // Get type dictionary -
         var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
@@ -33,24 +33,16 @@ class JuliaLanguageStrategyLibrary: NSObject {
             child_node.accept(type_dictionary_visitor)
         }
         
-        // create visitor dictionary -
-        var visitor_dictionary = [
-            "BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor" : BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor.self
-        ]
-        
         // type dictionary -
         if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
             
-            if let class_value = visitor_dictionary[visitorClassName] {
-                
-                var tree_visitor = class_value(typeDictionary: _type_dictionary)
-                for child_node in root.children_array {
-                    child_node.accept(tree_visitor)
-                }
-                
-                let tmp_vector = tree_visitor.getSyntaxTreeVisitorData()
-                return tmp_vector
+            treeVisitor.type_dictionary = _type_dictionary
+            for child_node in root.children_array {
+                child_node.accept(treeVisitor)
             }
+            
+            let tmp_vector = treeVisitor.getSyntaxTreeVisitorData()
+            return tmp_vector
         }
         
         return nil
@@ -396,8 +388,7 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Basal gene expression rate vector - \n"
         buffer+="\tfill!(basal_gene_expression_rate_vector,0.0)\n"
-        if var basal_expression_kinetics_list = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, visitorClassName: "BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor"),
-        let _basal_expression_kinetics_list = basal_expression_kinetics_list as? [VLEMProxyNode] {
+        if var basal_expression_kinetics_list = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor:BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor()), let _basal_expression_kinetics_list = basal_expression_kinetics_list as? [VLEMProxyNode] {
             
             for proxy_object in _basal_expression_kinetics_list {
                 
@@ -821,8 +812,12 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         buffer+="\tIC_ARRAY = Float64[]\n"
         
         // Build IC list -
+        var number_of_species = 0
         var model_root = root as! SyntaxTreeComposite
         if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
+            
+            // how many speces do we have?
+            number_of_species = species_list.count
             
             var counter = 1
             for proxy_object in species_list {
@@ -911,6 +906,38 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         buffer+="\tMETABOLIC_CONTROL_PARAMETER_VECTOR = Float64[]\n"
         buffer+="\n"
         
+        // Setup the system transfer rate parameter vector -
+        buffer+="\n"
+        buffer+="\t# Setup the system transfer parameter vector - \n"
+        buffer+="\tSYSTEM_TRANSFER_PARAMETER_ARRAY = zeros(Float64,(\(number_of_species),2));\n"
+        if let system_transfer_dictionary = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor: SystemTransferProcessSpeciesSyntaxTreeVisitor()) as? Dictionary<TokenType,[VLEMSpeciesProxy]> {
+            
+            if var _model_species_array = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
+            
+                // get the from and to sets -
+                let from_set = system_transfer_dictionary[TokenType.FROM]
+                let to_set = system_transfer_dictionary[TokenType.TO]
+                
+                var counter = 1
+                for _species_proxy in _model_species_array {
+                    
+                    if let _species_proxy_cast = _species_proxy as? VLEMSpeciesProxy {
+                        
+                        if (isProxyContainedInProxyArray(_species_proxy_cast, proxyArray: from_set!)) {
+                            buffer+="\tSYSTEM_TRANSFER_PARAMETER_ARRAY[\(counter),1] = 1.0;\t#\(counter)\t\(_species_proxy_cast.state_symbol_string!) transfer FROM SYSTEM \n"
+                        }
+                        
+                        if (isProxyContainedInProxyArray(_species_proxy_cast, proxyArray: to_set!)){
+                            buffer+="\tSYSTEM_TRANSFER_PARAMETER_ARRAY[\(counter),2] = 0.1;\t#\(counter)\t\(_species_proxy_cast.state_symbol_string!) transfer TO SYSTEM \n"
+                        }
+                    }
+                    
+                    counter++
+                }
+            }
+        }
+        buffer+="\n"
+        
         buffer+="\n"
         buffer+="\t# - DO NOT EDIT BELOW THIS LINE ------------------------------ \n"
         buffer+="\tdata_dictionary = Dict()\n"
@@ -918,6 +945,7 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         buffer+="\tdata_dictionary[\"METABOLIC_KINETIC_PARAMETER_VECTOR\"] = METABOLIC_KINETIC_PARAMETER_VECTOR\n"
         buffer+="\tdata_dictionary[\"GENE_EXPRESSION_CONTROL_PARAMETER_VECTOR\"] = GENE_EXPRESSION_CONTROL_PARAMETER_VECTOR\n"
         buffer+="\tdata_dictionary[\"METABOLIC_CONTROL_PARAMETER_VECTOR\"] = METABOLIC_CONTROL_PARAMETER_VECTOR\n"
+        buffer+="\tdata_dictionary[\"SYSTEM_TRANSFER_PARAMETER_ARRAY\"] = SYSTEM_TRANSFER_PARAMETER_ARRAY\n"
         buffer+="\tdata_dictionary[\"INITIAL_CONDITION_VECTOR\"] = IC_ARRAY\n"
         buffer+="\t# - DO NOT EDIT ABOVE THIS LINE ------------------------------ \n"
         buffer+="\treturn data_dictionary\n"
@@ -925,6 +953,19 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         
         // return -
         return buffer
+    }
+    
+    func isProxyContainedInProxyArray(node:VLEMSpeciesProxy,proxyArray:[VLEMSpeciesProxy]) -> Bool {
+        
+        for _test_proxy in proxyArray {
+            
+            if (_test_proxy.state_symbol_string == node.state_symbol_string){
+                return true
+            }
+            
+        }
+        
+        return false
     }
 }
 

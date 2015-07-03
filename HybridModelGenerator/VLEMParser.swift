@@ -87,6 +87,15 @@ class VLEMParser: NSObject {
                         // Add this type to the tree -
                         model_root.addNodeToTree(type_tree)
                     }
+                    else if (scanner!.getSystemTokenType() == TokenType.SYSTEM){
+                        
+                        // ok, I have a system transfer statement -
+                        var builder = SystemTransferSyntaxTreeBuilderLogic()
+                        var transfer_tree = builder.build(scanner!)
+                        
+                        // Add the transfer_tree to the model -
+                        model_root.addNodeToTree(transfer_tree)
+                    }
                 }
             }
         }

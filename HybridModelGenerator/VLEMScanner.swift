@@ -121,7 +121,7 @@ func ~=(string: String, regex: NSRegularExpression) -> Bool {
     return (regex.firstMatchInString(string,options:NSMatchingOptions.allZeros,range:range) != nil)
 }
 
-class VLEMScanner: NSObject {
+class VLEMScanner: NSObject,SequenceType {
     
     // Declarations -
     lazy private var token_array:[VLEMToken] = [VLEMToken]()
@@ -134,6 +134,22 @@ class VLEMScanner: NSObject {
         self.my_sentence_wrapper = sentenceWrapper
     }
     
+    func generate() -> GeneratorOf<VLEMToken> {
+        // keep the index of the next car in the iteration
+        var nextIndex = token_array.count-1
+        
+        // Construct a GeneratorOf<Car> instance,
+        // passing a closure that returns the next
+        // car in the iteration
+        return GeneratorOf<VLEMToken> {
+            
+            if (nextIndex < 0) {
+                return nil
+            }
+            
+            return self.token_array[nextIndex--]
+        }
+    }
     
     func scanSentence() -> (success:Bool,error:VLError?) {
         
@@ -160,7 +176,6 @@ class VLEMScanner: NSObject {
             return true
         }
     }
-    
     
     func removeTokenOfType(tokenType:TokenType) -> (Bool) {
         

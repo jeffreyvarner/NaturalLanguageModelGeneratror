@@ -23,6 +23,32 @@ protocol VLEMProxyNode {
 class VLEMSyntaxTreeNodeProxyLibrary: NSObject {
 }
 
+class VLEMSystemTransferProcessProxyNode:VLEMProxyNode {
+    
+    // Declarations -
+    private var syntax_tree_component:SyntaxTreeComponent
+    var token_type:TokenType = TokenType.SYSTEM
+    
+    // initialize -
+    init(node:SyntaxTreeComponent){
+        self.syntax_tree_component = node
+    }
+    
+    func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
+        
+        if let _test_node = node as? VLEMSystemTransferProcessProxyNode {
+            
+            if (token_type == _test_node.token_type){
+                
+                if (_test_node.syntax_tree_component.lexeme == self.syntax_tree_component.lexeme){
+                    return true
+                }
+            }
+        }
+        return false
+    }
+}
+
 class VLEMBasalGeneExpressionKineticsFunctionProxy:VLEMProxyNode {
 
     // Declarations -
@@ -393,7 +419,7 @@ class VLEMGeneExpressionRateProcessProxy: VLEMProxyNode {
     }
 }
 
-class VLEMSpeciesProxy: VLEMProxyNode {
+class VLEMSpeciesProxy:VLEMProxyNode {
     
     // Declarations -
     var syntax_tree_node:SyntaxTreeComponent?

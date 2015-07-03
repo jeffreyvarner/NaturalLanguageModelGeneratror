@@ -8,11 +8,29 @@
 
 import Cocoa
 
-class SyntaxTreeComposite: SyntaxTreeComponent {
+class SyntaxTreeComposite: SyntaxTreeComponent,SequenceType {
     
     // declarations -
     var children_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
 
+    func generate() -> GeneratorOf<SyntaxTreeComponent> {
+        
+        // keep the index of the next car in the iteration
+        var nextIndex = children_array.count-1
+        
+        // Construct a GeneratorOf<Car> instance,
+        // passing a closure that returns the next
+        // car in the iteration
+        return GeneratorOf<SyntaxTreeComponent> {
+            
+            if (nextIndex < 0) {
+                return nil
+            }
+            
+            return self.children_array[nextIndex--]
+        }
+    }
+    
     // MARK: - Tree node access methods 
     func addNodeToTree(node:SyntaxTreeComponent) -> Void {
         

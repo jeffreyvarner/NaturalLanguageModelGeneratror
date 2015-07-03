@@ -10,10 +10,12 @@ import Cocoa
 
 protocol SyntaxTreeVisitor {
     
+    var type_dictionary:Dictionary<String,SyntaxTreeComponent> { get set }
+    
     // Require the type dictionary for init ...
     init(typeDictionary:Dictionary<String,SyntaxTreeComponent>)
     init()
-    
+
     func visit(node:SyntaxTreeComponent) -> Void
     func shouldVisit(node:SyntaxTreeComponent) -> Bool
     func getSyntaxTreeVisitorData() -> Any?
@@ -137,12 +139,81 @@ final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
     }
 }
 
+final class SystemTransferProcessSpeciesSyntaxTreeVisitor:SyntaxTreeVisitor {
+    
+    // Declarations -
+    internal var type_dictionary:Dictionary<String,SyntaxTreeComponent> = Dictionary<String,SyntaxTreeComponent>()
+    private var species_set_from_system = [VLEMSpeciesProxy]()
+    private var species_set_to_system = [VLEMSpeciesProxy]()
+    private var transfer_dictionary = Dictionary<TokenType,[VLEMSpeciesProxy]>()
+    
+    // We require the type dictionary -
+    init() {
+        
+    }
+    
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
+        self.type_dictionary = typeDictionary
+    }
+    
+    func visit(node:SyntaxTreeComponent) -> Void {
+        
+        // ok, we should have a system node -
+        if let _system_node = node as? SyntaxTreeComposite {
+            
+            for _child in _system_node {
+             
+                // ok, we should have 1 child -
+                if let _transfer_direction_node = _child as? SyntaxTreeComposite where (_transfer_direction_node.tokenType == TokenType.FROM){
+                    // ok, we have a FROM -
+                    // grab the kids of this node -
+                    for _species_node in _transfer_direction_node {
+                        
+                        var _species_proxy = VLEMSpeciesProxy(node: _species_node)
+                        species_set_from_system.append(_species_proxy)
+                    }
+                }
+                else if let _transfer_direction_node = _child as? SyntaxTreeComposite where (_transfer_direction_node.tokenType == TokenType.TO){
+                    
+                    for _species_node in _transfer_direction_node {
+                        
+                        var _species_proxy = VLEMSpeciesProxy(node: _species_node)
+                        species_set_to_system.append(_species_proxy)
+                    }
+                }
+            }
+        }
+    }
+    
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        
+        // only visit the system nodes -
+        if (node.tokenType == TokenType.SYSTEM){
+            return true
+        }
+        
+        return false
+    }
+    
+    func willVisit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func didVisit(node: SyntaxTreeComponent) -> Void {
+    }
 
+    func getSyntaxTreeVisitorData() -> Any? {
+        
+        transfer_dictionary[TokenType.FROM] = species_set_from_system
+        transfer_dictionary[TokenType.TO] = species_set_to_system
+        
+        return transfer_dictionary
+    }
+}
 
 final class GeneExpressionControlModelSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
-    private var type_dictionary:Dictionary<String,SyntaxTreeComponent>
+    internal var type_dictionary:Dictionary<String,SyntaxTreeComponent>
     private var control_model_dictionary:Dictionary<String,Array<VLEMControlRelationshipProxy>> = Dictionary<String,Array<VLEMControlRelationshipProxy>>()
     private var relationshipProxyArray:[VLEMControlRelationshipProxy] = [VLEMControlRelationshipProxy]()
     
@@ -220,7 +291,7 @@ final class GeneExpressionControlModelSyntaxTreeVisitor:SyntaxTreeVisitor {
 final class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
-    private var type_dictionary:Dictionary<String,SyntaxTreeComponent>
+    internal var type_dictionary:Dictionary<String,SyntaxTreeComponent>
     private var control_parameter_proxy_array = [VLEMGeneExpressionControlParameterProxy]()
     private var transcription_root_node:SyntaxTreeComposite?
     private var target_node_array:[SyntaxTreeComponent]?
@@ -357,7 +428,7 @@ final class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
 final class BiologicalTypeDictionarySyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
-    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    internal var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     
     init() {
     }
@@ -401,7 +472,7 @@ final class BiologicalTypeDictionarySyntaxTreeVisitor:SyntaxTreeVisitor {
 final class ProteinTranslationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
 
     // Declarations -
-    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    internal var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     private var translation_kinetics_array = [VLEMProxyNode]()
     
     // We require the type dictionary -
@@ -489,7 +560,7 @@ final class ProteinTranslationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
 final class ProteinDegradationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
-    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    internal var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     private var degradation_kinetics_array = [VLEMProxyNode]()
     private var protein_counter = 1
     
@@ -589,7 +660,7 @@ final class ProteinDegradationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
 final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
-    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    internal var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     private var degradation_kinetics_array = [VLEMProxyNode]()
     
     // We require the type dictionary -
@@ -706,7 +777,7 @@ final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVi
 final class BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
-    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    internal var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     private var state_node_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
     
     // We require the type dictionary -
@@ -769,7 +840,7 @@ final class BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisit
 final class GeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
 
     // Declarations -
-    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    internal var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     private var gene_expression_kinetics_array = [VLEMProxyNode]()
     
     // We require the type dictionary -
@@ -860,7 +931,7 @@ final class GeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
 final class GeneExpressionControlFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
 
     // Declarations -
-    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    internal var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     private var transfer_function_array = [VLEMGeneExpressionControlTransferFunctionProxy]()
     
     // We require the type dictionary -
@@ -894,7 +965,7 @@ final class GeneExpressionRateParameterSyntaxTreeVistor:SyntaxTreeVisitor {
 
     // Declarations -
     private var rate_node_array:[VLEMGeneExpressionRateProcessProxy] = [VLEMGeneExpressionRateProcessProxy]()
-    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    internal var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     
     private var target_node_array = [SyntaxTreeComponent]() {
         willSet(newValue) {
@@ -1045,7 +1116,7 @@ final class BiologicalTargetSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
     
     // declarations -
     private var state_node_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
-    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    internal var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     
     
     // We require the type dictionary -
@@ -1168,7 +1239,7 @@ final class BiologicalSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
     
     // declarations -
     private var state_node_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
-    private var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
+    internal var type_dictionary = Dictionary<String,SyntaxTreeComponent>()
     
     init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
         self.type_dictionary = typeDictionary
