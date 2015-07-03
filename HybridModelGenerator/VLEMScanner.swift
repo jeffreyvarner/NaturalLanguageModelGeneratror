@@ -720,24 +720,6 @@ class VLEMScanner: NSObject,SequenceType {
             column_index++
         }
         
-//        // ok, so if we get here *and* we have stack, then we need to process. We at the end of the sentence -
-//        if (local_character_stack.count>0){
-//            
-//            let identifier_check = isLegalIdentifier(local_character_stack)
-//            if (identifier_check.isIdentifier == true) {
-//                
-//                if let lexeme_value = identifier_check.lexeme {
-//                    
-//                    // ok, we matched on induce -
-//                    let token = VLEMToken(token_type:TokenType.BIOLOGICAL_SYMBOL, line_number: lineNumber, column_number: column_index, lexeme:lexeme_value, value: nil)
-//                    token_array.append(token)
-//                }
-//            }
-//            
-//            // clear the stack -
-//            local_character_stack.removeAll(keepCapacity: false)
-//        }
-        
         // last thing - add a semicolon to the token array -
         let semicolon_token = VLEMToken(token_type:TokenType.SEMICOLON, line_number: lineNumber, column_number: column_index, lexeme: ";", value: nil)
         token_array.append(semicolon_token)

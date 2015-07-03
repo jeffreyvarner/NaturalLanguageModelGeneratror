@@ -139,13 +139,14 @@ final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
     }
 }
 
+
 final class SystemTransferProcessSpeciesSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
     internal var type_dictionary:Dictionary<String,SyntaxTreeComponent> = Dictionary<String,SyntaxTreeComponent>()
-    private var species_set_from_system = [VLEMSpeciesProxy]()
-    private var species_set_to_system = [VLEMSpeciesProxy]()
-    private var transfer_dictionary = Dictionary<TokenType,[VLEMSpeciesProxy]>()
+    private var species_set_from_system = Set<VLEMSpeciesProxy>()
+    private var species_set_to_system = Set<VLEMSpeciesProxy>()
+    private var transfer_dictionary = Dictionary<TokenType,Set<VLEMSpeciesProxy>>()
     
     // We require the type dictionary -
     init() {
@@ -170,7 +171,7 @@ final class SystemTransferProcessSpeciesSyntaxTreeVisitor:SyntaxTreeVisitor {
                     for _species_node in _transfer_direction_node {
                         
                         let _species_proxy = VLEMSpeciesProxy(node: _species_node)
-                        species_set_from_system.append(_species_proxy)
+                        species_set_from_system.insert(_species_proxy)
                     }
                 }
                 else if let _transfer_direction_node = _child as? SyntaxTreeComposite where (_transfer_direction_node.tokenType == TokenType.TO){
@@ -178,7 +179,7 @@ final class SystemTransferProcessSpeciesSyntaxTreeVisitor:SyntaxTreeVisitor {
                     for _species_node in _transfer_direction_node {
                         
                         let _species_proxy = VLEMSpeciesProxy(node: _species_node)
-                        species_set_to_system.append(_species_proxy)
+                        species_set_to_system.insert(_species_proxy)
                     }
                 }
             }

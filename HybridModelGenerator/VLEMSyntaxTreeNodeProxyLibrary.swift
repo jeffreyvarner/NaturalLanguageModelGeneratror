@@ -419,7 +419,11 @@ class VLEMGeneExpressionRateProcessProxy: VLEMProxyNode {
     }
 }
 
-class VLEMSpeciesProxy:VLEMProxyNode {
+func ==(lhs: VLEMSpeciesProxy, rhs: VLEMSpeciesProxy) -> Bool {
+    return lhs.hashValue == rhs.hashValue
+}
+
+class VLEMSpeciesProxy:VLEMProxyNode,Hashable {
     
     // Declarations -
     var syntax_tree_node:SyntaxTreeComponent?
@@ -438,6 +442,12 @@ class VLEMSpeciesProxy:VLEMProxyNode {
             if let symbol_lexeme = node.lexeme {
                 self.state_symbol_string = symbol_lexeme
             }
+        }
+    }
+    
+    var hashValue : Int {
+        get {
+            return (state_symbol_string?.hashValue)!
         }
     }
     

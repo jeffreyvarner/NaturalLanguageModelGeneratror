@@ -365,6 +365,7 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\t# Get the parameter vectors from DF - \n"
         buffer+="\tgene_expression_parameter_vector = DF[\"GENE_EXPRESSION_KINETIC_PARAMETER_VECTOR\"]\n"
         buffer+="\tmetabolic_parameter_vector = DF[\"METABOLIC_KINETIC_PARAMETER_VECTOR\"]\n"
+        buffer+="\tsystem_transfer_paramter_array = DF[\"SYSTEM_TRANSFER_PARAMETER_ARRAY\"]\n"
         
         buffer+="\n"
         buffer+="\t# Regulated gene expression rate vector - \n"
@@ -467,6 +468,24 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Define the system transfer rate vector - \n"
         
+            
+        if let _model_species_array = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
+            
+            var counter = 1
+            for _species_proxy in _model_species_array {
+                
+                if let _species_proxy_cast = _species_proxy as? VLEMSpeciesProxy {
+                    
+                    buffer+="\tsystem_transfer_rate_vector[\(counter)] = system_transfer_paramter_array[\(counter),1] - system_transfer_paramter_array[\(counter),2]*\(_species_proxy_cast.state_symbol_string!);\n"
+                    
+                }
+                
+                counter++
+            }
+        }
+        
+
+
         buffer+="\n"
         buffer+="\t# Return the rate vectors to the caller in a dictionary - \n"
         buffer+="\t# - DO NOT EDIT BELOW THIS LINE ------------------------------ \n"
@@ -910,24 +929,24 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Setup the system transfer parameter vector - \n"
         buffer+="\tSYSTEM_TRANSFER_PARAMETER_ARRAY = zeros(Float64,(\(number_of_species),2));\n"
-        if let system_transfer_dictionary = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor: SystemTransferProcessSpeciesSyntaxTreeVisitor()) as? Dictionary<TokenType,[VLEMSpeciesProxy]> {
+        if let system_transfer_dictionary = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor: SystemTransferProcessSpeciesSyntaxTreeVisitor()) as? Dictionary<TokenType,Set<VLEMSpeciesProxy>> {
             
             if let _model_species_array = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
             
                 // get the from and to sets -
-                let from_set = system_transfer_dictionary[TokenType.FROM]
-                let to_set = system_transfer_dictionary[TokenType.TO]
+                let from_set:Set<VLEMSpeciesProxy> = system_transfer_dictionary[TokenType.FROM]!
+                let to_set:Set<VLEMSpeciesProxy> = system_transfer_dictionary[TokenType.TO]!
                 
                 var counter = 1
                 for _species_proxy in _model_species_array {
                     
                     if let _species_proxy_cast = _species_proxy as? VLEMSpeciesProxy {
                         
-                        if (isProxyContainedInProxyArray(_species_proxy_cast, proxyArray: from_set!)) {
+                        if (from_set.contains(_species_proxy_cast)) {
                             buffer+="\tSYSTEM_TRANSFER_PARAMETER_ARRAY[\(counter),1] = 1.0;\t#\(counter)\t\(_species_proxy_cast.state_symbol_string!) transfer FROM SYSTEM \n"
                         }
                         
-                        if (isProxyContainedInProxyArray(_species_proxy_cast, proxyArray: to_set!)){
+                        if (to_set.contains(_species_proxy_cast)){
                             buffer+="\tSYSTEM_TRANSFER_PARAMETER_ARRAY[\(counter),2] = 0.1;\t#\(counter)\t\(_species_proxy_cast.state_symbol_string!) transfer TO SYSTEM \n"
                         }
                     }
