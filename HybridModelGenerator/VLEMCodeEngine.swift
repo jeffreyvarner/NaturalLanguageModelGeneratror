@@ -49,13 +49,20 @@ class VLEMCodeEngine: NSObject {
         for (model_file_name,strategy_impl) in modelDictionary {
             
             // build the URL -
-            var model_file_url = self.myModelOutputURL.URLByAppendingPathComponent(model_file_name)
+            let model_file_url = self.myModelOutputURL.URLByAppendingPathComponent(model_file_name)
             
             // get the code buffer -
-            var code_buffer = generateModelCodeFromAbstractSyntaxTreeAndStrategy(abstractSyntaxTree, strategy: strategy_impl) as String
+            let code_buffer = generateModelCodeFromAbstractSyntaxTreeAndStrategy(abstractSyntaxTree, strategy: strategy_impl) as String
             
-            // write the buffre to disk -
-            code_buffer.writeToURL(model_file_url, atomically:true, encoding: NSUTF8StringEncoding, error: nil)
+            do {
+                
+                // write the buffre to disk -
+                try code_buffer.writeToURL(model_file_url, atomically:true, encoding: NSUTF8StringEncoding)
+            }
+            catch {
+             
+                // Eat the error right now - maybe send message to broker?
+            }
         }
     }
 }

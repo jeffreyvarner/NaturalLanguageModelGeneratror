@@ -13,7 +13,7 @@ class SyntaxTreeComposite: SyntaxTreeComponent,SequenceType {
     // declarations -
     var children_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
 
-    func generate() -> GeneratorOf<SyntaxTreeComponent> {
+    func generate() -> AnyGenerator<SyntaxTreeComponent> {
         
         // keep the index of the next car in the iteration
         var nextIndex = children_array.count-1
@@ -21,7 +21,7 @@ class SyntaxTreeComposite: SyntaxTreeComponent,SequenceType {
         // Construct a GeneratorOf<Car> instance,
         // passing a closure that returns the next
         // car in the iteration
-        return GeneratorOf<SyntaxTreeComponent> {
+        return anyGenerator {
             
             if (nextIndex < 0) {
                 return nil
@@ -45,7 +45,7 @@ class SyntaxTreeComposite: SyntaxTreeComponent,SequenceType {
     func getChildAtIndex(index:Int) -> SyntaxTreeComponent? {
         
         // make sure we have this element ...
-        if ((count(children_array) - 1) < index){
+        if ((children_array.count - 1) < index){
             return nil
         }
         
@@ -57,7 +57,7 @@ class SyntaxTreeComposite: SyntaxTreeComponent,SequenceType {
     }
     
     deinit {
-        println("Compsite deinit method called ...")
+        print("Compsite deinit method called ...")
     }
     
     // override the accept method -

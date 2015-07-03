@@ -23,7 +23,7 @@ class VLEMCompiler: Subscriber {
     
     // no init -
     private init() {
-        println("Private compiler init being called ...")
+        print("Private compiler init being called ...")
     }
     
     // Inner class for a singleton ... how does this work?
@@ -33,7 +33,7 @@ class VLEMCompiler: Subscriber {
     }
     
     // ok, message system protocol -
-    func receive(#message: Message) -> Void {
+    func receive(message message: Message) -> Void {
         
         // what language are we generating the model in?
         if (message.messageKey() == VLEMMessageLibrary.VLEM_COMPILER_START_MESSAGE){
@@ -55,10 +55,10 @@ class VLEMCompiler: Subscriber {
                         
                         // ok, the input was parsed ok, Let's have the parser build the
                         // syntax tree for this file...
-                        var model_tree = _parser!.buildAbstractSyntaxTree()
+                        let model_tree = _parser!.buildAbstractSyntaxTree()
                         
                         // Build the code engine -
-                        var code_engine:VLEMCodeEngine = VLEMCodeEngine(inputURL:_my_input_url!, outputURL:_my_output_url!, language: ModelCodeLanguage.LANGUAGE_JULIA)
+                        let code_engine:VLEMCodeEngine = VLEMCodeEngine(inputURL:_my_input_url!, outputURL:_my_output_url!, language: ModelCodeLanguage.LANGUAGE_JULIA)
                         
                         // generate the code
                         code_engine.generate(model_tree!, modelDictionary: _dictionary_of_model_files)
@@ -72,10 +72,10 @@ class VLEMCompiler: Subscriber {
                         if let _error_array = return_data.error {
                             
                             // create the payload -
-                            var payload_dictionary:Dictionary<MessageKey,Array<VLError>> = [VLEMMessageLibrary.VLEM_COMPILER_ERROR_MESSAGE : _error_array]
+                            let payload_dictionary:Dictionary<MessageKey,Array<VLError>> = [VLEMMessageLibrary.VLEM_COMPILER_ERROR_MESSAGE : _error_array]
                             
                             // Post the error message -
-                            var error_message = VLEMCompilerErrorMessage(payload: payload_dictionary)
+                            let error_message = VLEMCompilerErrorMessage(payload: payload_dictionary)
                             VLEMMessageBroker.sharedMessageBroker.publish(message: error_message)
                         }
                     }

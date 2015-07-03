@@ -69,7 +69,7 @@ class ViewController: NSViewController,Subscriber {
     }
     
     // MARK: - Subscriber protocol methods
-    func receive(#message: Message) -> Void {
+    func receive(message message: Message) -> Void {
         
         // ok, we recieved a message! Figure out the type, decode and execute
         if (message.messageKey() == VLEMMessageLibrary.VLEM_COMPILER_ERROR_MESSAGE){
@@ -84,7 +84,7 @@ class ViewController: NSViewController,Subscriber {
                     if (VLErrorCode.MISSION_TOKEN_ERROR == error.code){
                         
                         let method_name = user_information["METHOD"]
-                        println("Opps - error found: Missing token in method \(method_name)")
+                        print("Opps - error found: Missing token in method \(method_name)")
                     }
                     else if (VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR == error.code || VLErrorCode.INCORRECT_GRAMMAR_ERROR == error.code){
                         
@@ -100,11 +100,11 @@ class ViewController: NSViewController,Subscriber {
                             // What is the input file?
                             if let _last_url_component = myInputFileURL?.lastPathComponent {
                                 let text_message = "Ooops! The scanner does not understand the symbol \"\(_bad_token)\". Please check the input file \"\(_last_url_component)\"\n"
-                                println(text_message)
+                                print(text_message)
                                 postStringMessageToTextView(text_message, type: UserStatusMessageType.ERROR_MESSAGE)
                             }
                             else {
-                                println("Ooops! The scanner does not understand the symbol \"\(_bad_token)\". Please check your input file.")
+                                print("Ooops! The scanner does not understand the symbol \"\(_bad_token)\". Please check your input file.")
                             }
                         }
                     }
@@ -120,7 +120,7 @@ class ViewController: NSViewController,Subscriber {
             let timeInterval: Double = compiler_end_date.timeIntervalSinceDate(compile_start_date!);
             
             // post to textview -
-            var completion_message = "Model code generation was succesfully generated in \(timeInterval) s \n"
+            let completion_message = "Model code generation was succesfully generated in \(timeInterval) s \n"
             postStringMessageToTextView(completion_message, type: UserStatusMessageType.NOMINAL_MESSAGE)
         }
     }
@@ -141,30 +141,30 @@ class ViewController: NSViewController,Subscriber {
         if let _input_url = myInputFileURL, _output_url = myOutputFileURL {
             
             // Input URL message -
-            var payload_dictionary_input_url = [VLEMMessageLibrary.VLEM_COMPILER_INPUT_URL_MESSAGE:_input_url]
-            var input_url_message = VLEMCompilerInputURLMessage(payload: payload_dictionary_input_url)
+            let payload_dictionary_input_url = [VLEMMessageLibrary.VLEM_COMPILER_INPUT_URL_MESSAGE:_input_url]
+            let input_url_message = VLEMCompilerInputURLMessage(payload: payload_dictionary_input_url)
             _broker.publish(message: input_url_message)
             
             // Output URL message -
-            var payload_dictionary_output_url = [VLEMMessageLibrary.VLEM_COMPILER_OUTPUT_URL_MESSAGE:_output_url]
-            var output_url_message = VLEMCompilerOutputURLMessage(payload: payload_dictionary_output_url)
+            let payload_dictionary_output_url = [VLEMMessageLibrary.VLEM_COMPILER_OUTPUT_URL_MESSAGE:_output_url]
+            let output_url_message = VLEMCompilerOutputURLMessage(payload: payload_dictionary_output_url)
             _broker.publish(message: output_url_message)
             
             // Model language message -
-            var payload_dictionary_model_language = [VLEMMessageLibrary.VLEM_COMPILER_OUTPUT_LANGUAGE_MESSAGE:_language]
-            var language_message = VLEMCompilerOutputLanguageMessage(payload: payload_dictionary_model_language)
+            let payload_dictionary_model_language = [VLEMMessageLibrary.VLEM_COMPILER_OUTPUT_LANGUAGE_MESSAGE:_language]
+            let language_message = VLEMCompilerOutputLanguageMessage(payload: payload_dictionary_model_language)
             _broker.publish(message: language_message)
             
             // Let the user know that we are starting ...
             let url_string:NSString? = _input_url.lastPathComponent
             if let local_url_string = url_string {
-                var starting_message = "Sending \"\(local_url_string)\" to the compiler ... trying to generate Julia code\n"
+                let starting_message = "Sending \"\(local_url_string)\" to the compiler ... trying to generate Julia code\n"
                 postStringMessageToTextView(starting_message, type: UserStatusMessageType.NOMINAL_MESSAGE)
             }
             
             // Start message -
             compile_start_date = NSDate()
-            var start_message = VLEMCompilerStartMessage()
+            let start_message = VLEMCompilerStartMessage()
             _broker.publish(message: start_message)
         }
         else {
@@ -215,7 +215,7 @@ class ViewController: NSViewController,Subscriber {
     @IBAction func myModelOutputOpenFileActionButtonWasPushed(button:NSButton){
         
         // Declarations -
-        var myOpenFilePanel:NSOpenPanel = NSOpenPanel()
+        let myOpenFilePanel:NSOpenPanel = NSOpenPanel()
         
         // Set attributes on openPanel -
         myOpenFilePanel.allowsMultipleSelection = false
@@ -227,7 +227,7 @@ class ViewController: NSViewController,Subscriber {
         self.myModelOutputFilePathTextField?.becomeFirstResponder()
         
         // Setup completion handler -
-        var myCompletionHandler = {
+        let myCompletionHandler = {
             [weak self](result:Int) -> Void in
             
             if let weak_self = self {
@@ -264,7 +264,7 @@ class ViewController: NSViewController,Subscriber {
     @IBAction func myModelBlueprintOpenInputFileActionButtonWasPushed(button:NSButton){
         
         // Declarations -
-        var myOpenFilePanel:NSOpenPanel = NSOpenPanel()
+        let myOpenFilePanel:NSOpenPanel = NSOpenPanel()
         
         // Set attributes on openPanel -
         myOpenFilePanel.allowsMultipleSelection = false
@@ -276,7 +276,7 @@ class ViewController: NSViewController,Subscriber {
         self.myModelFilePathTextField?.becomeFirstResponder()
         
         // Setup completion handler -
-        var myCompletionHandler = {
+        let myCompletionHandler = {
             [weak self](result:Int) -> Void in
             
             if let weak_self = self {

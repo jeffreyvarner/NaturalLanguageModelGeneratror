@@ -26,8 +26,8 @@ class VLEMCodeEngineTest: XCTestCase {
         let test_output_url = NSURL(fileURLWithPath: test_network_output_path)
         
         // build a scanner, use space as the delimiter -
-        parser = VLEMParser(inputURL:test_url!)
-        code_engine = VLEMCodeEngine(inputURL: test_url!, outputURL:test_output_url!, language: ModelCodeLanguage.LANGUAGE_JULIA)
+        parser = VLEMParser(inputURL:test_url)
+        code_engine = VLEMCodeEngine(inputURL: test_url, outputURL:test_output_url, language: ModelCodeLanguage.LANGUAGE_JULIA)
     }
     
     override func tearDown() {
@@ -54,7 +54,7 @@ class VLEMCodeEngineTest: XCTestCase {
                 
                 // ok, the input was parsed ok, Let's have the parser build the
                 // syntax tree for this file...
-                var model_tree = local_parser.buildAbstractSyntaxTree()
+                let model_tree = local_parser.buildAbstractSyntaxTree()
                 if let local_model_tree = model_tree, local_code_engine = code_engine {
                     
                     local_code_engine.generate(local_model_tree, modelDictionary: dictionary_of_model_files)
@@ -71,12 +71,12 @@ class VLEMCodeEngineTest: XCTestCase {
                         if (VLErrorCode.MISSION_TOKEN_ERROR == error.code){
                             
                             let method_name = user_information["METHOD"]
-                            println("Opps - error found: Missing token in method \(method_name)")
+                            print("Opps - error found: Missing token in method \(method_name)")
                         }
                         else if (VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR == error.code || VLErrorCode.INCORRECT_GRAMMAR_ERROR == error.code){
                             
                             if let location = user_information["LOCATION"], method_name = user_information["METHOD"], message = user_information["MESSAGE"] {
-                                println("Ooops! Error in method \(method_name) found at \(location). \(message)")
+                                print("Ooops! Error in method \(method_name) found at \(location). \(message)")
                             }
                         }
                     }

@@ -80,7 +80,7 @@ final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
         if let _node_lexeme = node.lexeme {
             
             // ok, we need to iterate through my type dictionary, which is key'd by a prefix
-            for (key,value) in type_dictionary {
+            for (key,_) in type_dictionary {
                 
                 // does the lexeme contain the key?
                 if ((_node_lexeme.rangeOfString(key, options: NSStringCompareOptions.CaseInsensitiveSearch, range: nil, locale: nil) != nil)){
@@ -169,7 +169,7 @@ final class SystemTransferProcessSpeciesSyntaxTreeVisitor:SyntaxTreeVisitor {
                     // grab the kids of this node -
                     for _species_node in _transfer_direction_node {
                         
-                        var _species_proxy = VLEMSpeciesProxy(node: _species_node)
+                        let _species_proxy = VLEMSpeciesProxy(node: _species_node)
                         species_set_from_system.append(_species_proxy)
                     }
                 }
@@ -177,7 +177,7 @@ final class SystemTransferProcessSpeciesSyntaxTreeVisitor:SyntaxTreeVisitor {
                     
                     for _species_node in _transfer_direction_node {
                         
-                        var _species_proxy = VLEMSpeciesProxy(node: _species_node)
+                        let _species_proxy = VLEMSpeciesProxy(node: _species_node)
                         species_set_to_system.append(_species_proxy)
                     }
                 }
@@ -233,7 +233,7 @@ final class GeneExpressionControlModelSyntaxTreeVisitor:SyntaxTreeVisitor {
             // we are in the control section of the tree ...
             
             // build a relationship proxy -
-            var relationship_proxy = VLEMControlRelationshipProxy(node: node)
+            let relationship_proxy = VLEMControlRelationshipProxy(node: node)
             
             // store the proxy -
             relationshipProxyArray.append(relationship_proxy)
@@ -308,7 +308,7 @@ final class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
     func visit(node:SyntaxTreeComponent) -> Void {
     
         // declarations -
-        var buffer = "->"
+        let buffer = "->"
         
         if (node.tokenType == TokenType.OR || node.tokenType == TokenType.AND){
             
@@ -336,13 +336,13 @@ final class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
                                         let _child_node = _or_node.getChildAtIndex(index)
                                         
                                         // Alpha node (gain)
-                                        var alpha_node = VLEMGeneExpressionControlParameterProxy(node: transcription_root_node!)
+                                        let alpha_node = VLEMGeneExpressionControlParameterProxy(node: transcription_root_node!)
                                         alpha_node.default_value = 0.1
                                         alpha_node.gene_expression_parameter_type = GeneExpressionParameterType.EXPRESSION_GAIN
                                         alpha_node.proxy_description = "Gain -> Actor: \(_child_node!.lexeme!) \(buffer) \(target_node.lexeme!)"
                                         
                                         // Beta node (order)
-                                        var beta_node = VLEMGeneExpressionControlParameterProxy(node: transcription_root_node!)
+                                        let beta_node = VLEMGeneExpressionControlParameterProxy(node: transcription_root_node!)
                                         beta_node.default_value = 1.0
                                         beta_node.gene_expression_parameter_type = GeneExpressionParameterType.EXPRESSION_ORDER
                                         beta_node.proxy_description = "Order -> Actor: \(_child_node!.lexeme!) \(buffer) \(target_node.lexeme!)"
@@ -373,13 +373,13 @@ final class GeneExpressionControlParameterSyntaxTreeVisitor:SyntaxTreeVisitor {
                                     }
                                     
                                     // This is easy - we create a *single* alpha and beta parameter
-                                    var alpha_node = VLEMGeneExpressionControlParameterProxy(node: transcription_root_node!)
+                                    let alpha_node = VLEMGeneExpressionControlParameterProxy(node: transcription_root_node!)
                                     alpha_node.default_value = 0.1
                                     alpha_node.gene_expression_parameter_type = GeneExpressionParameterType.EXPRESSION_GAIN
                                     alpha_node.proxy_description = "Gain -> Actor: \(actor_description) \(buffer) \(target_node.lexeme!)"
                                     
                                     // Beta node (order)
-                                    var beta_node = VLEMGeneExpressionControlParameterProxy(node: transcription_root_node!)
+                                    let beta_node = VLEMGeneExpressionControlParameterProxy(node: transcription_root_node!)
                                     beta_node.default_value = 1.0
                                     beta_node.gene_expression_parameter_type = GeneExpressionParameterType.EXPRESSION_ORDER
                                     beta_node.proxy_description = "Order -> Actor: \(actor_description) \(buffer) \(target_node.lexeme!)"
@@ -498,7 +498,7 @@ final class ProteinTranslationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
                 
                 
                 // ok, we have a protein node! We have a slang expression. Need to make a gene type, and then build a proxy around it.
-                var mrna_node = SyntaxTreeComponent(type: TokenType.MESSENGER_RNA)
+                let mrna_node = SyntaxTreeComponent(type: TokenType.MESSENGER_RNA)
                 
                 // ok, we have a DNA node! I need to split off the prefix from this node -
                 if let _prefix = VLEMAbstractSyntaxTreeVisitorLibrary.getBiologicalSymbolPrefix(type_dictionary, tokenType:TokenType.MESSENGER_RNA), let _node_symbol = node.lexeme {
@@ -511,7 +511,7 @@ final class ProteinTranslationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
                 }
                 
                 // put the gene node in the kinetics proxy object -
-                var proxy_node = VLEMProteinTranslationKineticsFunctionProxy(node: mrna_node)
+                let proxy_node = VLEMProteinTranslationKineticsFunctionProxy(node: mrna_node)
                 
                 // Add to the proxy *if* we have not seen this before ...
                 if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(translation_kinetics_array, node: proxy_node) == false){
@@ -543,7 +543,7 @@ final class ProteinTranslationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
         var local_counter = 1
         for proxy_object in translation_kinetics_array {
             
-            if var _proxy_node = proxy_object as? VLEMProteinTranslationKineticsFunctionProxy {
+            if let _proxy_node = proxy_object as? VLEMProteinTranslationKineticsFunctionProxy {
                 
                 _proxy_node.protein_index = local_counter
                 _proxy_node.parameter_array_base_index = number_of_proteins
@@ -583,7 +583,7 @@ final class ProteinDegradationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
             if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.PROTEIN){
                 
                 // put the gene node in the kinetics proxy object -
-                var proxy_node = VLEMProteinDegradationKineticsFunctionProxy(node: node)
+                let proxy_node = VLEMProteinDegradationKineticsFunctionProxy(node: node)
                 proxy_node.protein_index = protein_counter
                 
                 // Add to the proxy *if* we have not seen this before ...
@@ -596,7 +596,7 @@ final class ProteinDegradationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
             else if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.DNA) {
                 
                 // Build mRNA node -
-                var protein_node = SyntaxTreeComponent(type: TokenType.PROTEIN)
+                let protein_node = SyntaxTreeComponent(type: TokenType.PROTEIN)
                 
                 // ok, we have a DNA node! I need to split off the prefix from this node -
                 if let _node_symbol = VLEMAbstractSyntaxTreeVisitorLibrary.removeTypePrefixFromNodeLexeme(node, type_dictionary: type_dictionary) {
@@ -607,7 +607,7 @@ final class ProteinDegradationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
                 }
                 
                 // put the gene node in the kinetics proxy object -
-                var proxy_node = VLEMProteinDegradationKineticsFunctionProxy(node:protein_node)
+                let proxy_node = VLEMProteinDegradationKineticsFunctionProxy(node:protein_node)
                 proxy_node.protein_index = protein_counter
                 
                 // Add to the proxy *if* we have not seen this before ...
@@ -643,7 +643,7 @@ final class ProteinDegradationKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisito
         var local_counter = 1
         for proxy_object in degradation_kinetics_array {
             
-            if var _proxy_node = proxy_object as? VLEMProteinDegradationKineticsFunctionProxy {
+            if let _proxy_node = proxy_object as? VLEMProteinDegradationKineticsFunctionProxy {
                 
                 _proxy_node.protein_index = local_counter
                 _proxy_node.parameter_array_base_index = number_of_proteins
@@ -684,7 +684,7 @@ final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVi
             if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.PROTEIN){
                 
                 // ok, we have a protein node! We have a slang expression. Need to make a gene type, and then build a proxy around it.
-                var mrna_node = SyntaxTreeComponent(type: TokenType.MESSENGER_RNA)
+                let mrna_node = SyntaxTreeComponent(type: TokenType.MESSENGER_RNA)
                 
                 // ok, we have a protein, need to create a gene with prefix -
                 var mrna_prefix = ""
@@ -700,7 +700,7 @@ final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVi
                 mrna_node.lexeme = mrna_prefix+node.lexeme!
                 
                 // put the gene node in the kinetics proxy object -
-                var proxy_node = VLEMMessengerRNADegradationKineticsFunctionProxy(node: mrna_node)
+                let proxy_node = VLEMMessengerRNADegradationKineticsFunctionProxy(node: mrna_node)
                 if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(degradation_kinetics_array, node: proxy_node) == false){
                     
                     // cache -
@@ -710,7 +710,7 @@ final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVi
             else if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.DNA){
                 
                 // Build mRNA node -
-                var mrna_node = SyntaxTreeComponent(type: TokenType.MESSENGER_RNA)
+                let mrna_node = SyntaxTreeComponent(type: TokenType.MESSENGER_RNA)
                 
                 // ok, we have a DNA node! I need to split off the prefix from this node -
                 if let _node_symbol = VLEMAbstractSyntaxTreeVisitorLibrary.removeTypePrefixFromNodeLexeme(node, type_dictionary: type_dictionary) {
@@ -726,7 +726,7 @@ final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVi
                     }
                     
                     // build new symbol -
-                    var new_symbol = mrna_prefix+_node_symbol
+                    let new_symbol = mrna_prefix+_node_symbol
                     mrna_node.lexeme = new_symbol
                 }
                 else {
@@ -734,7 +734,7 @@ final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVi
                 }
                 
                 // put the gene node in the kinetics proxy object -
-                var proxy_node = VLEMMessengerRNADegradationKineticsFunctionProxy(node: mrna_node)
+                let proxy_node = VLEMMessengerRNADegradationKineticsFunctionProxy(node: mrna_node)
                 if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(degradation_kinetics_array, node: proxy_node) == false){
                     
                     // cache -
@@ -762,7 +762,7 @@ final class MessengerRNADegradationineticsFunctionSyntaxTreeVisitor:SyntaxTreeVi
         var counter = 1
         for proxy in degradation_kinetics_array {
             
-            if var _proxy = proxy as? VLEMMessengerRNADegradationKineticsFunctionProxy {
+            if let _proxy = proxy as? VLEMMessengerRNADegradationKineticsFunctionProxy {
                 _proxy.mRNA_index = counter
             }
             
@@ -826,7 +826,7 @@ final class BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisit
         for node in state_node_array {
             
             // build basal term -
-            var proxy = VLEMBasalGeneExpressionKineticsFunctionProxy(node: node)
+            let proxy = VLEMBasalGeneExpressionKineticsFunctionProxy(node: node)
             proxy.gene_index = (counter++)
             
             // add -
@@ -864,7 +864,7 @@ final class GeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
             if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.PROTEIN){
                 
                 // ok, we have a protein node! We have a slang expression. Need to make a gene type, and then build a proxy around it.
-                var gene_node = SyntaxTreeComponent(type: TokenType.DNA)
+                let gene_node = SyntaxTreeComponent(type: TokenType.DNA)
                 
                 // ok, we have a protein, need to create a gene with prefix -
                 var gene_prefix = ""
@@ -880,7 +880,7 @@ final class GeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
                 gene_node.lexeme = gene_prefix+node.lexeme!
                 
                 // put the gene node in the kinetics proxy object -
-                var proxy_node = VLEMGeneExpressionKineticsFunctionProxy(node: gene_node)
+                let proxy_node = VLEMGeneExpressionKineticsFunctionProxy(node: gene_node)
                 
                 // Cache this node, if we do *not* have it -
                 if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(gene_expression_kinetics_array, node: proxy_node) == false){
@@ -892,7 +892,7 @@ final class GeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
             else if (VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) == TokenType.DNA){
                 
                 // put the gene node in the kinetics proxy object -
-                var proxy_node = VLEMGeneExpressionKineticsFunctionProxy(node: node)
+                let proxy_node = VLEMGeneExpressionKineticsFunctionProxy(node: node)
                 
                 // Cache this node, if we do *not* have it -
                 if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(gene_expression_kinetics_array, node: proxy_node) == false){
@@ -916,7 +916,7 @@ final class GeneExpressionKineticsFunctionSyntaxTreeVisitor:SyntaxTreeVisitor {
         var counter = 1
         for proxy in gene_expression_kinetics_array {
             
-            if var _proxy = proxy as? VLEMGeneExpressionKineticsFunctionProxy {
+            if let _proxy = proxy as? VLEMGeneExpressionKineticsFunctionProxy {
                 _proxy.gene_index = counter
             }
             
@@ -1027,7 +1027,7 @@ final class GeneExpressionRateParameterSyntaxTreeVistor:SyntaxTreeVisitor {
             if let node_type = VLEMAbstractSyntaxTreeVisitorLibrary.isNodeType(node, type_dictionary: type_dictionary) where (node_type == TokenType.PROTEIN) {
                 
                 // ok, we have a protein node, let's build a proxy -
-                var protein_proxy = VLEMSpeciesProxy(node: node)
+                let protein_proxy = VLEMSpeciesProxy(node: node)
                 protein_proxy.token_type = TokenType.PROTEIN
                 
                 // ok, we have a protein -
@@ -1040,11 +1040,11 @@ final class GeneExpressionRateParameterSyntaxTreeVistor:SyntaxTreeVisitor {
                 }
                 
                 // We have a protein, we need to build a mRNA_* species
-                var mrna_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                let mrna_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
                 mrna_node.lexeme = mrna_prefix+node.lexeme!
                 
                 // build a proxy for it -
-                var mrna_node_proxy = VLEMSpeciesProxy(node: mrna_node)
+                let mrna_node_proxy = VLEMSpeciesProxy(node: mrna_node)
                 mrna_node_proxy.token_type = TokenType.MESSENGER_RNA
                 
                 // ok, add these nodes to my array (if they are not already there)
@@ -1074,15 +1074,15 @@ final class GeneExpressionRateParameterSyntaxTreeVistor:SyntaxTreeVisitor {
             if (species_proxy.token_type == TokenType.MESSENGER_RNA){
                 
                 // For this mRNA we need to create a rate proxy
-                var synthesis_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
+                let synthesis_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
                 synthesis_rate_proxy.rate_description = "Transcription constant \(species_proxy.syntax_tree_node!.lexeme!)"
                 synthesis_rate_proxy.default_value = 1.0
                 
-                var basal_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
+                let basal_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
                 basal_rate_proxy.rate_description = "Basal expression constant \(species_proxy.syntax_tree_node!.lexeme!)"
                 basal_rate_proxy.default_value = 0.001
                 
-                var degradation_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
+                let degradation_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
                 degradation_rate_proxy.rate_description = "Degradation constant \(species_proxy.syntax_tree_node!.lexeme!)"
                 degradation_rate_proxy.default_value = 0.1
                 
@@ -1094,11 +1094,11 @@ final class GeneExpressionRateParameterSyntaxTreeVistor:SyntaxTreeVisitor {
             else {
                 
                 // For this mRNA we need to create a rate proxy
-                var synthesis_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
+                let synthesis_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
                 synthesis_rate_proxy.rate_description = "Translation constant \(species_proxy.syntax_tree_node!.lexeme!)"
                 synthesis_rate_proxy.default_value = 10.0
                 
-                var degradation_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
+                let degradation_rate_proxy = VLEMGeneExpressionRateProcessProxy(node: species_proxy.syntax_tree_node!)
                 degradation_rate_proxy.rate_description = "Degradation constant \(species_proxy.syntax_tree_node!.lexeme!)"
                 degradation_rate_proxy.default_value = 0.01
                 
@@ -1164,7 +1164,7 @@ final class BiologicalTargetSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
                 if (node_type == TokenType.PROTEIN){
                     
                     // ok, create the proxy with a guess of the type of node -
-                    var my_protein_proxy_object = VLEMSpeciesProxy(node: component_object)
+                    let my_protein_proxy_object = VLEMSpeciesProxy(node: component_object)
                     my_protein_proxy_object.token_type = node_type
                     
                     // store -
@@ -1172,7 +1172,7 @@ final class BiologicalTargetSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
                     
                     // Create mRNA node and proxy -
                     // ok, we have a protein node! We have a slang expression. Need to make a gene type, and then build a proxy around it.
-                    var mrna_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                    let mrna_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
                     
                     // ok, we have a DNA node! I need to split off the prefix from this node -
                     if let _prefix = VLEMAbstractSyntaxTreeVisitorLibrary.getBiologicalSymbolPrefix(type_dictionary, tokenType:TokenType.MESSENGER_RNA), let _node_symbol = component_object.lexeme {
@@ -1181,7 +1181,7 @@ final class BiologicalTargetSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
                         mrna_node.lexeme = _prefix+_node_symbol
                         
                         // Create the porxy -
-                        var my_mrna_proxy_object = VLEMSpeciesProxy(node: mrna_node)
+                        let my_mrna_proxy_object = VLEMSpeciesProxy(node: mrna_node)
                         my_mrna_proxy_object.token_type = TokenType.MESSENGER_RNA
                         
                         // Add proxy to array -
@@ -1192,7 +1192,7 @@ final class BiologicalTargetSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
                     
                     // ok, we have a gene, need to make an mRNA node -
                     // Create mRNA node and proxy -
-                    var mrna_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                    let mrna_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
                     
                     // ok, we have a gene node! I need to split off the prefix from this node -
                     if let _prefix = VLEMAbstractSyntaxTreeVisitorLibrary.getBiologicalSymbolPrefix(type_dictionary, tokenType:TokenType.MESSENGER_RNA), let _node_symbol = component_object.lexeme {
@@ -1201,7 +1201,7 @@ final class BiologicalTargetSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
                         mrna_node.lexeme = _prefix+_node_symbol
                         
                         // Create the porxy -
-                        var my_mrna_proxy_object = VLEMSpeciesProxy(node: mrna_node)
+                        let my_mrna_proxy_object = VLEMSpeciesProxy(node: mrna_node)
                         my_mrna_proxy_object.token_type = TokenType.MESSENGER_RNA
                         
                         // Add proxy to array -
@@ -1300,10 +1300,10 @@ final class BiologicalSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
                 }
                 
                 // We have a protein, we need to build a GENE_* and mRNA_* species
-                var gene_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                let gene_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
                 gene_node.lexeme = gene_prefix+node.lexeme!
                 
-                var mrna_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                let mrna_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
                 mrna_node.lexeme = mrna_prefix+node.lexeme!
                 
                 // ok, add these nodes to my array (if they are not already there)
@@ -1324,7 +1324,7 @@ final class BiologicalSymbolSyntaxTreeVisitor: SyntaxTreeVisitor {
             if let node_type = VLEMAbstractSyntaxTreeVisitorLibrary.classifyTypeOfNode(component_object,type_dictionary:type_dictionary) where (node_type != TokenType.NULL){
                 
                 // ok, create the proxy with a guess of the type of node -
-                var my_proxy_object = VLEMSpeciesProxy(node: component_object)
+                let my_proxy_object = VLEMSpeciesProxy(node: component_object)
                 my_proxy_object.token_type = node_type
                 
                 // specify default values different types -

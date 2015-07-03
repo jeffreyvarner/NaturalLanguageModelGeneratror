@@ -20,7 +20,7 @@ class VLEMScannerTest: XCTestCase {
         super.setUp()
         
         // build a scanner, use test sentence -
-        var sentence_wrapper = VLEMSentenceWrapper(sentence: test_sentence, lineNumber: 0)
+        let sentence_wrapper = VLEMSentenceWrapper(sentence: test_sentence, lineNumber: 0)
         scanner = VLEMScanner(sentenceWrapper: sentence_wrapper)
     }
     
@@ -39,12 +39,12 @@ class VLEMScannerTest: XCTestCase {
             
             if (scanner_result.success) {
                 
-                println("Sentence: \(test_sentence) was tokenized correctly")
+                print("Sentence: \(test_sentence) was tokenized correctly")
                 
             }
             else {
                 
-                println("Sentence: \(test_sentence) was NOT tokenized correctly")
+                print("Sentence: \(test_sentence) was NOT tokenized correctly")
             }
         }
     }
@@ -57,23 +57,23 @@ class VLEMScannerTest: XCTestCase {
             
             if (scanner_result.success) {
                 
-                println("Sentence: \(test_sentence) was tokenized correctly! Looking at tokens ..")
+                print("Sentence: \(test_sentence) was tokenized correctly! Looking at tokens ..")
                 
                 while (local_scanner.hasMoreTokens()){
                     
                     // get the next token -
-                    var token = local_scanner.getNextToken()
+                    let token = local_scanner.getNextToken()
                     
-                    if let local_token = token, let local_lexeme = token?.lexeme {
+                    if let _ = token, let local_lexeme = token?.lexeme {
                         
                         // print the lexeme -
-                        println("TOKEN_VALUE = \(local_lexeme)")
+                        print("TOKEN_VALUE = \(local_lexeme)")
                     }
                 }
             }
             else {
                 
-                println("Sentence: \(test_sentence) was NOT tokenized correctly")
+                print("Sentence: \(test_sentence) was NOT tokenized correctly")
                 return
             }
         }

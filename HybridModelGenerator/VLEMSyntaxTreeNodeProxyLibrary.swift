@@ -210,7 +210,7 @@ class VLEMProteinTranslationKineticsFunctionProxy: VLEMProxyNode {
     var parameter_index:Int {
         get {
             
-            var tmp = 2*protein_index + 3*parameter_array_base_index - 1
+            let tmp = 2*protein_index + 3*parameter_array_base_index - 1
             return tmp
         }
     }
@@ -264,7 +264,7 @@ class VLEMProteinDegradationKineticsFunctionProxy: VLEMProxyNode {
     var parameter_index:Int {
         get {
             
-            var tmp = 2*protein_index + 3*parameter_array_base_index
+            let tmp = 2*protein_index + 3*parameter_array_base_index
             return tmp
         }
     }

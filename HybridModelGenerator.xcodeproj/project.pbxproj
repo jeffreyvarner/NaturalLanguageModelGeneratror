@@ -16,11 +16,8 @@
 		AD0903CE1AE6607F0078713B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0903CD1AE6607F0078713B /* ViewController.swift */; };
 		AD0903D31AE6607F0078713B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD0903D11AE6607F0078713B /* Main.storyboard */; };
 		AD0903DF1AE6607F0078713B /* HybridModelGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0903DE1AE6607F0078713B /* HybridModelGeneratorTests.swift */; };
-		AD0903EA1AE7B2250078713B /* HybridModelGeneratorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0903E91AE7B2250078713B /* HybridModelGeneratorEngine.swift */; };
-		AD1780031AE9CAF600A09CA0 /* HybridModelOctaveMCodeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD1780021AE9CAF600A09CA0 /* HybridModelOctaveMCodeLibrary.swift */; };
-		AD32EF811AF2582900E4C433 /* HybridModelReactionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD32EF801AF2582900E4C433 /* HybridModelReactionModel.swift */; };
-		AD3E54881AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD3E54871AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift */; };
-		AD3E548A1AE8254000C12998 /* HybridModelContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD3E54891AE8254000C12998 /* HybridModelContext.swift */; };
+		AD34E3031B47151800633646 /* VLEMCodeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD34E3021B47151800633646 /* VLEMCodeEngine.swift */; };
+		AD34E3041B47190D00633646 /* VLEMCodeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD34E3021B47151800633646 /* VLEMCodeEngine.swift */; };
 		AD7695FF1B0D00020042CF58 /* VLEMScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7695FE1B0D00010042CF58 /* VLEMScanner.swift */; };
 		AD7696011B0D07D70042CF58 /* VLEMScannerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7696001B0D07D70042CF58 /* VLEMScannerTest.swift */; };
 		AD7696021B0D09E20042CF58 /* VLEMScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7695FE1B0D00010042CF58 /* VLEMScanner.swift */; };
@@ -38,15 +35,11 @@
 		ADC37FE11B1E456000FCD586 /* SyntaxTreeComposite.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FDE1B1E23B600FCD586 /* SyntaxTreeComposite.swift */; };
 		ADC37FE31B20B13E00FCD586 /* VLEMAbstractSyntaxTreeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FE21B20B13E00FCD586 /* VLEMAbstractSyntaxTreeLibrary.swift */; };
 		ADC37FE41B20B2D300FCD586 /* VLEMAbstractSyntaxTreeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FE21B20B13E00FCD586 /* VLEMAbstractSyntaxTreeLibrary.swift */; };
-		ADC37FE91B21B00900FCD586 /* VLEMCodeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FE81B21B00900FCD586 /* VLEMCodeEngine.swift */; };
 		ADC37FEB1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FEA1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift */; };
 		ADC37FEE1B222A2900FCD586 /* JuliaLanguageStrategyLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FED1B222A2900FCD586 /* JuliaLanguageStrategyLibrary.swift */; };
 		ADC37FF11B22547F00FCD586 /* JuliaLanguageStrategyLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FED1B222A2900FCD586 /* JuliaLanguageStrategyLibrary.swift */; };
 		ADC37FF21B22549600FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FEA1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift */; };
 		ADC37FF51B2281CC00FCD586 /* VLEMCodeEngineTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FF41B2281CC00FCD586 /* VLEMCodeEngineTest.swift */; };
-		ADC37FF61B2283F700FCD586 /* VLEMCodeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FE81B21B00900FCD586 /* VLEMCodeEngine.swift */; };
-		ADD8D4641AEC301A00F60815 /* HybridStateModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */; };
-		ADEFD5191AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEFD5181AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,11 +64,7 @@
 		AD0903D81AE6607F0078713B /* HybridModelGeneratorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HybridModelGeneratorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD0903DD1AE6607F0078713B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AD0903DE1AE6607F0078713B /* HybridModelGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HybridModelGeneratorTests.swift; sourceTree = "<group>"; };
-		AD0903E91AE7B2250078713B /* HybridModelGeneratorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelGeneratorEngine.swift; sourceTree = "<group>"; };
-		AD1780021AE9CAF600A09CA0 /* HybridModelOctaveMCodeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelOctaveMCodeLibrary.swift; sourceTree = "<group>"; };
-		AD32EF801AF2582900E4C433 /* HybridModelReactionModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelReactionModel.swift; sourceTree = "<group>"; };
-		AD3E54871AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelNaturalLanguageParser.swift; sourceTree = "<group>"; };
-		AD3E54891AE8254000C12998 /* HybridModelContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelContext.swift; sourceTree = "<group>"; };
+		AD34E3021B47151800633646 /* VLEMCodeEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMCodeEngine.swift; sourceTree = "<group>"; };
 		AD7695FE1B0D00010042CF58 /* VLEMScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMScanner.swift; sourceTree = "<group>"; };
 		AD7696001B0D07D70042CF58 /* VLEMScannerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMScannerTest.swift; sourceTree = "<group>"; };
 		AD7E11921B18F408001232EC /* VLEMGrammarLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMGrammarLibrary.swift; sourceTree = "<group>"; };
@@ -87,12 +76,9 @@
 		ADC37FDC1B1E238E00FCD586 /* SyntaxTreeComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SyntaxTreeComponent.swift; sourceTree = "<group>"; };
 		ADC37FDE1B1E23B600FCD586 /* SyntaxTreeComposite.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SyntaxTreeComposite.swift; sourceTree = "<group>"; };
 		ADC37FE21B20B13E00FCD586 /* VLEMAbstractSyntaxTreeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMAbstractSyntaxTreeLibrary.swift; sourceTree = "<group>"; };
-		ADC37FE81B21B00900FCD586 /* VLEMCodeEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMCodeEngine.swift; sourceTree = "<group>"; };
 		ADC37FEA1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMAbstractSyntaxTreeVisitorLibrary.swift; sourceTree = "<group>"; };
 		ADC37FED1B222A2900FCD586 /* JuliaLanguageStrategyLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JuliaLanguageStrategyLibrary.swift; sourceTree = "<group>"; };
 		ADC37FF41B2281CC00FCD586 /* VLEMCodeEngineTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMCodeEngineTest.swift; sourceTree = "<group>"; };
-		ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridStateModel.swift; sourceTree = "<group>"; };
-		ADEFD5181AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridModelJuliaCodeLibrary.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,7 +122,6 @@
 			children = (
 				ADAE53BA1B36D5050013091E /* message */,
 				ADC37FEC1B2229F300FCD586 /* strategies */,
-				AD5E6BAA1AE988F8000FDDFA /* model */,
 				AD0903E81AE665290078713B /* engine */,
 				AD0903CB1AE6607F0078713B /* AppDelegate.swift */,
 				AD0903CD1AE6607F0078713B /* ViewController.swift */,
@@ -180,10 +165,6 @@
 			children = (
 				ADC37FD71B1E220900FCD586 /* syntax_tree */,
 				AD7695FD1B0CFF760042CF58 /* compiler */,
-				AD0903E91AE7B2250078713B /* HybridModelGeneratorEngine.swift */,
-				AD3E54871AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift */,
-				AD3E54891AE8254000C12998 /* HybridModelContext.swift */,
-				ADC37FE81B21B00900FCD586 /* VLEMCodeEngine.swift */,
 			);
 			name = engine;
 			sourceTree = "<group>";
@@ -196,20 +177,10 @@
 			name = proxy;
 			sourceTree = "<group>";
 		};
-		AD5E6BAA1AE988F8000FDDFA /* model */ = {
-			isa = PBXGroup;
-			children = (
-				AD1780021AE9CAF600A09CA0 /* HybridModelOctaveMCodeLibrary.swift */,
-				ADD8D4631AEC301A00F60815 /* HybridStateModel.swift */,
-				AD32EF801AF2582900E4C433 /* HybridModelReactionModel.swift */,
-				ADEFD5181AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift */,
-			);
-			name = model;
-			sourceTree = "<group>";
-		};
 		AD7695FD1B0CFF760042CF58 /* compiler */ = {
 			isa = PBXGroup;
 			children = (
+				AD34E3021B47151800633646 /* VLEMCodeEngine.swift */,
 				AD7695FE1B0D00010042CF58 /* VLEMScanner.swift */,
 				AD01482D1B0E61570093E609 /* VLEMParser.swift */,
 				AD0148331B0E68C40093E609 /* VLEMSentenceWrapper.swift */,
@@ -292,7 +263,8 @@
 		AD0903BE1AE6607F0078713B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastSwiftUpdateCheck = 0700;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = Pooksoft;
 				TargetAttributes = {
 					AD0903C51AE6607F0078713B = {
@@ -349,25 +321,18 @@
 			files = (
 				ADC37FDD1B1E238E00FCD586 /* SyntaxTreeComponent.swift in Sources */,
 				ADC37FEB1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift in Sources */,
-				AD3E54881AE8251D00C12998 /* HybridModelNaturalLanguageParser.swift in Sources */,
 				ADC37FE31B20B13E00FCD586 /* VLEMAbstractSyntaxTreeLibrary.swift in Sources */,
-				ADEFD5191AFEF365006583DD /* HybridModelJuliaCodeLibrary.swift in Sources */,
 				ADAE53BC1B36D5370013091E /* VLEMMessageBroker.swift in Sources */,
+				AD34E3031B47151800633646 /* VLEMCodeEngine.swift in Sources */,
 				AD0903CE1AE6607F0078713B /* ViewController.swift in Sources */,
 				AD01482E1B0E61570093E609 /* VLEMParser.swift in Sources */,
 				AD7E11931B18F408001232EC /* VLEMGrammarLibrary.swift in Sources */,
 				ADAE53B81B2B88190013091E /* VLEMSyntaxTreeNodeProxyLibrary.swift in Sources */,
 				ADC37FDF1B1E23B600FCD586 /* SyntaxTreeComposite.swift in Sources */,
-				AD1780031AE9CAF600A09CA0 /* HybridModelOctaveMCodeLibrary.swift in Sources */,
 				ADC37FEE1B222A2900FCD586 /* JuliaLanguageStrategyLibrary.swift in Sources */,
-				AD0903EA1AE7B2250078713B /* HybridModelGeneratorEngine.swift in Sources */,
-				ADC37FE91B21B00900FCD586 /* VLEMCodeEngine.swift in Sources */,
 				ADAE53BE1B3769830013091E /* VLEMMessageLibrary.swift in Sources */,
 				AD0148341B0E68C40093E609 /* VLEMSentenceWrapper.swift in Sources */,
-				AD32EF811AF2582900E4C433 /* HybridModelReactionModel.swift in Sources */,
-				ADD8D4641AEC301A00F60815 /* HybridStateModel.swift in Sources */,
 				ADB8A2AB1B3C3822003E98AD /* VLEMCompiler.swift in Sources */,
-				AD3E548A1AE8254000C12998 /* HybridModelContext.swift in Sources */,
 				AD7695FF1B0D00020042CF58 /* VLEMScanner.swift in Sources */,
 				AD0903CC1AE6607F0078713B /* AppDelegate.swift in Sources */,
 			);
@@ -377,8 +342,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD34E3041B47190D00633646 /* VLEMCodeEngine.swift in Sources */,
 				ADAE53B91B2B88800013091E /* VLEMSyntaxTreeNodeProxyLibrary.swift in Sources */,
-				ADC37FF61B2283F700FCD586 /* VLEMCodeEngine.swift in Sources */,
 				ADC37FF21B22549600FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift in Sources */,
 				ADC37FF11B22547F00FCD586 /* JuliaLanguageStrategyLibrary.swift in Sources */,
 				ADC37FE41B20B2D300FCD586 /* VLEMAbstractSyntaxTreeLibrary.swift in Sources */,
@@ -437,6 +402,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -501,6 +467,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = HybridModelGenerator/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.pooksoft.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -512,6 +479,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = HybridModelGenerator/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.pooksoft.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -532,6 +500,7 @@
 				INFOPLIST_FILE = HybridModelGeneratorTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				New_Setting = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.pooksoft.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HybridModelGenerator.app/Contents/MacOS/HybridModelGenerator";
 			};
@@ -549,6 +518,7 @@
 				INFOPLIST_FILE = HybridModelGeneratorTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				New_Setting = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.pooksoft.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HybridModelGenerator.app/Contents/MacOS/HybridModelGenerator";
 			};

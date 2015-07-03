@@ -22,7 +22,7 @@ class VLEMParserTest: XCTestCase {
         let test_url = NSURL(fileURLWithPath: test_path)
         
         // build a scanner, use space as the delimiter -
-        parser = VLEMParser(inputURL:test_url!)
+        parser = VLEMParser(inputURL:test_url)
     }
     
     override func tearDown() {
@@ -41,18 +41,18 @@ class VLEMParserTest: XCTestCase {
                 
                 // ok, the input was parsed ok, Let's have the parser build the
                 // syntax tree for this file...
-                var model_tree = local_parser.buildAbstractSyntaxTree()
+                let model_tree = local_parser.buildAbstractSyntaxTree()
                 if let local_model_tree = model_tree {
                  
                     // do a print visit -
-                    var print_visitor = BiologicalSymbolSyntaxTreeVisitor()
+                    let print_visitor = BiologicalSymbolSyntaxTreeVisitor()
                     for child_node in local_model_tree.children_array {
                         child_node.accept(print_visitor)
                     }
                     
-                    if var array = print_visitor.getSyntaxTreeVisitorData() as? [VLEMSpeciesProxy]{
-                        if (count(array)>0){
-                            println("We have species")
+                    if let array = print_visitor.getSyntaxTreeVisitorData() as? [VLEMSpeciesProxy]{
+                        if (array.count>0){
+                            print("We have species")
                         }
                     }
                 }

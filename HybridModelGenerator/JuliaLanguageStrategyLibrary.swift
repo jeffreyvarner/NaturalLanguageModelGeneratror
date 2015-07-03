@@ -28,13 +28,13 @@ class JuliaLanguageStrategyLibrary: NSObject {
     static func dispatchGenericTreeVisitorOnTreeWithTypeDictionary(root:SyntaxTreeComposite,var treeVisitor:SyntaxTreeVisitor) -> Any? {
         
         // Get type dictionary -
-        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        let type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
         for child_node in root.children_array {
             child_node.accept(type_dictionary_visitor)
         }
         
         // type dictionary -
-        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+        if let _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
             
             treeVisitor.type_dictionary = _type_dictionary
             for child_node in root.children_array {
@@ -51,15 +51,15 @@ class JuliaLanguageStrategyLibrary: NSObject {
     static func extractGeneExpressionControlModel(root:SyntaxTreeComposite) -> Dictionary<String,Array<VLEMControlRelationshipProxy>>? {
     
         // Get type dictionary -
-        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        let type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
         for child_node in root.children_array {
             child_node.accept(type_dictionary_visitor)
         }
 
         // type dictionary -
-        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+        if let _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
             
-            var gene_expression_control_visitor = GeneExpressionControlModelSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            let gene_expression_control_visitor = GeneExpressionControlModelSyntaxTreeVisitor(typeDictionary: _type_dictionary)
             for child_node in root.children_array {
                 child_node.accept(gene_expression_control_visitor)
             }
@@ -73,16 +73,16 @@ class JuliaLanguageStrategyLibrary: NSObject {
     static func extractProteinTranslationKineticsList(root:SyntaxTreeComposite) -> [VLEMProxyNode]? {
         
         // Get type dictionary -
-        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        let type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
         for child_node in root.children_array {
             child_node.accept(type_dictionary_visitor)
         }
         
         // type dictionary -
-        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+        if let _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
             
             // Build the transfer function tree visitor -
-            var translation_kinetics_visitor = ProteinTranslationKineticsFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            let translation_kinetics_visitor = ProteinTranslationKineticsFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
             for child_node in root.children_array {
                 child_node.accept(translation_kinetics_visitor)
             }
@@ -95,16 +95,16 @@ class JuliaLanguageStrategyLibrary: NSObject {
     static func extractProteinDegradationKineticsList(root:SyntaxTreeComposite) -> [VLEMProxyNode]? {
         
         // Get type dictionary -
-        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        let type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
         for child_node in root.children_array {
             child_node.accept(type_dictionary_visitor)
         }
         
         // type dictionary -
-        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+        if let _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
             
             // Build the transfer function tree visitor -
-            var degradation_kinetics_visitor = ProteinDegradationKineticsFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            let degradation_kinetics_visitor = ProteinDegradationKineticsFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
             for child_node in root.children_array {
                 child_node.accept(degradation_kinetics_visitor)
             }
@@ -118,16 +118,16 @@ class JuliaLanguageStrategyLibrary: NSObject {
     static func extractMessengerRNADegradationKineticsList(root:SyntaxTreeComposite) -> [VLEMProxyNode]? {
     
         // Get type dictionary -
-        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        let type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
         for child_node in root.children_array {
             child_node.accept(type_dictionary_visitor)
         }
 
         // type dictionary -
-        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+        if let _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
             
             // Build the transfer function tree visitor -
-            var degradation_kinetics_visitor = MessengerRNADegradationineticsFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            let degradation_kinetics_visitor = MessengerRNADegradationineticsFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
             for child_node in root.children_array {
                 child_node.accept(degradation_kinetics_visitor)
             }
@@ -140,16 +140,16 @@ class JuliaLanguageStrategyLibrary: NSObject {
     static func extractGeneExpressionKineticsList(root:SyntaxTreeComposite) -> [VLEMProxyNode]? {
         
         // Get type dictionary -
-        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        let type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
         for child_node in root.children_array {
             child_node.accept(type_dictionary_visitor)
         }
         
         // type dictionary -
-        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+        if let _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
             
             // Build the transfer function tree visitor -
-            var gene_expression_kinetics_visitor = GeneExpressionKineticsFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            let gene_expression_kinetics_visitor = GeneExpressionKineticsFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
             for child_node in root.children_array {
                 child_node.accept(gene_expression_kinetics_visitor)
             }
@@ -163,7 +163,7 @@ class JuliaLanguageStrategyLibrary: NSObject {
     static func extractGeneExpressionRateList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionRateProcessProxy]? {
         
         // get the list of rates involved in gene expression (includes degradation rates for both protein, and mRNA)
-        var rate_visitor = GeneExpressionRateParameterSyntaxTreeVistor()
+        let rate_visitor = GeneExpressionRateParameterSyntaxTreeVistor()
         for child_node in root.children_array {
             child_node.accept(rate_visitor)
         }
@@ -175,16 +175,16 @@ class JuliaLanguageStrategyLibrary: NSObject {
     static func extractTargetList(root:SyntaxTreeComposite) -> [VLEMProxyNode]? {
     
         // Get type dictionary -
-        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        let type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
         for child_node in root.children_array {
             child_node.accept(type_dictionary_visitor)
         }
         
         // type dictionary -
-        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+        if let _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
             
             // Build the transfer function tree visitor -
-            var target_visitor = BiologicalTargetSymbolSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            let target_visitor = BiologicalTargetSymbolSyntaxTreeVisitor(typeDictionary: _type_dictionary)
             for child_node in root.children_array {
                 child_node.accept(target_visitor)
             }
@@ -197,7 +197,7 @@ class JuliaLanguageStrategyLibrary: NSObject {
     static func extractSpeciesList(root:SyntaxTreeComposite) -> [VLEMProxyNode]? {
         
         // Get the list of species using the vistor pattern -
-        var species_visitor = BiologicalSymbolSyntaxTreeVisitor()
+        let species_visitor = BiologicalSymbolSyntaxTreeVisitor()
         for child_node in root.children_array {
             child_node.accept(species_visitor)
         }
@@ -208,16 +208,16 @@ class JuliaLanguageStrategyLibrary: NSObject {
     static func extractGeneExpressionControlTransferFunctionList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionControlTransferFunctionProxy]? {
         
         // Get type dictionary -
-        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        let type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
         for child_node in root.children_array {
             child_node.accept(type_dictionary_visitor)
         }
 
         // type dictionary -
-        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+        if let _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
             
             // Build the transfer function tree visitor -
-            var gene_expression_control_transfer_function_visitor = GeneExpressionControlFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            let gene_expression_control_transfer_function_visitor = GeneExpressionControlFunctionSyntaxTreeVisitor(typeDictionary: _type_dictionary)
             for child_node in root.children_array {
                 child_node.accept(gene_expression_control_transfer_function_visitor)
             }
@@ -231,15 +231,15 @@ class JuliaLanguageStrategyLibrary: NSObject {
     static func extractGeneExpressionControlParameterList(root:SyntaxTreeComposite) -> [VLEMGeneExpressionControlParameterProxy]? {
         
         // Get the type dictionary -
-        var type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
+        let type_dictionary_visitor = BiologicalTypeDictionarySyntaxTreeVisitor()
         for child_node in root.children_array {
             child_node.accept(type_dictionary_visitor)
         }
         
         // type dictionary -
-        if var _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
+        if let _type_dictionary:Dictionary<String,SyntaxTreeComponent> = type_dictionary_visitor.getSyntaxTreeVisitorData() as? Dictionary<String,SyntaxTreeComponent> {
             
-            var gene_expression_control_parameter_visitor = GeneExpressionControlParameterSyntaxTreeVisitor(typeDictionary: _type_dictionary)
+            let gene_expression_control_parameter_visitor = GeneExpressionControlParameterSyntaxTreeVisitor(typeDictionary: _type_dictionary)
             for child_node in root.children_array {
                 child_node.accept(gene_expression_control_parameter_visitor)
             }
@@ -258,7 +258,7 @@ class JuliaLanguageStrategyLibrary: NSObject {
         var buffer = ""
         
         // Get the date -
-        let flags: NSCalendarUnit = NSCalendarUnit.CalendarUnitDay | NSCalendarUnit.CalendarUnitMonth | NSCalendarUnit.CalendarUnitYear
+        let flags: NSCalendarUnit = [NSCalendarUnit.Day, NSCalendarUnit.Month, NSCalendarUnit.Year]
         let date = NSDate()
         let components = NSCalendar.currentCalendar().components(flags, fromDate: date)
         let year_string = components.year
@@ -318,11 +318,11 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         
         // declarations -
         var buffer = ""
-        var model_root = node as! SyntaxTreeComposite
+        let model_root = node as! SyntaxTreeComposite
         
         // ok, we need to create a function -
         // get the copyright header information -
-        var header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("Kinetics.jl",
+        let header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("Kinetics.jl",
             functionDescription: "Encodes the metabolic and gene expression kinetics.\n# Called by Balances.jl")
         
         buffer+="\(header_information)"
@@ -341,13 +341,13 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         
         buffer+="\t# Alias state vector - \n"
-        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) where ((species_list as? [VLEMSpeciesProxy]) != nil) {
+        if let species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) where ((species_list as? [VLEMSpeciesProxy]) != nil) {
             
             var counter = 1
             for proxy_object in species_list {
                 
                 // Get the default value -
-                let default_value = (proxy_object as! VLEMSpeciesProxy).default_value
+                _ = (proxy_object as! VLEMSpeciesProxy).default_value
                 let state_symbol = (proxy_object as! VLEMSpeciesProxy).state_symbol_string!
                 
                 buffer+="\t"
@@ -369,11 +369,11 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Regulated gene expression rate vector - \n"
         buffer+="\tfill!(gene_expression_rate_vector,0.0)\n"
-        if var expression_kinetics_list = JuliaLanguageStrategyLibrary.extractGeneExpressionKineticsList(model_root) {
+        if let expression_kinetics_list = JuliaLanguageStrategyLibrary.extractGeneExpressionKineticsList(model_root) {
             
             for proxy_object in expression_kinetics_list {
             
-                if var _proxy_node = proxy_object as? VLEMGeneExpressionKineticsFunctionProxy {
+                if let _proxy_node = proxy_object as? VLEMGeneExpressionKineticsFunctionProxy {
                     
                     // Get the data in the proxy -
                     let parameter_index = _proxy_node.parameter_index
@@ -388,11 +388,11 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Basal gene expression rate vector - \n"
         buffer+="\tfill!(basal_gene_expression_rate_vector,0.0)\n"
-        if var basal_expression_kinetics_list = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor:BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor()), let _basal_expression_kinetics_list = basal_expression_kinetics_list as? [VLEMProxyNode] {
+        if let basal_expression_kinetics_list = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor:BasalGeneExpressionKineticsFunctionSyntaxTreeVisitor()), let _basal_expression_kinetics_list = basal_expression_kinetics_list as? [VLEMProxyNode] {
             
             for proxy_object in _basal_expression_kinetics_list {
                 
-                if var _proxy_node = proxy_object as? VLEMBasalGeneExpressionKineticsFunctionProxy {
+                if let _proxy_node = proxy_object as? VLEMBasalGeneExpressionKineticsFunctionProxy {
                     
                     // Get the data in the proxy -
                     let parameter_index = _proxy_node.parameter_index
@@ -406,7 +406,7 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Define the translation rate vector - \n"
         buffer+="\tfill!(translation_rate_vector,0.0)\n"
-        if var translation_kinetics_list = JuliaLanguageStrategyLibrary.extractProteinTranslationKineticsList(model_root){
+        if let translation_kinetics_list = JuliaLanguageStrategyLibrary.extractProteinTranslationKineticsList(model_root){
             
             for proxy_object in translation_kinetics_list {
              
@@ -496,7 +496,7 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
         var buffer:String = ""
         
         // get the copyright header information -
-        var header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("Control.jl",
+        let header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("Control.jl",
             functionDescription: "Calculates the metabolic and gene expression control vector. Called by Balances.jl.")
         
         buffer+="\(header_information)"
@@ -513,14 +513,14 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
         buffer+="\t# Alias the state vector - \n"
         
         // Build species list -
-        var model_root = node as! SyntaxTreeComposite
-        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) where ((species_list as? [VLEMSpeciesProxy]) != nil) {
+        let model_root = node as! SyntaxTreeComposite
+        if let species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) where ((species_list as? [VLEMSpeciesProxy]) != nil) {
             
             var counter = 1
             for proxy_object in species_list {
                 
                 // Get the default value -
-                let default_value = (proxy_object as! VLEMSpeciesProxy).default_value
+                _ = (proxy_object as! VLEMSpeciesProxy).default_value
                 let state_symbol = (proxy_object as! VLEMSpeciesProxy).state_symbol_string!
                 
                 buffer+="\t"
@@ -538,7 +538,7 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
         var counter = 0
         if var gene_expression_control_model = JuliaLanguageStrategyLibrary.extractGeneExpressionControlModel(model_root){
             
-            if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) where ((species_list as? [VLEMSpeciesProxy]) != nil) {
+            if let species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) where ((species_list as? [VLEMSpeciesProxy]) != nil) {
                 
                 for proxy_object in species_list {
                     
@@ -603,7 +603,7 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         
         // get the copyright header information -
-        var header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("Balances.jl",
+        let header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("Balances.jl",
             functionDescription: "Encodes the material balance equations for the metabolic model.\n# Called by SolveBalanceEquations.jl")
         
         buffer+="\(header_information)"
@@ -634,8 +634,8 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         
         // Get the model_root -
-        var model_root = node as! SyntaxTreeComposite
-        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root), var _target_list = JuliaLanguageStrategyLibrary.extractTargetList(model_root) where (species_list as? [VLEMSpeciesProxy]) != nil  {
+        let model_root = node as! SyntaxTreeComposite
+        if let species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root), let _target_list = JuliaLanguageStrategyLibrary.extractTargetList(model_root) where (species_list as? [VLEMSpeciesProxy]) != nil  {
         
             buffer+="\t# Define the dxdt_vector - \n"
             buffer+="\t# Gene balances - \n"
@@ -731,7 +731,7 @@ class JuliaProjectIncludeFileStrategy:CodeGenerationStrategy {
         var buffer:String = ""
         
         // get the copyright header information -
-        var header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("Project.jl",
+        let header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("Project.jl",
             functionDescription: "Include statements for all model files.")
         
         buffer+="\(header_information)"
@@ -760,7 +760,7 @@ class JuliaSolveBalanceEquationsFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         
         // get the copyright header information -
-        var header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("SolveBalanceEquations.jl",
+        let header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("SolveBalanceEquations.jl",
             functionDescription: "Solve the balance equations using CVODE from the SUNDIALS package.")
         
         buffer+="\(header_information)"
@@ -800,7 +800,7 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         var buffer:String = ""
         
         // get the copyright header information -
-        var header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("DataFile.jl",
+        let header_information = JuliaLanguageStrategyLibrary.buildCopyrightHeader("DataFile.jl",
             functionDescription: "Creates a data dictionary holding initial conditions, and the kinetic/control\n# parameters for the model. Called by SolveBalanceEquations.jl")
         
         buffer+="\(header_information)"
@@ -813,8 +813,8 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         
         // Build IC list -
         var number_of_species = 0
-        var model_root = root as! SyntaxTreeComposite
-        if var species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
+        let model_root = root as! SyntaxTreeComposite
+        if let species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
             
             // how many speces do we have?
             number_of_species = species_list.count
@@ -842,7 +842,7 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Setup the gene expression kinetic parameter vector - \n"
         buffer+="\tGENE_EXPRESSION_KINETIC_PARAMETER_VECTOR = Float64[]\n"
-        if var gene_expression_rate_list = JuliaLanguageStrategyLibrary.extractGeneExpressionRateList(model_root) {
+        if let gene_expression_rate_list = JuliaLanguageStrategyLibrary.extractGeneExpressionRateList(model_root) {
             
             var counter = 1
             for proxy_object in gene_expression_rate_list {
@@ -873,7 +873,7 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Setup the gene expression control parameter vector - \n"
         buffer+="\tGENE_EXPRESSION_CONTROL_PARAMETER_VECTOR = Float64[]\n"
-        if var gene_expression_control_parameters = JuliaLanguageStrategyLibrary.extractGeneExpressionControlParameterList(model_root){
+        if let gene_expression_control_parameters = JuliaLanguageStrategyLibrary.extractGeneExpressionControlParameterList(model_root){
             
             var counter = 1
             for proxy_object in gene_expression_control_parameters {
@@ -912,7 +912,7 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         buffer+="\tSYSTEM_TRANSFER_PARAMETER_ARRAY = zeros(Float64,(\(number_of_species),2));\n"
         if let system_transfer_dictionary = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor: SystemTransferProcessSpeciesSyntaxTreeVisitor()) as? Dictionary<TokenType,[VLEMSpeciesProxy]> {
             
-            if var _model_species_array = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
+            if let _model_species_array = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
             
                 // get the from and to sets -
                 let from_set = system_transfer_dictionary[TokenType.FROM]

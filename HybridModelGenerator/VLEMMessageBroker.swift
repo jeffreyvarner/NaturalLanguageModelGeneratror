@@ -19,7 +19,7 @@ protocol Message    {
 }
 
 protocol Subscriber {
-    func receive(#message: Message) -> Void
+    func receive(message message: Message) -> Void
 }
 
 
@@ -30,7 +30,7 @@ class VLEMMessageBroker: NSObject {
     
     // no init -
     private override init() {
-        println("Is this getting called?")
+        print("Is this getting called?")
     }
     
     // Inner class for a singleton ... how does this work?
@@ -56,7 +56,7 @@ class VLEMMessageBroker: NSObject {
         }
     }
     
-    func publish(#message: Message)
+    func publish(message message: Message)
     {
         if let _subscriber_array = _subscriber_dictionary[message.messageKey()]
         {

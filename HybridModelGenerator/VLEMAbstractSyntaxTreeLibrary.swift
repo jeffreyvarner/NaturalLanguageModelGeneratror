@@ -31,7 +31,7 @@ class SystemTransferSyntaxTreeBuilderLogic:ASTBuilder {
     private func buildSystemTransferSyntaxTreeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
         
         // Declarations -
-        var system_transfer_subtree = SyntaxTreeComposite(type:TokenType.SYSTEM)
+        let system_transfer_subtree = SyntaxTreeComposite(type:TokenType.SYSTEM)
         system_transfer_subtree.lexeme = "system"
         
         var direction_node:SyntaxTreeComposite?
@@ -49,7 +49,7 @@ class SystemTransferSyntaxTreeBuilderLogic:ASTBuilder {
             if (_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
                 
                 // Build species -
-                var species_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                let species_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
                 species_node.lexeme = _token.lexeme
                 
                 // grab the species -
@@ -91,7 +91,7 @@ class TypeAssignmentSyntaxTreeBuilderLogic:ASTBuilder {
     private func buildTypeAssignmentPrefixSubtreeTreeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
     
         // Declarations -
-        var type_subtree = SyntaxTreeComposite(type: TokenType.TYPE)
+        let type_subtree = SyntaxTreeComposite(type: TokenType.TYPE)
         type_subtree.lexeme = "type"
         
         // ok, we just need to grab the first and last token (if we get here, then we have a correct syntax)
@@ -104,10 +104,10 @@ class TypeAssignmentSyntaxTreeBuilderLogic:ASTBuilder {
             
             if (next_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
                 if let local_node = node where ((local_node as? SyntaxTreeComposite) != nil) {
-                    var composite = local_node as! SyntaxTreeComposite
+                    let composite = local_node as! SyntaxTreeComposite
                     
                     // Create leaf -
-                    var leaf_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                    let leaf_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
                     leaf_node.lexeme = next_token.lexeme
                     
                     // add the leaf to composite -
@@ -125,10 +125,10 @@ class TypeAssignmentSyntaxTreeBuilderLogic:ASTBuilder {
                     
                 // ok, we are at the bottom of the stack -
                 if let local_node = node where ((local_node as? SyntaxTreeComposite) != nil) {
-                    var composite = local_node as! SyntaxTreeComposite
+                    let composite = local_node as! SyntaxTreeComposite
                     
                     // Create a leaf node with the type -
-                    var leaf_node = SyntaxTreeComponent(type:next_token.token_type!)
+                    let leaf_node = SyntaxTreeComponent(type:next_token.token_type!)
                     leaf_node.lexeme = next_token.lexeme
                     
                     // Add -
@@ -166,11 +166,11 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
     private func buildTranscriptionStatementControlTreeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
         
         // Declarations -
-        var transcription_node = SyntaxTreeComposite(type: TokenType.TRANSCRIPTION)
+        let transcription_node = SyntaxTreeComposite(type: TokenType.TRANSCRIPTION)
         transcription_node.lexeme = "transcription"
         
         // What type of control do we have?
-        var control_node = buildControlStatementNodeWithScanner(scanner)
+        let control_node = buildControlStatementNodeWithScanner(scanner)
         
         if let source_subtree = buildComplexStatementNodeWithScanner(scanner),
             target_subtree = buildComplexStatementNodeWithScanner(scanner) {
@@ -199,11 +199,11 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
             if (first_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
                 
                 // Ok, we have a simple statement - create an OR, add the species to it, and then add OR to control node
-                var or_node = SyntaxTreeComposite(type: TokenType.OR)
+                let or_node = SyntaxTreeComposite(type: TokenType.OR)
                 or_node.lexeme = "or"
                 
                 // Create species component node -
-                var species_component = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                let species_component = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
                 species_component.lexeme = first_token.lexeme
                 
                 // Add species to OR node -
@@ -216,7 +216,7 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
                 
                 // ok, so we have a more complicated situation.
                 // We have a (species AND species) -or- (species OR species) clause
-                if var relationship_subtree = buildRelationshipSubtreeNodeWithScanner(scanner,node: nil) {
+                if let relationship_subtree = buildRelationshipSubtreeNodeWithScanner(scanner,node: nil) {
                     
                     return relationship_subtree
                 }
@@ -234,7 +234,7 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
             if (next_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
                 
                 // ok, create symbol node -
-                var symbol_leaf = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                let symbol_leaf = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
                 symbol_leaf.lexeme = next_token.lexeme
                 
                 if let local_parent_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.AND || node?.tokenType == TokenType.OR) {
@@ -255,7 +255,7 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
                     // ok, we have a relationship, do we have a node that was passed in?
                     if let local_node = node where (node?.tokenType == TokenType.BIOLOGICAL_SYMBOL) {
                         
-                        var relationship_node = SyntaxTreeComposite(type: next_token.token_type!)
+                        let relationship_node = SyntaxTreeComposite(type: next_token.token_type!)
                         relationship_node.lexeme = next_token.lexeme
                         
                         // ok, grab the node that was passed in -
@@ -293,7 +293,7 @@ class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
         scanner.removeTokenOfType(control_token_type)
         
         // Create the control node -
-        var control_node = SyntaxTreeComposite(type: control_token_type)
+        let control_node = SyntaxTreeComposite(type: control_token_type)
         control_node.lexeme = "control_node"
         
         // return my control node -

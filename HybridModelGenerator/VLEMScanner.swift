@@ -113,12 +113,12 @@ struct VLEMToken {
 
 prefix operator / {}
 prefix func / (regex: String) -> NSRegularExpression {
-    return NSRegularExpression(pattern: regex, options: nil, error: nil)!
+    return try! NSRegularExpression(pattern: regex, options: [])
 }
 
 func ~=(string: String, regex: NSRegularExpression) -> Bool {
-    let range = NSMakeRange(0, count(string))
-    return (regex.firstMatchInString(string,options:NSMatchingOptions.allZeros,range:range) != nil)
+    let range = NSMakeRange(0, string.characters.count)
+    return (regex.firstMatchInString(string,options:NSMatchingOptions(),range:range) != nil)
 }
 
 class VLEMScanner: NSObject,SequenceType {
@@ -134,14 +134,14 @@ class VLEMScanner: NSObject,SequenceType {
         self.my_sentence_wrapper = sentenceWrapper
     }
     
-    func generate() -> GeneratorOf<VLEMToken> {
+    func generate() -> AnyGenerator<VLEMToken> {
         // keep the index of the next car in the iteration
         var nextIndex = token_array.count-1
         
         // Construct a GeneratorOf<Car> instance,
         // passing a closure that returns the next
         // car in the iteration
-        return GeneratorOf<VLEMToken> {
+        return anyGenerator {
             
             if (nextIndex < 0) {
                 return nil
@@ -205,7 +205,7 @@ class VLEMScanner: NSObject,SequenceType {
         
             // get the type -
             let test_token_type = token_item.token_type!
-            if (contains(TokenType.control_token_array, test_token_type)){
+            if (TokenType.control_token_array.contains(test_token_type)){
                 
                 // return the token type -
                 return test_token_type
@@ -289,7 +289,7 @@ class VLEMScanner: NSObject,SequenceType {
     func isMatchingRightParenthesisOnTokenStack() -> Bool {
     
         // make a copy of the token stack -
-        var _token_array = token_array
+        let _token_array = token_array
         return recursiveSearchForTokenType(TokenType.RPAREN, failureTokenType:TokenType.LPAREN,tokenArray: _token_array)
     }
     
@@ -316,7 +316,7 @@ class VLEMScanner: NSObject,SequenceType {
     func peekAtTokenTypeAtIndex(index:Int) -> TokenType {
         
         // ok, I may need to look ahead sometimes to catch a dangling enclosure ...
-        if (index<=count(token_array)-1){
+        if (index<=token_array.count-1){
             let local_token = token_array[index]
             return local_token.token_type!
         }
@@ -364,7 +364,7 @@ class VLEMScanner: NSObject,SequenceType {
     private func scanSentenceAtLineNumber(sentence:String,lineNumber:Int) -> (success:Bool,error:VLError?) {
         
         // helper stuff -
-        let whitespace_set = NSCharacterSet.whitespaceCharacterSet()
+        _ = NSCharacterSet.whitespaceCharacterSet()
         
         // ok, do we have a legit sentence?
         if (sentence.isEmpty == true){
@@ -387,7 +387,7 @@ class VLEMScanner: NSObject,SequenceType {
         // split around the delimiter -
         var column_index = 0
         var local_character_stack = [Character]()
-        for sentence_character in sentence {
+        for sentence_character in sentence.characters {
             
             // ok, we need to do a bunch of checks ...
             
@@ -743,7 +743,7 @@ class VLEMScanner: NSObject,SequenceType {
         token_array.append(semicolon_token)
         
         // reverse the token array -
-        token_array = token_array.reverse()
+        token_array = Array(token_array.reverse())
         
         // return -
         return (true,nil)
@@ -752,186 +752,186 @@ class VLEMScanner: NSObject,SequenceType {
     
     private func isType(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["t","y","p","e"]
+        let match_array:[Character] = ["t","y","p","e"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isProtein(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["P","R","O","T","E","I","N"]
+        let match_array:[Character] = ["P","R","O","T","E","I","N"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isDNA(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["D","N","A"]
+        let match_array:[Character] = ["D","N","A"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isMRNA(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["M","E","S","S","E","N","G","E","R","_","R","N","A"]
+        let match_array:[Character] = ["M","E","S","S","E","N","G","E","R","_","R","N","A"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isRRNA(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["R","E","G","U","L","A","T","O","R","Y","_","R","N","A"]
+        let match_array:[Character] = ["R","E","G","U","L","A","T","O","R","Y","_","R","N","A"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isMetabolite(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["M","E","T","A","B","O","L","I","T","E"]
+        let match_array:[Character] = ["M","E","T","A","B","O","L","I","T","E"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isGeneratesSymbol(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["-",">"]
+        let match_array:[Character] = ["-",">"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isSYSTEM(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["S","Y","S","T","E","M"]
+        let match_array:[Character] = ["S","Y","S","T","E","M"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isOf(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["o","f"]
+        let match_array:[Character] = ["o","f"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isAnd(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["a","n","d"]
+        let match_array:[Character] = ["a","n","d"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isFrom(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["f","r","o","m"]
+        let match_array:[Character] = ["f","r","o","m"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isTo(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["t","o"]
+        let match_array:[Character] = ["t","o"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
 
     private func isOr(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["o","r"]
+        let match_array:[Character] = ["o","r"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
 
     private func isThe(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["t","h","e"]
+        let match_array:[Character] = ["t","h","e"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isInduce(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["i","n","d","u","c","e"]
+        let match_array:[Character] = ["i","n","d","u","c","e"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isInduces(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["i","n","d","u","c","e","s"]
+        let match_array:[Character] = ["i","n","d","u","c","e","s"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isRepresses(characterStack:[Character]) -> Bool {
     
-        var match_array:[Character] = ["r","e","p","r","e","s","s","e","s"]
+        let match_array:[Character] = ["r","e","p","r","e","s","s","e","s"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
 
     private func isRepress(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["r","e","p","r","e","s","s"]
+        let match_array:[Character] = ["r","e","p","r","e","s","s"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isRNAP(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["R","N","A","P"]
+        let match_array:[Character] = ["R","N","A","P"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isRIBOSOME(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["R","I","B","O","S","O","M","E"]
+        let match_array:[Character] = ["R","I","B","O","S","O","M","E"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isTranscription(characterStack:[Character]) -> Bool {
     
-        var match_array:[Character] = ["t","r","a","n","s","c","r","i","p","t","i","o","n"]
+        let match_array:[Character] = ["t","r","a","n","s","c","r","i","p","t","i","o","n"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isExpression(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["e","x","p","r","e","s","s","i","o","n"]
+        let match_array:[Character] = ["e","x","p","r","e","s","s","i","o","n"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
 
     private func isTranslation(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["t","r","a","n","s","l","a","t","i","o","n"]
+        let match_array:[Character] = ["t","r","a","n","s","l","a","t","i","o","n"]
         return (matchLogic(characterStack, matchArray: match_array))
 
     }
     
     private func isActivates(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["a","c","t","i","v","a","t","e","s"]
+        let match_array:[Character] = ["a","c","t","i","v","a","t","e","s"]
         return (matchLogic(characterStack, matchArray: match_array))
         
     }
 
     private func isActivate(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["a","c","t","i","v","a","t","e"]
+        let match_array:[Character] = ["a","c","t","i","v","a","t","e"]
         return (matchLogic(characterStack, matchArray: match_array))
         
     }
     
     private func isTransfer(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["t","r","a","n","s","f","e","r"]
+        let match_array:[Character] = ["t","r","a","n","s","f","e","r"]
         return (matchLogic(characterStack, matchArray: match_array))
         
     }
     
     private func isTransferred(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["t","r","a","n","s","f","e","r","r","e","d"]
+        let match_array:[Character] = ["t","r","a","n","s","f","e","r","r","e","d"]
         return (matchLogic(characterStack, matchArray: match_array))
         
     }
     
     private func isParameter(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["p","a","r","a","m","e","t","e","r"]
+        let match_array:[Character] = ["p","a","r","a","m","e","t","e","r"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isIs(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["i","s"]
+        let match_array:[Character] = ["i","s"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
     
     private func isAre(characterStack:[Character]) -> Bool {
         
-        var match_array:[Character] = ["a","r","e"]
+        let match_array:[Character] = ["a","r","e"]
         return (matchLogic(characterStack, matchArray: match_array))
     }
 

@@ -40,7 +40,7 @@ class VLEMParser: NSObject {
         
         // Declarations -
         var scanner:VLEMScanner?
-        var model_root:SyntaxTreeComposite = SyntaxTreeComposite(type:TokenType.ROOT)
+        let model_root:SyntaxTreeComposite = SyntaxTreeComposite(type:TokenType.ROOT)
         
         // hidden helper functions -
         
@@ -71,8 +71,8 @@ class VLEMParser: NSObject {
                     
                         // If we get here then we have a expression sentence, so we need to make an expression tree.
                         // The first node we create is a transcription node -
-                        var builder = TranscriptionSyntaxTreeBuilderLogic()
-                        var transcription_node = builder.build(scanner!)
+                        let builder = TranscriptionSyntaxTreeBuilderLogic()
+                        let transcription_node = builder.build(scanner!)
                        
                         // Add the transcription node the root -
                         model_root.addNodeToTree(transcription_node)
@@ -81,8 +81,8 @@ class VLEMParser: NSObject {
                         
                         // ok, we have a type assignmnet -
                         // I know thw first and last tokens are what we need
-                        var builder = TypeAssignmentSyntaxTreeBuilderLogic()
-                        var type_tree = builder.build(scanner!)
+                        let builder = TypeAssignmentSyntaxTreeBuilderLogic()
+                        let type_tree = builder.build(scanner!)
                         
                         // Add this type to the tree -
                         model_root.addNodeToTree(type_tree)
@@ -90,8 +90,8 @@ class VLEMParser: NSObject {
                     else if (scanner!.getSystemTokenType() == TokenType.SYSTEM){
                         
                         // ok, I have a system transfer statement -
-                        var builder = SystemTransferSyntaxTreeBuilderLogic()
-                        var transfer_tree = builder.build(scanner!)
+                        let builder = SystemTransferSyntaxTreeBuilderLogic()
+                        let transfer_tree = builder.build(scanner!)
                         
                         // Add the transfer_tree to the model -
                         model_root.addNodeToTree(transfer_tree)
@@ -208,7 +208,12 @@ class VLEMParser: NSObject {
         var line_counter = 1
     
         // load raw text -
-        let raw_model_buffer = String(contentsOfURL: self.myModelInputURL, encoding:NSUTF8StringEncoding, error: nil)
+        let raw_model_buffer: String?
+        do {
+            raw_model_buffer = try String(contentsOfURL: self.myModelInputURL, encoding:NSUTF8StringEncoding)
+        } catch _ {
+            raw_model_buffer = nil
+        }
     
         // Ok, we need to ignore comments, and split the string -
         if let component_array = raw_model_buffer?.componentsSeparatedByString("\n") {
@@ -223,7 +228,7 @@ class VLEMParser: NSObject {
                 if (raw_text_line.isEmpty == false && !(raw_text_line ~= /"^//[A-Za-z0-9 ].*")){
                     
                     // create a sentence wrapper -
-                    var sentence_wrapper = VLEMSentenceWrapper(sentence:raw_text_line,lineNumber:line_counter)
+                    let sentence_wrapper = VLEMSentenceWrapper(sentence:raw_text_line,lineNumber:line_counter)
                     
                     // add to the array -
                     local_model_sentences!.append(sentence_wrapper)

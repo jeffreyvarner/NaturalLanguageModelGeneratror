@@ -21,7 +21,7 @@ class VLEMGrammarLibrary: NSObject {
         }
     }
     
-    static func missingTokenErrorFactory(#className:String,methodName:String) -> VLError {
+    static func missingTokenErrorFactory(className className:String,methodName:String) -> VLError {
     
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["METHOD"] = methodName
@@ -30,7 +30,7 @@ class VLEMGrammarLibrary: NSObject {
     }
     
     
-    static func missingSemicolonSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String) -> VLError {
+    static func missingSemicolonSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["TOKEN"] = token.lexeme
@@ -41,7 +41,7 @@ class VLEMGrammarLibrary: NSObject {
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
 
-    static func missingKeywordSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String) -> VLError {
+    static func missingKeywordSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["TOKEN"] = token.lexeme
@@ -52,7 +52,7 @@ class VLEMGrammarLibrary: NSObject {
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
     
-    static func missingRegulatoryKeywordSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String) -> VLError {
+    static func missingRegulatoryKeywordSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["TOKEN"] = token.lexeme
@@ -64,7 +64,7 @@ class VLEMGrammarLibrary: NSObject {
     }
 
     
-    static func missingBiologicalSymbolSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String) -> VLError {
+    static func missingBiologicalSymbolSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["TOKEN"] = token.lexeme
@@ -75,7 +75,7 @@ class VLEMGrammarLibrary: NSObject {
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
     
-    static func missingIsOrAreTokenSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String) -> VLError {
+    static func missingIsOrAreTokenSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["TOKEN"] = token.lexeme
@@ -86,7 +86,7 @@ class VLEMGrammarLibrary: NSObject {
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
     
-    static func missingATokenSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String) -> VLError {
+    static func missingATokenSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["TOKEN"] = token.lexeme
@@ -97,7 +97,7 @@ class VLEMGrammarLibrary: NSObject {
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
     
-    static func missingAndTokenSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String) -> VLError {
+    static func missingAndTokenSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["TOKEN"] = token.lexeme
@@ -108,7 +108,7 @@ class VLEMGrammarLibrary: NSObject {
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
 
-    static func missingTypeTokenSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String) -> VLError {
+    static func missingTypeTokenSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["TOKEN"] = token.lexeme
@@ -119,7 +119,7 @@ class VLEMGrammarLibrary: NSObject {
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
 
-    static func missingReservedTypeKeywordTokenSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String) -> VLError {
+    static func missingReservedTypeKeywordTokenSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["TOKEN"] = token.lexeme
@@ -130,7 +130,7 @@ class VLEMGrammarLibrary: NSObject {
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
     
-    static func missingTransferTokenSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String) -> VLError {
+    static func missingTransferTokenSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["TOKEN"] = token.lexeme
@@ -141,7 +141,7 @@ class VLEMGrammarLibrary: NSObject {
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
     
-    static func incompleteSentenceSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String)-> VLError {
+    static func incompleteSentenceSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String)-> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["TOKEN"] = token.lexeme
@@ -152,7 +152,7 @@ class VLEMGrammarLibrary: NSObject {
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
     
-    static func missingToOrFromTokenSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String)-> VLError {
+    static func missingToOrFromTokenSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String)-> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["TOKEN"] = token.lexeme
@@ -163,7 +163,7 @@ class VLEMGrammarLibrary: NSObject {
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
     
-    static func missingOrMismatchedParenthesisTokenSyntaxErrorFactory(#token:VLEMToken,className:String,methodName:String)-> VLError {
+    static func missingOrMismatchedParenthesisTokenSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String)-> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
         error_information_dictionary["TOKEN"] = token.lexeme
@@ -203,7 +203,7 @@ class TypeAssignmentStatementGrammarStrategy:GrammarStrategy {
                 error_information_dictionary["LOCATION"] = "Line: \(first_token.line_number) col: \(first_token.column_number)"
                 error_information_dictionary["MESSAGE"] = "Type assignment: expected a biological symbol, found \"\(first_token.lexeme!)\"."
                 error_information_dictionary["METHOD"] = "\(__FUNCTION__)"
-                error_information_dictionary["CLASS"] = toString(self)
+                error_information_dictionary["CLASS"] = String(self)
                 return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
             }
         }
@@ -224,12 +224,12 @@ class TypeAssignmentStatementGrammarStrategy:GrammarStrategy {
             }
             else {
             
-                return VLEMGrammarLibrary.missingIsOrAreTokenSyntaxErrorFactory(token: next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingIsOrAreTokenSyntaxErrorFactory(token: next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
         // return false
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
     
     func parseASymbol(scanner:VLEMScanner) -> VLError? {
@@ -242,12 +242,12 @@ class TypeAssignmentStatementGrammarStrategy:GrammarStrategy {
             else {
                 
                 // return false
-                return VLEMGrammarLibrary.missingATokenSyntaxErrorFactory(token: next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingATokenSyntaxErrorFactory(token: next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
         // return false
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
     
     func parseTypeSymbol(scanner:VLEMScanner) -> VLError? {
@@ -260,12 +260,12 @@ class TypeAssignmentStatementGrammarStrategy:GrammarStrategy {
             else {
                 
                 // return false
-                return VLEMGrammarLibrary.missingTypeTokenSyntaxErrorFactory(token: next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingTypeTokenSyntaxErrorFactory(token: next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
         // return false
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
     
     func parseReservedSpeciesTypeSymbol(scanner:VLEMScanner) -> VLError? {
@@ -284,12 +284,12 @@ class TypeAssignmentStatementGrammarStrategy:GrammarStrategy {
             else {
                 
                 // return false
-                return VLEMGrammarLibrary.missingReservedTypeKeywordTokenSyntaxErrorFactory(token: next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingReservedTypeKeywordTokenSyntaxErrorFactory(token: next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
         // return false
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
     
     func parseSemicolonToken(scanner:VLEMScanner) -> VLError? {
@@ -300,11 +300,11 @@ class TypeAssignmentStatementGrammarStrategy:GrammarStrategy {
                 return nil
             }
             else {
-                return VLEMGrammarLibrary.missingSemicolonSyntaxErrorFactory(token: _next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingSemicolonSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
 }
 
@@ -376,11 +376,11 @@ class SystemTransferStatementGrammarStrategy:GrammarStrategy {
                 return parseRParenToken(scanner)
             }
             else {
-                return VLEMGrammarLibrary.missingBiologicalSymbolSyntaxErrorFactory(token: _next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingBiologicalSymbolSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
 
     
@@ -396,11 +396,11 @@ class SystemTransferStatementGrammarStrategy:GrammarStrategy {
                 return parseRParenToken(scanner)
             }
             else {
-                return VLEMGrammarLibrary.missingAndTokenSyntaxErrorFactory(token: _next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingAndTokenSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
-       return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+       return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
     
     func parseRParenToken(scanner:VLEMScanner) -> VLError? {
@@ -412,11 +412,11 @@ class SystemTransferStatementGrammarStrategy:GrammarStrategy {
                 return parseTransferredSymbolToken(scanner)
             }
             else {
-                return VLEMGrammarLibrary.missingIsOrAreTokenSyntaxErrorFactory(token: _next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingIsOrAreTokenSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
     
     func parseIsToken(scanner:VLEMScanner) -> VLError? {
@@ -429,11 +429,11 @@ class SystemTransferStatementGrammarStrategy:GrammarStrategy {
                 return parseTransferredSymbolToken(scanner)
             }
             else {
-                return VLEMGrammarLibrary.missingKeywordSyntaxErrorFactory(token: _next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingKeywordSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
     
     func parseTransferredSymbolToken(scanner:VLEMScanner) -> VLError? {
@@ -447,11 +447,11 @@ class SystemTransferStatementGrammarStrategy:GrammarStrategy {
                     return parseSystemTransferDirectionToken(scanner)
             }
             else {
-                return VLEMGrammarLibrary.missingTransferTokenSyntaxErrorFactory(token: _next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingTransferTokenSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
 
     func parseSystemTransferDirectionToken(scanner:VLEMScanner) -> VLError? {
@@ -465,11 +465,11 @@ class SystemTransferStatementGrammarStrategy:GrammarStrategy {
                 return parseSystemSymbolToken(scanner)
             }
             else {
-                return VLEMGrammarLibrary.missingToOrFromTokenSyntaxErrorFactory(token: _next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingToOrFromTokenSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
     
     func parseSystemSymbolToken(scanner:VLEMScanner) -> VLError? {
@@ -482,11 +482,11 @@ class SystemTransferStatementGrammarStrategy:GrammarStrategy {
                 return parseSemicolonToken(scanner)
             }
             else {
-                return VLEMGrammarLibrary.missingKeywordSyntaxErrorFactory(token: _next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingKeywordSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
 
     func parseSemicolonToken(scanner:VLEMScanner) -> VLError? {
@@ -497,11 +497,11 @@ class SystemTransferStatementGrammarStrategy:GrammarStrategy {
                 return nil
             }
             else {
-                return VLEMGrammarLibrary.missingSemicolonSyntaxErrorFactory(token: _next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingSemicolonSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
 }
 
@@ -533,7 +533,7 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
                     return parseBiologicalSymbolToken(scanner)
                 }
                 else {
-                    return VLEMGrammarLibrary.missingOrMismatchedParenthesisTokenSyntaxErrorFactory(token: first_token, className: toString(self), methodName: __FUNCTION__)
+                    return VLEMGrammarLibrary.missingOrMismatchedParenthesisTokenSyntaxErrorFactory(token: first_token, className: String(self), methodName: __FUNCTION__)
                 }
             }
             else if (first_token.token_type == TokenType.BIOLOGICAL_SYMBOL &&
@@ -546,12 +546,12 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
             }
             else {
                 
-                return VLEMGrammarLibrary.missingBiologicalSymbolSyntaxErrorFactory(token: first_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingBiologicalSymbolSyntaxErrorFactory(token: first_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
         // return missing token -
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
     
     func parseBiologicalSymbolToken(scanner:VLEMScanner) -> VLError? {
@@ -575,12 +575,12 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
                 return parseBiologicalSymbolToken(scanner)
             }
             else {
-                return VLEMGrammarLibrary.missingKeywordSyntaxErrorFactory(token: _next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingKeywordSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
     
         // return missing token -
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
     
     func parseBiologicalRegulatoryActionToken(scanner:VLEMScanner) -> VLError? {
@@ -598,12 +598,12 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
                 return nil
             }
             else {
-                return VLEMGrammarLibrary.missingRegulatoryKeywordSyntaxErrorFactory(token: _next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingRegulatoryKeywordSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
         // return missing token -
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
 
     
@@ -617,12 +617,12 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
                 return parseBiologicalSymbolToken(scanner)
             }
             else {
-                return VLEMGrammarLibrary.missingKeywordSyntaxErrorFactory(token: _next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingKeywordSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
     
         // return missing token -
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
     
     func parseOrAndToken(scanner:VLEMScanner) -> VLError? {
@@ -643,7 +643,7 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
                 else {
                  
                     // we have a missing symbol?
-                    return VLEMGrammarLibrary.missingBiologicalSymbolSyntaxErrorFactory(token: scanner.getNextToken()!, className: toString(self), methodName: __FUNCTION__)
+                    return VLEMGrammarLibrary.missingBiologicalSymbolSyntaxErrorFactory(token: scanner.getNextToken()!, className: String(self), methodName: __FUNCTION__)
                 }
             }
             else if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.RPAREN)){
@@ -653,12 +653,12 @@ class ExpressionStatementGrammarStrategy:GrammarStrategy {
                 return nil
             }
             else {
-                return VLEMGrammarLibrary.missingKeywordSyntaxErrorFactory(token: _next_token, className: toString(self), methodName: __FUNCTION__)
+                return VLEMGrammarLibrary.missingKeywordSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
             }
         }
         
         // return missing token -
-        return VLEMGrammarLibrary.missingTokenErrorFactory(className: toString(self), methodName: __FUNCTION__)
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
     }
 }
 
