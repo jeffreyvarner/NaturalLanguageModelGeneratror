@@ -337,7 +337,7 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\ttranslation_rate_vector = Float64[]\n"
         buffer+="\tmRNA_degradation_rate_vector = Float64[]\n"
         buffer+="\tprotein_degradation_rate_vector = Float64[]\n"
-        buffer+="\tsystem_transfer_rate_vector = Float64[]\n"
+        buffer+="\tsystem_transfer_rate_vector = zeros(Float64,length(x));\n"
         buffer+="\n"
         
         buffer+="\t# Alias state vector - \n"
@@ -466,7 +466,6 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         
         buffer+="\n"
         buffer+="\t# Define the system transfer rate vector - \n"
-        buffer+="\tfill!(system_transfer_rate_vector,0.0)\n"
         
         buffer+="\n"
         buffer+="\t# Return the rate vectors to the caller in a dictionary - \n"
@@ -619,7 +618,7 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
         buffer+="\tmetabolic_rate_vector = kinetics_dictionary[\"metabolic_rate_vector\"];\n"
         buffer+="\tmRNA_degradation_rate_vector = kinetics_dictionary[\"mRNA_degradation_rate_vector\"];\n"
         buffer+="\tprotein_degradation_rate_vector = kinetics_dictionary[\"protein_degradation_rate_vector\"];\n"
-        
+        buffer+="\tsystem_transfer_rate_vector = kinetics_dictionary[\"system_transfer_rate_vector\"];\n"
         buffer+="\n"
         
         buffer+="\t# Define the control_vector - \n"
@@ -642,12 +641,13 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
             buffer+="\t# Gene balances - \n"
             // process the genes -
             var gene_counter = 1
+            var global_species_counter = 1
             for proxy_object in species_list {
                 
                 if ((proxy_object as! VLEMSpeciesProxy).token_type == TokenType.DNA) {
                     
                     let state_symbol = (proxy_object as! VLEMSpeciesProxy).state_symbol_string
-                    buffer+="\tdxdt_vector[\(gene_counter)] = 0.0;\t#\t\(gene_counter)\t\(state_symbol!)\n"
+                    buffer+="\tdxdt_vector[\(gene_counter)] = system_transfer_rate_vector[\(global_species_counter++)];\t#\t\(gene_counter)\t\(state_symbol!)\n"
                     
                     // update gene counter -
                     gene_counter++
@@ -670,13 +670,13 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
                     if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(_target_list, node: proxy_object) == true){
                         
                         
-                        buffer+="\tdxdt_vector[\(mRNA_counter)] = gene_expression_rate_vector[\(rate_counter)] - mRNA_degradation_rate_vector[\(rate_counter)] + basal_gene_expression_rate_vector[\(rate_counter)];\t#\t\(mRNA_counter)\t\(state_symbol)\n"
+                        buffer+="\tdxdt_vector[\(mRNA_counter)] = gene_expression_rate_vector[\(rate_counter)] - mRNA_degradation_rate_vector[\(rate_counter)] + basal_gene_expression_rate_vector[\(rate_counter)] + system_transfer_rate_vector[\(global_species_counter++)];\t#\t\(mRNA_counter)\t\(state_symbol)\n"
                         
                         // update the rate counter -
                         rate_counter++
                     }
                     else {
-                        buffer+="\tdxdt_vector[\(mRNA_counter)] = 0.0;\t#\t\(mRNA_counter)\t\(state_symbol)\n"
+                        buffer+="\tdxdt_vector[\(mRNA_counter)] = system_transfer_rate_vector[\(global_species_counter++)];\t#\t\(mRNA_counter)\t\(state_symbol)\n"
                     }
                     
                     // update the counter -
@@ -700,13 +700,13 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
                     // ok, is this proxy in the target?
                     if (VLEMAbstractSyntaxTreeVisitorLibrary.arrayContainsProxyNode(_target_list, node: proxy_object) == true){
                         
-                        buffer+="\tdxdt_vector[\(protein_counter)] = translation_rate_vector[\(rate_counter)] - protein_degradation_rate_vector[\(rate_counter)];\t#\t\(protein_counter)\t\(state_symbol)\n"
+                        buffer+="\tdxdt_vector[\(protein_counter)] = translation_rate_vector[\(rate_counter)] - protein_degradation_rate_vector[\(rate_counter)] + system_transfer_rate_vector[\(global_species_counter++)];\t#\t\(protein_counter)\t\(state_symbol)\n"
                         
                         // update the rate counter -
                         rate_counter++
                     }
                     else {
-                        buffer+="\tdxdt_vector[\(protein_counter)] = 0.0;\t#\t\(protein_counter)\t\(state_symbol)\n"
+                        buffer+="\tdxdt_vector[\(protein_counter)] = system_transfer_rate_vector[\(global_species_counter++)];\t#\t\(protein_counter)\t\(state_symbol)\n"
                     }
                     
                     // update the counter -
