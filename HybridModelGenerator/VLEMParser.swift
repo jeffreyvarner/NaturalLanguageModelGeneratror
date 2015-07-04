@@ -96,6 +96,14 @@ class VLEMParser: NSObject {
                         // Add the transfer_tree to the model -
                         model_root.addNodeToTree(transfer_tree)
                     }
+                    else if (scanner!.getCatalyzeTokenType() == TokenType.CATALYZE){
+                        
+                        let builder = MetabolicStoichiometrySyntaxTreeBuilderLogic()
+                        let metabolism_tree = builder.build(scanner!)
+                        
+                        // Add metablism tree to root -
+                        model_root.addNodeToTree(metabolism_tree)
+                    }
                 }
             }
         }

@@ -255,7 +255,7 @@ class VLEMScanner: NSObject,SequenceType {
                 test_token_type == TokenType.CATALYZED){
                 
                 // return the token type -
-                return test_token_type
+                return TokenType.CATALYZE
             }
         }
 

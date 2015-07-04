@@ -17,6 +17,28 @@ class VLEMAbstractSyntaxTreeLibrary: NSObject {
 
 }
 
+// MARK: - Metabolic stoichiometry syntax tree builder
+class MetabolicStoichiometrySyntaxTreeBuilderLogic:ASTBuilder {
+    
+    init (){
+        
+    }
+    
+    func build(scanner:VLEMScanner) -> SyntaxTreeComponent {
+        return buildMetabolicStoichiometrySyntaxTreeWithScanner(scanner)
+    }
+
+    private func buildMetabolicStoichiometrySyntaxTreeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
+        
+        let metabolism_subtree = SyntaxTreeComposite(type:TokenType.CATALYZE)
+        metabolism_subtree.lexeme = "catalyze"
+        
+        
+
+        return metabolism_subtree
+    }
+}
+
 // MARK: - System transfer abstract syntax tree -
 class SystemTransferSyntaxTreeBuilderLogic:ASTBuilder {
     

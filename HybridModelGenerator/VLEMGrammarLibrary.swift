@@ -260,7 +260,18 @@ class MetabolicStoichiometryStatementGrammarStrategy:GrammarStrategy {
                 return nil
             }
             else if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.BIOLOGICAL_SYMBOL)){
-                return parseBiologicalSymbolToken(scanner)
+                
+                if (scanner.peekAtNextTokenType() == TokenType.CATALYZES ||
+                    scanner.peekAtNextTokenType() == TokenType.CATALYZE ||
+                    scanner.peekAtNextTokenType() == TokenType.CATALYZED){
+                    
+                    // ok, we have an alternative catalyze statement -
+                    // call catalyze -
+                    return parseCatalyzedToken(scanner)
+                }
+                else {
+                    return parseBiologicalSymbolToken(scanner)
+                }
             }
             else if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.LPAREN)){
                 return parseBiologicalSymbolToken(scanner)
@@ -270,6 +281,17 @@ class MetabolicStoichiometryStatementGrammarStrategy:GrammarStrategy {
             }
             else if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.OR)){
                 return parseBiologicalSymbolToken(scanner)
+            }
+            else if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.CATALYZES) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.CATALYZE) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.CATALYZED)) {
+                
+                if (scanner.peekAtNextTokenType() == TokenType.BIOLOGICAL_SYMBOL || scanner.peekAtNextTokenType() == TokenType.LPAREN){
+                    return parseBiologicalSymbolToken(scanner)
+                }
+                else {
+                    return VLEMGrammarLibrary.missingBiologicalSymbolSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
+                }
             }
             else {
                 return VLEMGrammarLibrary.missingKeywordSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
@@ -321,8 +343,14 @@ class MetabolicStoichiometryStatementGrammarStrategy:GrammarStrategy {
                 VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.CATALYZE) ||
                 VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.CATALYZED)){
                 
-                return parseByToken(scanner)
-                
+                if (scanner.peekAtNextTokenType() == TokenType.BIOLOGICAL_SYMBOL || scanner.peekAtNextTokenType() == TokenType.LPAREN){
+                 
+                    return parseBiologicalSymbolToken(scanner)
+                    
+                }
+                else {
+                    return parseByToken(scanner)
+                }
             }
             else {
                 return VLEMGrammarLibrary.missingKeywordSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
