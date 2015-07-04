@@ -159,6 +159,14 @@ class VLEMParser: NSObject {
                             myParserErrorArray.append(_error)
                         }
                     }
+                    else if (scanner!.getCatalyzeTokenType() == TokenType.CATALYZED ||
+                        scanner!.getCatalyzeTokenType() == TokenType.CATALYZE ||
+                        scanner!.getCatalyzeTokenType() == TokenType.CATALYZES) {
+                            
+                        if let _error = doParseWithGrammarAndScanner(scanner!, grammar:MetabolicStoichiometryStatementGrammarStrategy()){
+                            myParserErrorArray.append(_error)
+                        }
+                    }
                     else {
                         
                         // We don't have a grammer strategy for this sentence ... build an error

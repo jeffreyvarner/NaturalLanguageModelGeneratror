@@ -42,6 +42,7 @@ enum TokenType {
     case ARE
     case A
     case THE
+    case BY
     
     case INDUCES
     case INDUCE
@@ -64,15 +65,20 @@ enum TokenType {
     case TO
     case FROM
     case PARAMETER
+    case CATALYZE
+    case CATALYZES
+    case CATALYZED
     
     case BIOLOGICAL_SYMBOL
     case GENERATES_SYMBOL
+    case REVERSIBLE_GENERATES_SYMBOL
     case LPAREN
     case RPAREN
     case RNAP
     case RIOBOSOME
     case DLIT
     case ILIT
+    case PLUS
     
     case SEMICOLON
     
@@ -235,6 +241,24 @@ class VLEMScanner: NSObject,SequenceType {
             index++
         }
         
+        return TokenType.NULL
+    }
+    
+    func getCatalyzeTokenType() -> TokenType {
+        
+        for token_item in token_array {
+            
+            // get the type -
+            let test_token_type = token_item.token_type!
+            if (test_token_type == TokenType.CATALYZE ||
+                test_token_type == TokenType.CATALYZES ||
+                test_token_type == TokenType.CATALYZED){
+                
+                // return the token type -
+                return test_token_type
+            }
+        }
+
         return TokenType.NULL
     }
     
@@ -404,6 +428,15 @@ class VLEMScanner: NSObject,SequenceType {
                 // clear the stack -
                 local_character_stack.removeAll(keepCapacity: true)
             }
+            else if sentence_character == "+" {
+                
+                // ok, we have a + - build the token, add to the array -
+                let token = VLEMToken(token_type:TokenType.PLUS, line_number: lineNumber, column_number: column_index, lexeme: "+", value: nil)
+                token_array.append(token)
+                
+                // clear the stack -
+                local_character_stack.removeAll(keepCapacity: true)
+            }
             else if sentence_character == ")" {
                 
                 // ok, we have a ), but we could have an ID on the stack ...
@@ -466,7 +499,52 @@ class VLEMScanner: NSObject,SequenceType {
                     if (local_character_stack.count>0){
                         
                         // we got to do a bunch of tests to do here to determine what type of item we have.
-                        if (isInduces(local_character_stack) == true){
+                        if (isCatalyze(local_character_stack) == true){
+                            
+                            // capture induce -
+                            let token = VLEMToken(token_type:TokenType.CATALYZE, line_number: lineNumber, column_number: column_index, lexeme: "catalyze", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isCatalyzed(local_character_stack) == true){
+                            
+                            // capture induce -
+                            let token = VLEMToken(token_type:TokenType.CATALYZED, line_number: lineNumber, column_number: column_index, lexeme: "catalyzed", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isCatalyzes(local_character_stack) == true){
+                            
+                            // capture induce -
+                            let token = VLEMToken(token_type:TokenType.CATALYZES, line_number: lineNumber, column_number: column_index, lexeme: "catalyzes", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isGenerate(local_character_stack) == true){
+                            
+                            // capture induce -
+                            let token = VLEMToken(token_type:TokenType.GENERATES_SYMBOL, line_number: lineNumber, column_number: column_index, lexeme: "->", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isReversibleGenerate(local_character_stack) == true){
+                            
+                            // capture induce -
+                            let token = VLEMToken(token_type:TokenType.REVERSIBLE_GENERATES_SYMBOL, line_number: lineNumber, column_number: column_index, lexeme: "<->", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isInduces(local_character_stack) == true){
                             
                             // capture induce -
                             let token = VLEMToken(token_type:TokenType.INDUCES, line_number: lineNumber, column_number: column_index, lexeme: "induces", value: nil)
@@ -630,6 +708,15 @@ class VLEMScanner: NSObject,SequenceType {
                             // clear the stack -
                             local_character_stack.removeAll(keepCapacity: true)
                         }
+                        else if (isBy(local_character_stack) == true){
+                            
+                            // capture Is -
+                            let token = VLEMToken(token_type:TokenType.BY, line_number: lineNumber, column_number: column_index, lexeme: "by", value: nil)
+                            token_array.append(token)
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
                         else if (isSYSTEM(local_character_stack) == true){
                             
                             // capture SYSTEM -
@@ -732,6 +819,42 @@ class VLEMScanner: NSObject,SequenceType {
     }
     
     
+    private func isCatalyze(characterStack:[Character]) -> Bool {
+        
+        let match_array:[Character] = ["c","a","t","a","l","y","z","e"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+    
+    private func isCatalyzed(characterStack:[Character]) -> Bool {
+        
+        let match_array:[Character] = ["c","a","t","a","l","y","z","e","d"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+    
+    private func isCatalyzes(characterStack:[Character]) -> Bool {
+        
+        let match_array:[Character] = ["c","a","t","a","l","y","z","e","s"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+    
+    private func isBy(characterStack:[Character]) -> Bool {
+        
+        let match_array:[Character] = ["b","y"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+    
+    private func isGenerate(characterStack:[Character]) -> Bool {
+        
+        let match_array:[Character] = ["-",">"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+
+    private func isReversibleGenerate(characterStack:[Character]) -> Bool {
+        
+        let match_array:[Character] = ["<","-",">"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+
     private func isType(characterStack:[Character]) -> Bool {
         
         let match_array:[Character] = ["t","y","p","e"]
