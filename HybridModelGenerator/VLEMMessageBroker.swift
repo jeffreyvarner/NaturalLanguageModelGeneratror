@@ -56,7 +56,7 @@ class VLEMMessageBroker: NSObject {
         }
     }
     
-    func publish(message message: Message)
+    func publish(message: Message)
     {
         if let _subscriber_array = _subscriber_dictionary[message.messageKey()]
         {

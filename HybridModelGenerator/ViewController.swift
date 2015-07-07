@@ -143,17 +143,17 @@ class ViewController: NSViewController,Subscriber {
             // Input URL message -
             let payload_dictionary_input_url = [VLEMMessageLibrary.VLEM_COMPILER_INPUT_URL_MESSAGE:_input_url]
             let input_url_message = VLEMCompilerInputURLMessage(payload: payload_dictionary_input_url)
-            _broker.publish(message: input_url_message)
+            _broker.publish(input_url_message)
             
             // Output URL message -
             let payload_dictionary_output_url = [VLEMMessageLibrary.VLEM_COMPILER_OUTPUT_URL_MESSAGE:_output_url]
             let output_url_message = VLEMCompilerOutputURLMessage(payload: payload_dictionary_output_url)
-            _broker.publish(message: output_url_message)
+            _broker.publish(output_url_message)
             
             // Model language message -
             let payload_dictionary_model_language = [VLEMMessageLibrary.VLEM_COMPILER_OUTPUT_LANGUAGE_MESSAGE:_language]
             let language_message = VLEMCompilerOutputLanguageMessage(payload: payload_dictionary_model_language)
-            _broker.publish(message: language_message)
+            _broker.publish(language_message)
             
             // Let the user know that we are starting ...
             let url_string:NSString? = _input_url.lastPathComponent
@@ -165,7 +165,7 @@ class ViewController: NSViewController,Subscriber {
             // Start message -
             compile_start_date = NSDate()
             let start_message = VLEMCompilerStartMessage()
-            _broker.publish(message: start_message)
+            _broker.publish(start_message)
         }
         else {
             

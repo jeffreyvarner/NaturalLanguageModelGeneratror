@@ -64,7 +64,7 @@ class VLEMCompiler: Subscriber {
                         code_engine.generate(model_tree!, modelDictionary: _dictionary_of_model_files)
                         
                         // ok, so we have completed the job - send completion message -
-                        VLEMMessageBroker.sharedMessageBroker.publish(message: VLEMCompilerCompletionMessage())
+                        VLEMMessageBroker.sharedMessageBroker.publish(VLEMCompilerCompletionMessage())
                     }
                     else {
                  
@@ -76,7 +76,7 @@ class VLEMCompiler: Subscriber {
                             
                             // Post the error message -
                             let error_message = VLEMCompilerErrorMessage(payload: payload_dictionary)
-                            VLEMMessageBroker.sharedMessageBroker.publish(message: error_message)
+                            VLEMMessageBroker.sharedMessageBroker.publish(error_message)
                         }
                     }
                 }

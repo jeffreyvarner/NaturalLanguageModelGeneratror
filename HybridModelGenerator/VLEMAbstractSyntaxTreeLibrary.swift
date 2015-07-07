@@ -29,13 +29,160 @@ class MetabolicStoichiometrySyntaxTreeBuilderLogic:ASTBuilder {
     }
 
     private func buildMetabolicStoichiometrySyntaxTreeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
-        
-        let metabolism_subtree = SyntaxTreeComposite(type:TokenType.CATALYZE)
-        metabolism_subtree.lexeme = "catalyze"
-        
-        
 
-        return metabolism_subtree
+        if let _metabolic_branch = recursiveTreeBuilder(scanner, node: nil) as? SyntaxTreeComposite {
+            return _metabolic_branch
+        }
+        
+        return SyntaxTreeComposite(type: TokenType.CATALYZE)
+    }
+    
+    private func recursiveTreeBuilder(scanner:VLEMScanner,node:SyntaxTreeComponent?) -> SyntaxTreeComponent? {
+        
+        if let _next_token = scanner.getNextToken() {
+            
+            if (_next_token.token_type == TokenType.LPAREN && node == nil){
+             
+                // ok, we have a let paren - create a AND node -
+                let and_subtree = SyntaxTreeComposite(type: TokenType.AND)
+                
+                // recursive call, pass in the AND -
+                return recursiveTreeBuilder(scanner, node: and_subtree)
+            }
+            else if (_next_token.token_type == TokenType.LPAREN && node != nil){
+                return recursiveTreeBuilder(scanner, node: node)
+            }
+            else if (_next_token.token_type == TokenType.RPAREN){
+                return recursiveTreeBuilder(scanner, node: node)
+            }
+            else if (_next_token.token_type == TokenType.OR) {
+                return recursiveTreeBuilder(scanner, node: node)
+            }
+            else if (_next_token.token_type == TokenType.GENERATES_SYMBOL){
+                
+                
+                // add node to the generates symbol -
+                if let _local_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.AND || node?.tokenType == TokenType.OR){
+                    
+                    // we have a generates symbol -
+                    let generates_subtree = SyntaxTreeComposite(type: TokenType.GENERATES_SYMBOL)
+                    
+                    // add local node to generates -
+                    generates_subtree.addNodeToTree(_local_node)
+                    
+                    // keep going down ...
+                    return recursiveTreeBuilder(scanner, node: generates_subtree)
+                }
+            }
+            else if (_next_token.token_type == TokenType.REVERSIBLE_GENERATES_SYMBOL){
+                
+                
+                // add node to the generates symbol -
+                if let _local_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.AND || node?.tokenType == TokenType.OR){
+                    
+                    // we have a generates symbol -
+                    let generates_subtree = SyntaxTreeComposite(type: TokenType.REVERSIBLE_GENERATES_SYMBOL)
+                    
+                    // add local node to generates -
+                    generates_subtree.addNodeToTree(_local_node)
+                    
+                    // keep going down ...
+                    return recursiveTreeBuilder(scanner, node: generates_subtree)
+                }
+            }
+            else if (_next_token.token_type == TokenType.CATALYZE || _next_token.token_type == TokenType.CATALYZES || _next_token.token_type == TokenType.CATALYZED){
+                
+                // add node to the generates symbol -
+                if let _local_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.GENERATES_SYMBOL || node?.tokenType == TokenType.REVERSIBLE_GENERATES_SYMBOL){
+                
+                    // create a catalyzed node -
+                    let catalyze_subtree = SyntaxTreeComposite(type: TokenType.CATALYZE)
+                    
+                    // Add local node to catalyze subtree -
+                    catalyze_subtree.addNodeToTree(_local_node)
+                    
+                    // keep going down ...
+                    return recursiveTreeBuilder(scanner, node: catalyze_subtree)
+                }
+                
+            }
+            else if (_next_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
+                
+                // ok, we have a biological symbol -
+                if let _local_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.AND) {
+                    
+                    // ok, we have an AND node passed in, grab the symbol and add to the AND node
+                    let metabolite_node = SyntaxTreeComponent(type: TokenType.METABOLITE)
+                    metabolite_node.lexeme = _next_token.lexeme
+                    
+                    // add -
+                    _local_node.addNodeToTree(metabolite_node)
+                    
+                    // recursive call again -
+                    return recursiveTreeBuilder(scanner, node: _local_node)
+                }
+                else if let _local_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.CATALYZE) {
+                    
+                    // create an OR node, add this symbol to the OR node and then keep going down -
+                    
+                    let protein_node = SyntaxTreeComponent(type: TokenType.PROTEIN)
+                    protein_node.lexeme = _next_token.lexeme
+                    
+                    let or_subtree = SyntaxTreeComposite(type: TokenType.OR)
+                    or_subtree.addNodeToTree(protein_node)
+                    or_subtree.parent_pointer = _local_node
+                    
+                    // add OR to _local_node 
+                    _local_node.addNodeToTree(or_subtree)
+                    
+                    // go down again -
+                    return recursiveTreeBuilder(scanner, node: or_subtree)
+                }
+                else if let _local_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.OR) {
+                    
+                    // ok, we have an AND node passed in, grab the symbol and add to the AND node
+                    let metabolite_node = SyntaxTreeComponent(type: TokenType.PROTEIN)
+                    metabolite_node.lexeme = _next_token.lexeme
+                    
+                    // add -
+                    _local_node.addNodeToTree(metabolite_node)
+                    
+                    // recursive call again -
+                    return recursiveTreeBuilder(scanner, node: _local_node)
+                }
+                else {
+                    
+                    // ok, we have a metabolite which is *not* in a list -
+                    // this will be wrapped in an OR -
+                    if let _local_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.GENERATES_SYMBOL || node?.tokenType == TokenType.REVERSIBLE_GENERATES_SYMBOL){
+                     
+                        let metabolite_node = SyntaxTreeComponent(type: TokenType.METABOLITE)
+                        metabolite_node.lexeme = _next_token.lexeme
+                        
+                        let or_subtree = SyntaxTreeComposite(type: TokenType.OR)
+                        or_subtree.addNodeToTree(metabolite_node)
+                        
+                        // add or to generates -
+                        _local_node.addNodeToTree(or_subtree)
+                        
+                        // recursive call, pass in the AND -
+                        return recursiveTreeBuilder(scanner, node: _local_node)
+                    }
+                }
+            }
+            else if (_next_token.token_type == TokenType.PLUS ||
+                _next_token.token_type == TokenType.IS ||
+                _next_token.token_type == TokenType.ARE ||
+                _next_token.token_type == TokenType.BY) {
+                
+                return recursiveTreeBuilder(scanner, node: node)
+            }
+            else if (_next_token.token_type == TokenType.SEMICOLON){
+                return node?.parent_pointer
+            }
+        }
+        
+        return nil
     }
 }
 
