@@ -140,6 +140,44 @@ final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
 }
 
 
+final class MetabolicSaturationKineticsExpressionSyntaxTreeVisitor:SyntaxTreeVisitor {
+
+    // Declarations -
+    internal var type_dictionary:Dictionary<String,SyntaxTreeComponent> = Dictionary<String,SyntaxTreeComponent>()
+    
+    // We require the type dictionary -
+    init() {
+        
+    }
+    
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
+        self.type_dictionary = typeDictionary
+    }
+    
+    func visit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        
+        // only visit the system nodes -
+        if (node.tokenType == TokenType.CATALYZE){
+            return true
+        }
+        
+        return false
+    }
+    
+    func willVisit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func didVisit(node: SyntaxTreeComponent) -> Void {
+    }
+
+    func getSyntaxTreeVisitorData() -> Any? {
+        return nil
+    }
+}
+
 final class SystemTransferProcessSpeciesSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
