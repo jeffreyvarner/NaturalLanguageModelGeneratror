@@ -886,7 +886,13 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Setup the metabolic kinetic parameter vector - \n"
         buffer+="\tMETABOLIC_KINETIC_PARAMETER_VECTOR = Float64[]\n"
-        buffer+="\n"
+        if let metabolic_reaction_proxy_array = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor: MetabolicSaturationKineticsExpressionSyntaxTreeVisitor()) as? [VLEMMetabolicRateProcessProxyNode] {
+            
+            // Iterate through my rates processes and calculate the paraneters -
+            for _metabolic_reaction_proxy in metabolic_reaction_proxy_array {
+                
+            }
+        }
         
         // Setup the gene expression control parameter vector -
         buffer+="\n"

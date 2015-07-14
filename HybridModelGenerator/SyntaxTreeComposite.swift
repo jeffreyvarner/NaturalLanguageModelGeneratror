@@ -52,6 +52,10 @@ class SyntaxTreeComposite: SyntaxTreeComponent,SequenceType {
         return children_array[index]
     }
     
+    func getFirstChildNode() -> SyntaxTreeComponent? {
+        return self.getChildAtIndex(0)
+    }
+    
     func numberOfChildren() -> Int {
         return children_array.count
     }

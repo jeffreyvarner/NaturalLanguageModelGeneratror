@@ -144,6 +144,7 @@ final class MetabolicSaturationKineticsExpressionSyntaxTreeVisitor:SyntaxTreeVis
 
     // Declarations -
     internal var type_dictionary:Dictionary<String,SyntaxTreeComponent> = Dictionary<String,SyntaxTreeComponent>()
+    private var _proxy_array = [VLEMMetabolicRateProcessProxyNode]()
     
     // We require the type dictionary -
     init() {
@@ -155,6 +156,51 @@ final class MetabolicSaturationKineticsExpressionSyntaxTreeVisitor:SyntaxTreeVis
     }
     
     func visit(node:SyntaxTreeComponent) -> Void {
+    
+        if (node.tokenType == TokenType.CATALYZE){
+            
+            var _enzyme_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
+            var _reactants_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
+            
+            if let _catalyze_node = node as? SyntaxTreeComposite {
+             
+                // ok, we have the catalyze composite -
+                for _child_node in _catalyze_node {
+                    
+                    if (_child_node.tokenType == TokenType.GENERATES_SYMBOL){
+                        
+                        // ok, the *first* child is the reactants -
+                        if let _reactants_node = (_child_node as? SyntaxTreeComposite)?.getFirstChildNode() as? SyntaxTreeComposite {
+                            
+                            for _reactant_node in _reactants_node {
+                                _reactants_array.append(_reactant_node)
+                            }
+                        }
+                    }
+                    else if (_child_node.tokenType == TokenType.OR){
+                        
+                        // ok, we have the list of enzymes that can catalyze this rate -
+                        if let _or_node = _child_node as? SyntaxTreeComposite {
+                            
+                            for _enzyme_node in _or_node {
+                                _enzyme_array.append(_enzyme_node)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // create proxy - add to the arrays -
+            for enzyme_node in _enzyme_array {
+                
+                let _metabolic_proxy = VLEMMetabolicRateProcessProxyNode(node: node)
+                _metabolic_proxy.reactants_array = _reactants_array
+                _metabolic_proxy.enzyme = enzyme_node
+                
+                // Add the proxy to the array -
+                _proxy_array.append(_metabolic_proxy)
+            }
+        }
     }
     
     func shouldVisit(node:SyntaxTreeComponent) -> Bool {
@@ -168,13 +214,19 @@ final class MetabolicSaturationKineticsExpressionSyntaxTreeVisitor:SyntaxTreeVis
     }
     
     func willVisit(node:SyntaxTreeComponent) -> Void {
+    
+        if (node.tokenType == TokenType.CATALYZE){
+            
+            // Build the enzyme array -
+            
+        }
     }
     
     func didVisit(node: SyntaxTreeComponent) -> Void {
     }
 
     func getSyntaxTreeVisitorData() -> Any? {
-        return nil
+        return _proxy_array
     }
 }
 
