@@ -32,6 +32,8 @@ class VLEMMetabolicRateProcessProxyNode:VLEMProxyNode {
     // rate process specific stuff -
     var enzyme:SyntaxTreeComponent?
     var reactants_array:[SyntaxTreeComponent]?
+    var products_array:[SyntaxTreeComponent]?
+    var rate_index:Int = 0
     
     var default_rate_constant:Double {
         get {
@@ -39,12 +41,123 @@ class VLEMMetabolicRateProcessProxyNode:VLEMProxyNode {
         }
     }
     
+    var default_saturation_constant_array:[Double] {
+        get {
+            
+            // ok, so we need to figure out how big my reactants array is, and then 
+            // create a default constant array of the size -
+            let number_of_reactants = reactants_array?.count
+            
+            var tmp_array = [Double]()
+            for var index = 0;index<number_of_reactants; index++ {
+                tmp_array.append(1.0)
+            }
+            
+            return tmp_array
+        }
+    }
+    
+    var default_reaction_comment_string:String {
+        
+        get {
+            
+            let reactant_buffer = "reactants"
+            let product_buffer = "products"
+            let enzyme_name = self.default_enzyme_symbol
+            
+            
+            
+            let reaction_string = reactant_buffer+" -- "+enzyme_name+" --> "+product_buffer
+            return reaction_string
+        }
+    }
+    
+    var default_enzyme_symbol:String {
+        get {
+            if let _name = enzyme?.lexeme {
+                return _name
+            }
+            else {
+                return "UNKNOWN"
+            }
+        }
+    }
+    
+    var rate_law_string:String {
+        
+        get {
+         
+            // Rate buffer -
+            var rate_buffer = ""
+            
+            // Enzyme name -
+            let enzyme_name = self.default_enzyme_symbol
+            
+            // Rate constant string -
+            var rate_constant_string = "k_\(self.rate_index)_\(enzyme_name)*"
+            
+            // Saturation term string -
+            var saturation_term = ""
+            
+            if let _reactants_array = reactants_array {
+                
+                for _reactant_proxy in _reactants_array {
+                 
+                    // what is the reactant symbol?
+                    let reactant_symbol = _reactant_proxy.lexeme!
+                    saturation_term+="*(\(reactant_symbol)/(K_\(self.rate_index)_\(reactant_symbol) + \(reactant_symbol)))"
+                }
+            }
+            
+            // Formulate the rate -
+            rate_buffer+=rate_constant_string
+            rate_buffer+=enzyme_name
+            rate_buffer+=saturation_term
+            
+            // return the reaction buffer -
+            return rate_buffer
+        }
+    }
+    
+    var rate_constant_string:String {
+        get {
+            
+            // Enzyme name -
+            let enzyme_name = self.default_enzyme_symbol
+            
+            // Rate constant string -
+            let rate_constant = "k_\(self.rate_index)_\(enzyme_name)"
+            return rate_constant
+        }
+    }
+    
+    var saturation_constant_string:[String] {
+        
+        get {
+         
+            var saturation_constant_array = [String]()
+            
+            if let _reactants_array = reactants_array {
+                
+                for _reactant_proxy in _reactants_array {
+                    
+                    // what is the reactant symbol?
+                    let reactant_symbol = _reactant_proxy.lexeme!
+                    saturation_constant_array.append("K_\(self.rate_index)_\(reactant_symbol)")
+                }
+            }
+            
+            return saturation_constant_array
+        }
+    }
     
     
     // initialize -
     init(node:SyntaxTreeComponent){
         self.syntax_tree_component = node
     }
+    
+    
     
     func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
         

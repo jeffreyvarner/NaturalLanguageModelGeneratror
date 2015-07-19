@@ -364,7 +364,7 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Get the parameter vectors from DF - \n"
         buffer+="\tgene_expression_parameter_vector = DF[\"GENE_EXPRESSION_KINETIC_PARAMETER_VECTOR\"]\n"
-        buffer+="\tmetabolic_parameter_vector = DF[\"METABOLIC_KINETIC_PARAMETER_VECTOR\"]\n"
+        buffer+="\tmetabolic_kinetic_parameter_vector = DF[\"METABOLIC_KINETIC_PARAMETER_VECTOR\"]\n"
         buffer+="\tsystem_transfer_paramter_array = DF[\"SYSTEM_TRANSFER_PARAMETER_ARRAY\"]\n"
         
         buffer+="\n"
@@ -463,7 +463,34 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
 
         buffer+="\n"
         buffer+="\t# Define the metabolic rate vector - \n"
-        buffer+="\tfill!(metabolic_rate_vector,0.0)\n"
+        if let metabolic_reaction_proxy_array = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor: MetabolicSaturationKineticsExpressionSyntaxTreeVisitor()) as? [VLEMMetabolicRateProcessProxyNode] {
+            
+            // alias the parameter vector -
+            buffer+="\t# Alias the metabolic kinetic parameter vector - \n"
+            var counter = 1
+            for _metabolic_proxy in metabolic_reaction_proxy_array {
+                
+                let rate_constant_string = _metabolic_proxy.rate_constant_string
+                buffer+="\t\(rate_constant_string) = metabolic_kinetic_parameter_vector[\(counter++)]\n"
+                
+                let satuartion_constant_array = _metabolic_proxy.saturation_constant_string
+                for _saturation_constant in satuartion_constant_array {
+                    
+                    buffer+="\t\(_saturation_constant) = metabolic_kinetic_parameter_vector[\(counter++)]\n"
+                }
+            }
+            
+            
+            // ok, from the proxy array we can get the rate string -
+            for _metabolic_proxy in metabolic_reaction_proxy_array {
+                
+                // get the rate string -
+                let rate_string = _metabolic_proxy.rate_law_string
+                
+                // write the buffer entry -
+                buffer+="\tpush!(metabolic_rate_vector,\(rate_string))\n"
+            }
+        }
         
         buffer+="\n"
         buffer+="\t# Define the system transfer rate vector - \n"
@@ -889,8 +916,29 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         if let metabolic_reaction_proxy_array = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor: MetabolicSaturationKineticsExpressionSyntaxTreeVisitor()) as? [VLEMMetabolicRateProcessProxyNode] {
             
             // Iterate through my rates processes and calculate the paraneters -
+            var counter = 1
             for _metabolic_reaction_proxy in metabolic_reaction_proxy_array {
                 
+                // Rate comment -
+                let rate_constant_description = _metabolic_reaction_proxy.rate_constant_string
+                
+                // get the default rate constant -
+                let default_rate_constant = _metabolic_reaction_proxy.default_rate_constant
+                buffer+="\tpush!(METABOLIC_KINETIC_PARAMETER_VECTOR,\(default_rate_constant))\t"
+                buffer+="#\t\(counter++)\t\(rate_constant_description)\n"
+                
+                // Get the sturation constants -
+                let saturation_constant_symbol_array = _metabolic_reaction_proxy.saturation_constant_string
+                let default_saturation_constant_array = _metabolic_reaction_proxy.default_saturation_constant_array
+                var saturation_constant_index = 0
+                for _saturation_constant in default_saturation_constant_array {
+                    
+                    // get comment -
+                    let saturation_comment = saturation_constant_symbol_array[saturation_constant_index++]
+                    
+                    buffer+="\tpush!(METABOLIC_KINETIC_PARAMETER_VECTOR,\(_saturation_constant))\t"
+                    buffer+="#\t\(counter++)\t\(saturation_comment)\n"
+                }
             }
         }
         

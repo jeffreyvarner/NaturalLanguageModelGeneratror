@@ -191,11 +191,13 @@ final class MetabolicSaturationKineticsExpressionSyntaxTreeVisitor:SyntaxTreeVis
             }
             
             // create proxy - add to the arrays -
+            var rate_counter = 1
             for enzyme_node in _enzyme_array {
                 
                 let _metabolic_proxy = VLEMMetabolicRateProcessProxyNode(node: node)
                 _metabolic_proxy.reactants_array = _reactants_array
                 _metabolic_proxy.enzyme = enzyme_node
+                _metabolic_proxy.rate_index = rate_counter++
                 
                 // Add the proxy to the array -
                 _proxy_array.append(_metabolic_proxy)
