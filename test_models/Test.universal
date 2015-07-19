@@ -1,0 +1,18 @@
+
+// Let's setup our types -
+P_ is a type of PROTEIN;
+MRNA_ is a type of MESSENGER_RNA;
+G_ is a type of DNA;
+M_ is a type of METABOLITE;
+
+// Let's setup our SYSTEM transfers -
+(P_1 and P_3 and M_1) are transferred from the SYSTEM;
+P_1 is transferred to the SYSTEM;
+
+// Gene network -
+(P_1 or P_2 or P3) induces the expression of (P_2 and P_4);
+P_2 represses the expression of P_3;
+
+// Metabolism -
+// (M_1 + M_2) -> M_3 is catalyzed by (P_3 or P_4);
+P_1 catalyzes M_3 -> M_4;
