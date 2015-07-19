@@ -17,7 +17,7 @@ class VLEMAbstractSyntaxTreeLibrary: NSObject {
 
 }
 
-// MARK: - Metabolic stoichiometry syntax tree builder
+// MARK: - Metabolic stoichiometry syntax tree builder -
 class MetabolicStoichiometrySyntaxTreeBuilderLogic:ASTBuilder {
     
     init (){
@@ -33,8 +33,62 @@ class MetabolicStoichiometrySyntaxTreeBuilderLogic:ASTBuilder {
         if let _metabolic_branch = recursiveTreeBuilder(scanner, node: nil) as? SyntaxTreeComposite {
             return _metabolic_branch
         }
+        else {
+            
+            // ok, so we didn't return ... refresh the scanner and try again
+            scanner.refreshScanner()
+            
+            // Try the alternative grammer -
+            if let _alternative_metabolic_branch = recursiveTreeBuilderAlternativeMetabolicGrammer(scanner, node: nil) as? SyntaxTreeComposite {
+                return _alternative_metabolic_branch;
+            }
+        }
         
+        // return empty catalyze -
         return SyntaxTreeComposite(type: TokenType.CATALYZE)
+    }
+    
+    private func recursiveTreeBuilderAlternativeMetabolicGrammer(scanner:VLEMScanner,node:SyntaxTreeComponent?) -> SyntaxTreeComponent? {
+    
+        if let _next_token = scanner.getNextToken() {
+            
+            if (_next_token.token_type == TokenType.LPAREN && node == nil){
+                
+                // create an AND subtree -
+                let or_subtree = SyntaxTreeComposite(type: TokenType.OR)
+                
+                // recursive call
+                return recursiveTreeBuilderAlternativeMetabolicGrammer(scanner, node:or_subtree)
+            }
+            else if (_next_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
+                
+                // ok, we have a biological symbol *and* an OR node
+                if let _local_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.OR){
+                    
+                    // ok, we have a symbol and an OR -
+                    
+                    let enzyme_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                    enzyme_node.lexeme = _next_token.lexeme
+
+                    // add the enzyme node to to the _local_node -
+                    _local_node.addNodeToTree(enzyme_node)
+                    
+                    // go down again ...
+                    return recursiveTreeBuilderAlternativeMetabolicGrammer(scanner, node: _local_node)
+                }
+            }
+            else if (_next_token.token_type == TokenType.OR){
+                
+                // ok, go down again ...
+                return recursiveTreeBuilderAlternativeMetabolicGrammer(scanner, node: node)
+            }
+            else if (_next_token.token_type == TokenType.CATALYZE || _next_token.token_type == TokenType.CATALYZES || _next_token.token_type == TokenType.CATALYZED){
+            
+            }
+        }
+        
+        // return nil -
+        return nil
     }
     
     private func recursiveTreeBuilder(scanner:VLEMScanner,node:SyntaxTreeComponent?) -> SyntaxTreeComponent? {
@@ -246,7 +300,7 @@ class SystemTransferSyntaxTreeBuilderLogic:ASTBuilder {
 }
 
 
-// MARK: - Type assignment abstract syntax tree
+// MARK: - Type assignment abstract syntax tree -
 class TypeAssignmentSyntaxTreeBuilderLogic:ASTBuilder {
     
     init (){
@@ -319,7 +373,7 @@ class TypeAssignmentSyntaxTreeBuilderLogic:ASTBuilder {
     }
 }
 
-// MARK: - Transcription abstract syntax tree
+// MARK: - Transcription abstract syntax tree -
 class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
     
     

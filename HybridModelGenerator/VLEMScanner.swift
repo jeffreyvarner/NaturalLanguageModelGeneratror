@@ -168,6 +168,15 @@ class VLEMScanner: NSObject,SequenceType {
         return (local_return_data.success,local_return_data.error)
     }
     
+    func refreshScanner() -> (success:Bool,error:VLError?) {
+        
+        // clear out the token array -
+        token_array.removeAll(keepCapacity: true)
+        
+        // reload the token array -
+        return scanSentence()
+    }
+    
     func getNumberOfTokens() -> Int {
         return token_array.count
     }
