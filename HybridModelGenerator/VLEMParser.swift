@@ -175,13 +175,20 @@ class VLEMParser: NSObject {
                             myParserErrorArray.append(_error)
                         }
                     }
+                    else if (scanner!.getMetabolicControlStatementToken() != TokenType.NULL){
+                        
+                        // ok, we have a metabolic control statement. Load the correct grammar strategy -
+                        if let _error = doParseWithGrammarAndScanner(scanner!, grammar: MetabolicControlStatementGrammarStrategy()){
+                            myParserErrorArray.append(_error)
+                        }
+                    }
                     else {
                         
                         // We don't have a grammer strategy for this sentence ... build an error
                         var error_information_dictionary = Dictionary<String,String>()
                         error_information_dictionary["TOKEN"] = sentence_wrapper.sentence
                         error_information_dictionary["LOCATION"] = "Line: \(sentence_wrapper.line_number) col: 1"
-                        error_information_dictionary["MESSAGE"] = "Incorrect statement. Found: \(sentence_wrapper.sentence). However, we do not understand this sentence! Sorry."
+                        error_information_dictionary["MESSAGE"] = "Incorrect statement. Found: \(sentence_wrapper.sentence). However, we do not understand this sentence! Sorry"
                         error_information_dictionary["METHOD"] = "parse"
                         error_information_dictionary["CLASS"] = "VLEMParser"
                         let local_error_object = VLError(code: VLErrorCode.INCORRECT_GRAMMAR_ERROR, domain: "VLEMParser", userInfo: error_information_dictionary)

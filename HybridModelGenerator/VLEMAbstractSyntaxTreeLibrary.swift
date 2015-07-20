@@ -83,7 +83,8 @@ class MetabolicStoichiometrySyntaxTreeBuilderLogic:ASTBuilder {
                 return recursiveTreeBuilderAlternativeMetabolicGrammer(scanner, node: node)
             }
             else if (_next_token.token_type == TokenType.CATALYZE || _next_token.token_type == TokenType.CATALYZES || _next_token.token_type == TokenType.CATALYZED){
-            
+                // ok, go down again ...
+                return recursiveTreeBuilderAlternativeMetabolicGrammer(scanner, node: node)
             }
         }
         

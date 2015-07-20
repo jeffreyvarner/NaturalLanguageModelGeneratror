@@ -129,6 +129,17 @@ class VLEMGrammarLibrary: NSObject {
         error_information_dictionary["CLASS"] = className
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
+    
+    static func missingRelationshipTokenSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
+        
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["TOKEN"] = token.lexeme
+        error_information_dictionary["LOCATION"] = "Line: \(token.line_number) col: \(token.column_number)"
+        error_information_dictionary["MESSAGE"] = "Expected an \"and\" or an \"or\", found \"\(token.lexeme!)\"."
+        error_information_dictionary["METHOD"] = methodName
+        error_information_dictionary["CLASS"] = className
+        return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
 
     static func missingByTokenSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
         
@@ -164,6 +175,17 @@ class VLEMGrammarLibrary: NSObject {
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
     
+    static func missingReservedMetabolicControlKeywordTokenSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
+        
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["TOKEN"] = token.lexeme
+        error_information_dictionary["LOCATION"] = "Line: \(token.line_number) col: \(token.column_number)"
+        error_information_dictionary["MESSAGE"] = "Missing metabolic control keyword: expected \"activates\", \"activate\", \"inhibits\" or \"inhibit\", found \"\(token.lexeme!)\"."
+        error_information_dictionary["METHOD"] = methodName
+        error_information_dictionary["CLASS"] = className
+        return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
+
     static func missingTransferTokenSyntaxErrorFactory(token token:VLEMToken,className:String,methodName:String) -> VLError {
         
         var error_information_dictionary = Dictionary<String,String>()
@@ -207,9 +229,138 @@ class VLEMGrammarLibrary: NSObject {
         error_information_dictionary["CLASS"] = className
         return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
     }
+    
+    static func misplacedSemicolonErrorFactory(token:VLEMToken,className:String,methodName:String) -> VLError {
+        
+        // We don't have a grammer strategy for this sentence ... build an error
+        var error_information_dictionary = Dictionary<String,String>()
+        error_information_dictionary["TOKEN"] = token.lexeme
+        error_information_dictionary["LOCATION"] = "Line: \(token.line_number) col: \(token.column_number)"
+        error_information_dictionary["MESSAGE"] = "Misplaced semicolon. Expected \");\" at the end of a statement, found \"\(token.lexeme!)\"."
+        error_information_dictionary["METHOD"] = methodName
+        error_information_dictionary["CLASS"] = className
+        return VLError(code: VLErrorCode.INCOMPLETE_SENTENCE_SYNTAX_ERROR, domain: "VLEMGrammarLibrary", userInfo: error_information_dictionary)
+    }
 }
 
-// MARK: - Grammer specific class for metabolic stoichiometry reactions 
+// MARK: - Grammar specific class for metabolic control statememts -
+class MetabolicControlStatementGrammarStrategy:GrammarStrategy {
+
+    // Top level method
+    func parse(scanner:VLEMScanner) -> VLError? {
+    
+        // do we have any tokens?
+        if (scanner.hasMoreTokens() == false){
+            return VLError(code: VLErrorCode.EMPTY_SENTENCE_ERROR, domain: "VLEMGrammarLibrary", userInfo: nil)
+        }
+        
+        // ok, here we go - 
+        if let _next_token = scanner.getNextToken() {
+            
+            if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token,tokenType:TokenType.BIOLOGICAL_SYMBOL)){
+                
+                // we started with a biological symbol, next token should be a control word -
+                return parseMetabolicControlSymbolToken(scanner)
+            }
+            else if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.LPAREN)){
+                
+                // we started with a ( => next token should be a relationship token
+                return parseBiologicalSymbolToken(scanner)
+            }
+        }
+        
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
+    }
+    
+    func parseBiologicalSymbolToken(scanner:VLEMScanner) -> VLError? {
+        
+        if let _next_token = scanner.getNextToken() {
+            
+            if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.AND) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.OR)){
+                
+                // ok, we are in a list, go down again ..
+                return parseBiologicalSymbolToken(scanner)
+            }
+            else if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.LPAREN)){
+                // ok, if we have a ( here, then we have a symbol list. Go down again -
+                return parseBiologicalSymbolToken(scanner)
+            }
+            else if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.BIOLOGICAL_SYMBOL)){
+                // biological symbol - go down again?
+                return parseBiologicalSymbolToken(scanner)
+            }
+            else if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.RPAREN)){
+                
+                if (scanner.peekAtNextTokenType() == TokenType.SEMICOLON){
+                    
+                    // ok, we have a ); statement ...
+                    return parseBiologicalSymbolToken(scanner)
+                }
+                else {
+                    
+                    // ok, we expect a control symbol next ...
+                    return parseMetabolicControlSymbolToken(scanner)
+                }
+            }
+            else if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.SEMICOLON)){
+                
+                // ok, we have a semicolon ... check to see if we have more tokens. If we do, then we have an error.
+                // if not then reached the end of the statement with no errors.
+                if (scanner.peekAtNextTokenType() == TokenType.NULL){
+                    return nil
+                }
+                else {
+                    return VLEMGrammarLibrary.misplacedSemicolonErrorFactory(_next_token, className: String(self), methodName: __FUNCTION__)
+                }
+            }
+        }
+        
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
+    }
+    
+    
+    func parseRelationshipToken(scanner:VLEMScanner) -> VLError? {
+    
+        
+        if let _next_token = scanner.getNextToken() {
+            
+            if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.AND) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.OR)){
+               
+                // we have a relationship token. Next we should a have a biological symbol -
+                return parseBiologicalSymbolToken(scanner)
+            }
+            else {
+                return VLEMGrammarLibrary.missingRelationshipTokenSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
+            }
+        }
+        
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
+    }
+    
+    func parseMetabolicControlSymbolToken(scanner:VLEMScanner) -> VLError? {
+    
+        if let _next_token = scanner.getNextToken() {
+        
+            if (VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType: TokenType.ACTIVATE) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType:TokenType.INHIBIT) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType:TokenType.INHIBITS) ||
+                VLEMGrammarLibrary.mustBeTokenOfType(_next_token, tokenType:TokenType.ACTIVATES)){
+                
+                // ok, we have a metabolic control keyword. We expect a biological symbol (or a list of biological symbols)
+                return parseBiologicalSymbolToken(scanner)
+            }
+            else {
+                return VLEMGrammarLibrary.missingReservedMetabolicControlKeywordTokenSyntaxErrorFactory(token: _next_token, className: String(self), methodName: __FUNCTION__)
+            }
+        }
+    
+        return VLEMGrammarLibrary.missingTokenErrorFactory(className: String(self), methodName: __FUNCTION__)
+    }
+}
+
+// MARK: - Grammer specific class for metabolic stoichiometry reactions -
 class MetabolicStoichiometryStatementGrammarStrategy:GrammarStrategy {
     
     // Top level method
@@ -378,7 +529,7 @@ class MetabolicStoichiometryStatementGrammarStrategy:GrammarStrategy {
     }
 }
 
-// MARK: - Grammer specific class for type assignments
+// MARK: - Grammer specific class for type assignments -
 class TypeAssignmentStatementGrammarStrategy:GrammarStrategy {
     
     // Top level method
@@ -511,7 +662,7 @@ class TypeAssignmentStatementGrammarStrategy:GrammarStrategy {
     }
 }
 
-// MARK: - Grammer specific class for System transfer statements
+// MARK: - Grammer specific class for System transfer statements -
 class SystemTransferStatementGrammarStrategy:GrammarStrategy {
 
     // Top level method
@@ -708,7 +859,7 @@ class SystemTransferStatementGrammarStrategy:GrammarStrategy {
     }
 }
 
-// MARK: - Grammer specific class for Induce statement
+// MARK: - Grammer specific class for Induce statement -
 class ExpressionStatementGrammarStrategy:GrammarStrategy {
     
     // Top level method

@@ -271,6 +271,29 @@ class VLEMScanner: NSObject,SequenceType {
         return TokenType.NULL
     }
     
+    func getMetabolicControlStatementToken() -> TokenType {
+        
+        for token_item in token_array {
+            
+            // get the type -
+            let test_token_type = token_item.token_type!
+            if (test_token_type == TokenType.INHIBIT ||
+                test_token_type == TokenType.INHIBITS){
+                    
+                    // return the token type -
+                    return TokenType.INHIBIT
+            }
+            else if (test_token_type == TokenType.ACTIVATE ||
+                test_token_type == TokenType.ACTIVATES) {
+                
+                // return the token type -
+                return TokenType.ACTIVATE
+            }
+        }
+        
+        return TokenType.NULL
+    }
+    
     func getSystemTokenType() -> TokenType {
         
         var index = 0
@@ -611,6 +634,46 @@ class VLEMScanner: NSObject,SequenceType {
                             
                             // capture transcription -
                             let token = VLEMToken(token_type:TokenType.REPRESSES, line_number: lineNumber, column_number: column_index, lexeme: "represses", value: nil)
+                            token_array.append(token)
+                            
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isInhibit(local_character_stack) == true) {
+                            
+                            // capture transcription -
+                            let token = VLEMToken(token_type:TokenType.INHIBIT, line_number: lineNumber, column_number: column_index, lexeme: "inhibit", value: nil)
+                            token_array.append(token)
+                            
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isInhibits(local_character_stack) == true) {
+                            
+                            // capture transcription -
+                            let token = VLEMToken(token_type:TokenType.INHIBITS, line_number: lineNumber, column_number: column_index, lexeme: "inhibits", value: nil)
+                            token_array.append(token)
+                            
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isActivate(local_character_stack) == true) {
+                            
+                            // capture transcription -
+                            let token = VLEMToken(token_type:TokenType.ACTIVATE, line_number: lineNumber, column_number: column_index, lexeme: "activate", value: nil)
+                            token_array.append(token)
+                            
+                            
+                            // clear the stack -
+                            local_character_stack.removeAll(keepCapacity: true)
+                        }
+                        else if (isActivates(local_character_stack) == true) {
+                            
+                            // capture transcription -
+                            let token = VLEMToken(token_type:TokenType.ACTIVATES, line_number: lineNumber, column_number: column_index, lexeme: "activates", value: nil)
                             token_array.append(token)
                             
                             
@@ -1016,6 +1079,20 @@ class VLEMScanner: NSObject,SequenceType {
         return (matchLogic(characterStack, matchArray: match_array))
         
     }
+    
+    private func isInhibits(characterStack:[Character]) -> Bool {
+        
+        let match_array:[Character] = ["i","n","h","i","b","i","t","s"]
+        return (matchLogic(characterStack, matchArray: match_array))
+        
+    }
+    
+    private func isInhibit(characterStack:[Character]) -> Bool {
+        
+        let match_array:[Character] = ["i","n","h","i","b","i","t"]
+        return (matchLogic(characterStack, matchArray: match_array))
+    }
+
     
     private func isTransfer(characterStack:[Character]) -> Bool {
         
