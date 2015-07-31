@@ -104,6 +104,14 @@ class VLEMParser: NSObject {
                         // Add metablism tree to root -
                         model_root.addNodeToTree(metabolism_tree)
                     }
+                    else if (scanner!.getMetabolicControlStatementTokenType() != TokenType.NULL){
+                        
+                        let builder = MetabolicControlSyntaxTreeBuilderLogic()
+                        let metabolism_tree = builder.build(scanner!)
+                        
+                        // Add metablism tree to root -
+                        model_root.addNodeToTree(metabolism_tree)
+                    }
                 }
             }
         }
@@ -175,7 +183,7 @@ class VLEMParser: NSObject {
                             myParserErrorArray.append(_error)
                         }
                     }
-                    else if (scanner!.getMetabolicControlStatementToken() != TokenType.NULL){
+                    else if (scanner!.getMetabolicControlStatementTokenType() != TokenType.NULL){
                         
                         // ok, we have a metabolic control statement. Load the correct grammar strategy -
                         if let _error = doParseWithGrammarAndScanner(scanner!, grammar: MetabolicControlStatementGrammarStrategy()){

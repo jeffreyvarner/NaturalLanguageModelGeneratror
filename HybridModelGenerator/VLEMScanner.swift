@@ -271,7 +271,7 @@ class VLEMScanner: NSObject,SequenceType {
         return TokenType.NULL
     }
     
-    func getMetabolicControlStatementToken() -> TokenType {
+    func getMetabolicControlStatementTokenType() -> TokenType {
         
         for token_item in token_array {
             

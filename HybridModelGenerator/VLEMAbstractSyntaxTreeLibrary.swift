@@ -17,6 +17,188 @@ class VLEMAbstractSyntaxTreeLibrary: NSObject {
 
 }
 
+// MARK: - Metabolic control syntax tree builder -
+class MetabolicControlSyntaxTreeBuilderLogic:ASTBuilder {
+
+    init (){
+        
+    }
+    
+    func build(scanner:VLEMScanner) -> SyntaxTreeComponent {
+        return buildMetabolicControlSyntaxTreeWithScanner(scanner)
+    }
+
+    private func buildMetabolicControlSyntaxTreeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite {
+    
+        // Build the parenet node ..
+        let parent_node = SyntaxTreeComposite(type: TokenType.ACTIVATE)
+        
+        // build the control tree ...
+        if let _control_tree = recursiveTreeBuilder(scanner, node: nil) as? SyntaxTreeComposite {
+            return _control_tree
+        }
+        
+        // return
+        return parent_node
+    }
+    
+    private func recursiveTreeBuilder(scanner:VLEMScanner,node:SyntaxTreeComponent?) -> SyntaxTreeComponent? {
+        
+        if let _next_token = scanner.getNextToken() {
+        
+            if (_next_token.token_type == TokenType.BIOLOGICAL_SYMBOL && node != nil){
+             
+                if let _parent_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.ACTIVATES ||
+                    node?.tokenType == TokenType.ACTIVATE ||
+                    node?.tokenType == TokenType.INHIBITS ||
+                    node?.tokenType == TokenType.INHIBIT){
+                    
+                    // Build the relationship container - this call consumes a token ...
+                    let _relationship_container = buildRelationshipSubtreeWithScanner(scanner)
+                    
+                    // ok, add the current node to the container -
+                    let _species_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                    _species_node.lexeme = _next_token.lexeme
+                    _relationship_container!.addNodeToTree(_species_node)
+                        
+                    // Add relationship container to parent node -
+                    _parent_node.addNodeToTree(_relationship_container!)
+                        
+                    // set the parent pointer (we are going to need this later ..)
+                    _relationship_container!.parent_pointer = _parent_node
+                    
+                    // go down again -
+                    return recursiveTreeBuilder(scanner, node: _relationship_container)
+                }
+                else if let _parent_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.AND || node?.tokenType == TokenType.OR) {
+                    
+                    // ok, we have an and -or- or .. add species node to container and go around again ...
+                    
+                    // ok, add the current node to the container -
+                    let _species_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                    _species_node.lexeme = _next_token.lexeme
+                    
+                    // add species to parent -
+                    _parent_node.addNodeToTree(_species_node)
+                    
+                    // go down again ...
+                    return recursiveTreeBuilder(scanner, node: _parent_node)
+                }
+            }
+            else if (_next_token.token_type == TokenType.AND && node != nil){
+                
+                // ok, we have an AND - if this is working correctly, our parent node should be an AND -
+                // do nothing, go down again -
+                return recursiveTreeBuilder(scanner, node: node)
+            }
+            else if (_next_token.token_type == TokenType.OR && node != nil){
+                
+                // ok, we have an OR - if this is working correctly, our parent node should be an OR -
+                // do nothing, go down again -
+                return recursiveTreeBuilder(scanner, node: node)
+            }
+            else if (_next_token.token_type == TokenType.BIOLOGICAL_SYMBOL && node == nil){
+                
+                // ok, we have a biological symbol with no container node - this means we have a bare symbol
+                // at the start of the sentence. Create a container node (OR), add a species to it and go down 
+                // again ...
+                
+                // create an OR -
+                let _or_subtree = SyntaxTreeComposite(type: TokenType.OR)
+                _or_subtree.lexeme = "or"
+                
+                // Create species node -
+                let _species_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                _species_node.lexeme = _next_token.lexeme
+                
+                // Add species to or -
+                _or_subtree.addNodeToTree(_species_node)
+                
+                // go down again -
+                return recursiveTreeBuilder(scanner, node: _or_subtree)
+            }
+            else if (_next_token.token_type == TokenType.ACTIVATE ||
+                _next_token.token_type == TokenType.ACTIVATES ||
+                _next_token.token_type == TokenType.INHIBIT ||
+                _next_token.token_type == TokenType.INHIBITS &&
+                node != nil) {
+                    
+                // ok, we have an action token - create a control statement
+                let _control_node = buildControlStatementNodeWithScanner(scanner,tokenType:_next_token.token_type!)
+                    
+                // Create the control node, add the relationship tree to the control tree
+                _control_node.addNodeToTree(node!)
+                    
+                // ok, go down again -
+                return recursiveTreeBuilder(scanner, node: _control_node)
+            }
+            else if (_next_token.token_type == TokenType.LPAREN){
+                
+                // ok, we have a (, keep going ...
+                return recursiveTreeBuilder(scanner, node: node)
+            }
+            else if (_next_token.token_type == TokenType.RPAREN){
+                
+                // ok, we have a ), keep going ...
+                return recursiveTreeBuilder(scanner, node: node)
+            }
+            else if (_next_token.token_type == TokenType.SEMICOLON && node != nil){
+                
+                // we hit the bottom ... node should be an AND or OR, return the parent pointer ...
+                if let _parent_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.AND || node?.tokenType == TokenType.OR){
+                    
+                    return _parent_node.parent_pointer
+                }
+            }
+        }
+        
+        
+        // default is nil -
+        return nil
+    }
+    
+    private func buildRelationshipSubtreeWithScanner(scanner:VLEMScanner) -> SyntaxTreeComposite? {
+    
+        if let _next_token = scanner.getNextToken() {
+        
+            if (_next_token.token_type == TokenType.AND){
+                
+                let _and_node = SyntaxTreeComposite(type: TokenType.AND)
+                _and_node.lexeme = "and"
+                
+                return _and_node
+            }
+            else {
+                
+                let _or_node = SyntaxTreeComposite(type: TokenType.OR)
+                _or_node.lexeme = "or"
+                
+                return _or_node
+            }
+        }
+        
+        return nil
+    }
+    
+    private func buildControlStatementNodeWithScanner(scanner:VLEMScanner,tokenType:TokenType) -> SyntaxTreeComposite {
+        
+        // what type of control node do we have?
+        
+        // Get the "control" type (induce, induces etc)
+        let control_token_type = tokenType
+        
+        // remove the control type node -
+        scanner.removeTokenOfType(control_token_type)
+        
+        // Create the control node -
+        let control_node = SyntaxTreeComposite(type: control_token_type)
+        control_node.lexeme = "control_node"
+        
+        // return my control node -
+        return control_node
+    }
+}
+
 // MARK: - Metabolic stoichiometry syntax tree builder -
 class MetabolicStoichiometrySyntaxTreeBuilderLogic:ASTBuilder {
     
@@ -54,7 +236,7 @@ class MetabolicStoichiometrySyntaxTreeBuilderLogic:ASTBuilder {
             
             if (_next_token.token_type == TokenType.LPAREN && node == nil){
                 
-                // create an AND subtree -
+                // create an OR subtree -
                 let or_subtree = SyntaxTreeComposite(type: TokenType.OR)
                 
                 // recursive call
