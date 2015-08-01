@@ -18,5 +18,5 @@ P_2 represses the expression of P_3;
 // (P_1 or P_2) catalyzes M_3 -> M_4;
 
 // Metabolic control -
-M_3 activates (P_1 and P_2);
-// (M_1 and M_2) activates (P_1 and P_2);
+// M_3 activates (P_1 and P_2);
+(M_1 and M_2) activates (P_1 and P_2);
