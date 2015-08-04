@@ -23,6 +23,7 @@ protocol SyntaxTreeVisitor {
     func didVisit(node:SyntaxTreeComponent) -> Void
 }
 
+
 final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
 
     static func classifyTypeOfNode(node:SyntaxTreeComponent,type_dictionary:Dictionary<String,SyntaxTreeComponent>) -> TokenType? {
@@ -139,6 +140,94 @@ final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
     }
 }
 
+final class MetabolicControlRulesSyntaxTreeVisitor:SyntaxTreeVisitor {
+
+    // Declarations -
+    internal var type_dictionary:Dictionary<String,SyntaxTreeComponent> = Dictionary<String,SyntaxTreeComponent>()
+    
+    private var control_model_dictionary:Dictionary<String,Array<VLEMMetabolicRateControlRuleProxyNode>> = Dictionary<String,Array<VLEMMetabolicRateControlRuleProxyNode>>()
+    private var relationshipProxyArray:[VLEMMetabolicRateControlRuleProxyNode] = [VLEMMetabolicRateControlRuleProxyNode]()
+    
+    
+    // We require the type dictionary -
+    init() {
+    }
+    
+    init(typeDictionary:Dictionary<String,SyntaxTreeComponent>){
+        self.type_dictionary = typeDictionary
+    }
+    
+    func visit(node:SyntaxTreeComponent) -> Void {
+        
+        // ok, we are walking through the tree. 
+        // We are only going to look at "action" nodes, and get information from there
+        
+        // ok, we should have a control node - get the left and right nodes
+        if let _control_action_node = node as? SyntaxTreeComposite {
+            
+            // build a relationship proxy -
+            let metabolic_rate_control_proxy = VLEMMetabolicRateControlRuleProxyNode(node: _control_action_node)
+        
+            // ok, we have the effector and target nodes collection -
+            if let target_node_collection = _control_action_node.right_child_node as? SyntaxTreeComposite {
+                
+                // remove the right child node (this is to make the tree consistent with gene expression) -
+                _control_action_node.removeChildAtIndex(1)
+                
+                // go through the effector list, map to target action -
+                for _child_node in target_node_collection {
+                    
+                    // do we have this target child in the control table?
+                    
+                    // build the dictionary -
+                    if var _array:[VLEMMetabolicRateControlRuleProxyNode] = control_model_dictionary[_child_node.lexeme!] {
+                        
+                        // ok, we already have this node in the dictionary
+                        _array.append(metabolic_rate_control_proxy)
+                        
+                        // put array back in dictionary -
+                        control_model_dictionary[_child_node.lexeme!] = _array
+                    }
+                    else {
+                        
+                        // we do *not* contain the key - store the array
+                        control_model_dictionary[_child_node.lexeme!] = [metabolic_rate_control_proxy]
+                    }
+                }
+            }
+        }
+    }
+    
+    func shouldVisit(node:SyntaxTreeComponent) -> Bool {
+        
+        // if we have an action node, let's visit ... otherwise no.
+        if (node.tokenType == TokenType.ACTIVATE ||
+            node.tokenType == TokenType.ACTIVATES ||
+            node.tokenType == TokenType.INHIBITS ||
+            node.tokenType == TokenType.INHIBIT) {
+            
+            // ok, we have the correct node type - we can visit
+            // this type of node
+            return true
+        }
+        
+        // default is no
+        return false
+    }
+    
+    func willVisit(node:SyntaxTreeComponent) -> Void {
+    }
+    
+    func didVisit(node:SyntaxTreeComponent) -> Void {
+        
+        // ok, we visted the node. clean up?
+        relationshipProxyArray.removeAll(keepCapacity: false)
+    }
+    
+    func getSyntaxTreeVisitorData() -> Any? {
+        return control_model_dictionary
+    }
+}
 
 final class MetabolicSaturationKineticsExpressionSyntaxTreeVisitor:SyntaxTreeVisitor {
 

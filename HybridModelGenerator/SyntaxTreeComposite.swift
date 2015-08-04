@@ -12,6 +12,32 @@ class SyntaxTreeComposite: SyntaxTreeComponent,SequenceType {
     
     // declarations -
     var children_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
+    
+    var left_child_node:SyntaxTreeComponent? {
+        
+        get {
+         
+            if (children_array.count >= 2){
+                
+                return children_array[0]
+            }
+            
+            return nil
+        }
+    }
+    
+    var right_child_node:SyntaxTreeComponent? {
+        
+        get {
+            
+            if (children_array.count >= 2){
+                
+                return children_array[1]
+            }
+            
+            return nil
+        }
+    }
 
     func generate() -> AnyGenerator<SyntaxTreeComponent> {
         
@@ -50,6 +76,16 @@ class SyntaxTreeComposite: SyntaxTreeComponent,SequenceType {
         }
         
         return children_array[index]
+    }
+    
+    func removeChildAtIndex(index:Int) -> Void {
+        
+        // make sure we have this element ...
+        if ((children_array.count - 1) < index){
+            return
+        }
+
+        children_array.removeAtIndex(index)
     }
     
     func getFirstChildNode() -> SyntaxTreeComponent? {

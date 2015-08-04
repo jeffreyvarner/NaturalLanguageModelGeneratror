@@ -977,7 +977,35 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         buffer+="\n"
         buffer+="\t# Setup the metabolic control parameter vector - \n"
         buffer+="\tMETABOLIC_CONTROL_PARAMETER_VECTOR = Float64[]\n"
-        buffer+="\n"
+        if let metabolic_control_dictionary = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor: MetabolicControlRulesSyntaxTreeVisitor()) as? Dictionary<String,Array<VLEMMetabolicRateControlRuleProxyNode>>,
+            species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
+            
+            for proxy_object in species_list {
+                
+                if let _proxy_object = proxy_object as? VLEMSpeciesProxy {
+                    
+                    // Get the default value -
+                    let state_symbol = _proxy_object.state_symbol_string
+                    
+                    // Do we have a control element for this state_symbol?
+                    if let _control_proxy_array:[VLEMMetabolicRateControlRuleProxyNode] = metabolic_control_dictionary[state_symbol!] {
+                     
+                        for _control_proxy in _control_proxy_array {
+                         
+                            // get parameter string -
+                            if let parameter_value_array = _control_proxy.control_parameter_array {
+                             
+                                for _parameter_value in parameter_value_array {
+                                 
+                                    buffer+="\tpush!(METABOLIC_CONTROL_PARAMETER_VECTOR,\(_parameter_value))\n"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         
         // Setup the system transfer rate parameter vector -
         buffer+="\n"

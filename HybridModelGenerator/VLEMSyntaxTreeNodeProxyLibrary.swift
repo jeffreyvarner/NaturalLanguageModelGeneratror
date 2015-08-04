@@ -24,7 +24,121 @@ class VLEMSyntaxTreeNodeProxyLibrary: NSObject {
 }
 
 
-class VLEMMetabolicRateProcessProxyNode:VLEMProxyNode {
+final class VLEMMetabolicRateControlRuleProxyNode:VLEMProxyNode {
+    
+    private var syntax_tree_component:SyntaxTreeComponent
+    var token_type:TokenType = TokenType.NULL
+    
+    // initialize -
+    init(node:SyntaxTreeComponent){
+        self.syntax_tree_component = node
+        
+        // check to see if this is a composite, if so, then is it an action, if yes then grab the token type
+        if let _parent_node = node as? SyntaxTreeComposite where (_parent_node.tokenType == TokenType.ACTIVATE ||
+            _parent_node.tokenType == TokenType.ACTIVATES ||
+            _parent_node.tokenType == TokenType.INHIBIT ||
+            _parent_node.tokenType == TokenType.INHIBITS){
+            
+            // set the tokenType -
+            token_type = node.tokenType
+        }
+    }
+    
+    var effector_lexeme_array:[String]? {
+        
+        get {
+            
+            if let _control_subtree = syntax_tree_component as? SyntaxTreeComposite {
+                
+                if let _relationship_node = _control_subtree.children_array[0] as? SyntaxTreeComposite {
+                    
+                    // Get the effector array -
+                    let _effector_node_array = _relationship_node.children_array
+                    
+                    // Different array *depending* upon OR -or- AND
+                    if (_relationship_node.tokenType == TokenType.OR){
+                        
+                        // effector array -
+                        var local_array = [String]()
+                        for effector_node:SyntaxTreeComponent in _effector_node_array {
+                            local_array.append(effector_node.lexeme!)
+                        }
+                        
+                        return local_array
+                    }
+                    else if (_relationship_node.tokenType == TokenType.AND){
+                        
+                        var local_buffer = "1.0"
+                        for effector_node:SyntaxTreeComponent in _effector_node_array {
+                            local_buffer+="*\(effector_node.lexeme!)"
+                        }
+                        
+                        return [local_buffer]
+                    }
+                }
+            }
+            
+            return nil
+        }
+    }
+    
+    
+    
+    var control_parameter_array:[String]? {
+        
+        get {
+         
+            // ok, I need to figure out the control parameter array -
+            if let _control_subtree = syntax_tree_component as? SyntaxTreeComposite {
+                
+                if let _relationship_node = _control_subtree.children_array[0] as? SyntaxTreeComposite {
+                    
+                    // Get the effector array -
+                    let _effector_node_array = _relationship_node.children_array
+                    
+                    // Different array *depending* upon OR -or- AND
+                    if (_relationship_node.tokenType == TokenType.OR){
+                        
+                        // effector array -
+                        var local_array = [String]()
+                        for _:SyntaxTreeComponent in _effector_node_array {
+                            
+                            // formulate parameter string ...
+                            // we have an OR, which means all the effectors are independent -
+                            local_array.append("0.1")
+                            local_array.append("1.0")
+                            local_array.append("1.0")
+                        }
+                        
+                        return local_array
+                    }
+                    else if (_relationship_node.tokenType == TokenType.AND){
+                        
+                        // formulate parameter string ...
+                        // we have an AND, which means all the effectors as a single effector -
+                        var local_array = [String]()
+                        local_array.append("0.1")
+                        local_array.append("1.0")
+                        local_array.append("1.0")
+    
+                        return local_array
+                    }
+                }
+            }
+            
+            
+            // default is nil -
+            return nil
+        }
+    }
+    
+    func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
+        
+        return false
+    }
+}
+
+final class VLEMMetabolicRateProcessProxyNode:VLEMProxyNode {
     
     private var syntax_tree_component:SyntaxTreeComponent
     var token_type:TokenType = TokenType.CATALYZE
@@ -174,7 +288,7 @@ class VLEMMetabolicRateProcessProxyNode:VLEMProxyNode {
     }
 }
 
-class VLEMSystemTransferProcessProxyNode:VLEMProxyNode {
+final class VLEMSystemTransferProcessProxyNode:VLEMProxyNode {
     
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
@@ -200,7 +314,7 @@ class VLEMSystemTransferProcessProxyNode:VLEMProxyNode {
     }
 }
 
-class VLEMBasalGeneExpressionKineticsFunctionProxy:VLEMProxyNode {
+final class VLEMBasalGeneExpressionKineticsFunctionProxy:VLEMProxyNode {
 
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
@@ -233,7 +347,7 @@ class VLEMBasalGeneExpressionKineticsFunctionProxy:VLEMProxyNode {
     }
 }
 
-class VLEMControlRelationshipProxy:VLEMProxyNode {
+final class VLEMControlRelationshipProxy:VLEMProxyNode {
     
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
@@ -297,7 +411,7 @@ class VLEMControlRelationshipProxy:VLEMProxyNode {
     }
 }
 
-class VLEMMessengerRNADegradationKineticsFunctionProxy: VLEMProxyNode {
+final class VLEMMessengerRNADegradationKineticsFunctionProxy: VLEMProxyNode {
     
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
@@ -350,7 +464,7 @@ class VLEMMessengerRNADegradationKineticsFunctionProxy: VLEMProxyNode {
     }
 }
 
-class VLEMProteinTranslationKineticsFunctionProxy: VLEMProxyNode {
+final class VLEMProteinTranslationKineticsFunctionProxy: VLEMProxyNode {
     
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
@@ -404,7 +518,7 @@ class VLEMProteinTranslationKineticsFunctionProxy: VLEMProxyNode {
     }
 }
 
-class VLEMProteinDegradationKineticsFunctionProxy: VLEMProxyNode {
+final class VLEMProteinDegradationKineticsFunctionProxy: VLEMProxyNode {
     
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
@@ -459,7 +573,7 @@ class VLEMProteinDegradationKineticsFunctionProxy: VLEMProxyNode {
 }
 
 
-class VLEMGeneExpressionKineticsFunctionProxy: VLEMProxyNode {
+final class VLEMGeneExpressionKineticsFunctionProxy: VLEMProxyNode {
     
     // Declarations -
     private var syntax_tree_component:SyntaxTreeComponent
@@ -513,7 +627,7 @@ class VLEMGeneExpressionKineticsFunctionProxy: VLEMProxyNode {
     }
 }
 
-class VLEMGeneExpressionControlTransferFunctionProxy: VLEMProxyNode {
+final class VLEMGeneExpressionControlTransferFunctionProxy: VLEMProxyNode {
     
     // Declarations -
     var control_token_type:TokenType = TokenType.NULL
@@ -529,7 +643,7 @@ class VLEMGeneExpressionControlTransferFunctionProxy: VLEMProxyNode {
     }
 }
 
-class VLEMGeneExpressionControlParameterProxy: VLEMProxyNode {
+final class VLEMGeneExpressionControlParameterProxy: VLEMProxyNode {
     
     // Declarations -
     var gene_expression_control_tree:SyntaxTreeComponent
@@ -547,7 +661,7 @@ class VLEMGeneExpressionControlParameterProxy: VLEMProxyNode {
     }
 }
 
-class VLEMGeneExpressionRateProcessProxy: VLEMProxyNode {
+final class VLEMGeneExpressionRateProcessProxy: VLEMProxyNode {
     
     // Declarations -
     var gene_expression_tree:SyntaxTreeComponent?
@@ -574,7 +688,7 @@ func ==(lhs: VLEMSpeciesProxy, rhs: VLEMSpeciesProxy) -> Bool {
     return lhs.hashValue == rhs.hashValue
 }
 
-class VLEMSpeciesProxy:VLEMProxyNode,Hashable {
+final class VLEMSpeciesProxy:VLEMProxyNode,Hashable {
     
     // Declarations -
     var syntax_tree_node:SyntaxTreeComponent?

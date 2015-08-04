@@ -18,7 +18,7 @@ class VLEMAbstractSyntaxTreeLibrary: NSObject {
 }
 
 // MARK: - Metabolic control syntax tree builder -
-class MetabolicControlSyntaxTreeBuilderLogic:ASTBuilder {
+final class MetabolicControlSyntaxTreeBuilderLogic:ASTBuilder {
 
     init (){
         
@@ -384,7 +384,7 @@ class MetabolicControlSyntaxTreeBuilderLogic:ASTBuilder {
 }
 
 // MARK: - Metabolic stoichiometry syntax tree builder -
-class MetabolicStoichiometrySyntaxTreeBuilderLogic:ASTBuilder {
+final class MetabolicStoichiometrySyntaxTreeBuilderLogic:ASTBuilder {
     
     init (){
         
@@ -608,7 +608,7 @@ class MetabolicStoichiometrySyntaxTreeBuilderLogic:ASTBuilder {
 }
 
 // MARK: - System transfer abstract syntax tree -
-class SystemTransferSyntaxTreeBuilderLogic:ASTBuilder {
+final class SystemTransferSyntaxTreeBuilderLogic:ASTBuilder {
     
     init (){
         
@@ -668,7 +668,7 @@ class SystemTransferSyntaxTreeBuilderLogic:ASTBuilder {
 
 
 // MARK: - Type assignment abstract syntax tree -
-class TypeAssignmentSyntaxTreeBuilderLogic:ASTBuilder {
+final class TypeAssignmentSyntaxTreeBuilderLogic:ASTBuilder {
     
     init (){
         
@@ -741,7 +741,7 @@ class TypeAssignmentSyntaxTreeBuilderLogic:ASTBuilder {
 }
 
 // MARK: - Transcription abstract syntax tree -
-class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
+final class TranscriptionSyntaxTreeBuilderLogic:ASTBuilder {
     
     
     init (){

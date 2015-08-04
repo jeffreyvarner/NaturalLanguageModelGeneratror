@@ -244,7 +244,7 @@ class VLEMGrammarLibrary: NSObject {
 }
 
 // MARK: - Grammar specific class for metabolic control statememts -
-class MetabolicControlStatementGrammarStrategy:GrammarStrategy {
+final class MetabolicControlStatementGrammarStrategy:GrammarStrategy {
 
     // Top level method
     func parse(scanner:VLEMScanner) -> VLError? {
