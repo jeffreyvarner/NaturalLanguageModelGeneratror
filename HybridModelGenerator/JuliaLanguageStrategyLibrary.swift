@@ -980,6 +980,7 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         if let metabolic_control_dictionary = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor: MetabolicControlRulesSyntaxTreeVisitor()) as? Dictionary<String,Array<VLEMMetabolicRateControlRuleProxyNode>>,
             species_list = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
             
+            var counter = 1
             for proxy_object in species_list {
                 
                 if let _proxy_object = proxy_object as? VLEMSpeciesProxy {
@@ -992,12 +993,26 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
                      
                         for _control_proxy in _control_proxy_array {
                          
+                            var action_description:String
+                            if (_control_proxy.token_type == TokenType.ACTIVATE || _control_proxy.token_type == TokenType.ACTIVATES){
+                                action_description = "Activate"
+                            }
+                            else {
+                                action_description = "Inhibit"
+                            }
+                            
+                            
+                            
                             // get parameter string -
                             if let parameter_value_array = _control_proxy.control_parameter_array {
                              
-                                for _parameter_value in parameter_value_array {
+                                for _parameter_struct:VLEMParameterWrapper in parameter_value_array {
                                  
-                                    buffer+="\tpush!(METABOLIC_CONTROL_PARAMETER_VECTOR,\(_parameter_value))\n"
+                                    // get the comment -
+                                    let comment_string = _parameter_struct.comment
+                                    
+                                    buffer+="\tpush!(METABOLIC_CONTROL_PARAMETER_VECTOR,\(_parameter_struct.value))\t#\(counter++)\t\(comment_string) -> \(state_symbol!)\t\(action_description)\n"
+                                
                                 }
                             }
                         }

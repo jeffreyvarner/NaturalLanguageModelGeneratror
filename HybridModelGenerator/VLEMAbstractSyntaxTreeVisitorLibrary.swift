@@ -24,6 +24,7 @@ protocol SyntaxTreeVisitor {
 }
 
 
+
 final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
 
     static func classifyTypeOfNode(node:SyntaxTreeComponent,type_dictionary:Dictionary<String,SyntaxTreeComponent>) -> TokenType? {
@@ -139,6 +140,8 @@ final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
         return TokenType.NULL
     }
 }
+
+
 
 final class MetabolicControlRulesSyntaxTreeVisitor:SyntaxTreeVisitor {
 

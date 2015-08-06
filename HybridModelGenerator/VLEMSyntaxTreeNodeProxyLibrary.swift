@@ -20,6 +20,11 @@ protocol VLEMProxyNode {
     func isEqualToProxyNode(node:VLEMProxyNode) -> Bool
 }
 
+struct VLEMParameterWrapper {
+    var value:String = "0.0"
+    var comment:String = ""
+}
+
 class VLEMSyntaxTreeNodeProxyLibrary: NSObject {
 }
 
@@ -84,7 +89,7 @@ final class VLEMMetabolicRateControlRuleProxyNode:VLEMProxyNode {
     
     
     
-    var control_parameter_array:[String]? {
+    var control_parameter_array:[VLEMParameterWrapper]? {
         
         get {
          
@@ -100,14 +105,21 @@ final class VLEMMetabolicRateControlRuleProxyNode:VLEMProxyNode {
                     if (_relationship_node.tokenType == TokenType.OR){
                         
                         // effector array -
-                        var local_array = [String]()
-                        for _:SyntaxTreeComponent in _effector_node_array {
+                        var local_array = [VLEMParameterWrapper]()
+                        for _effector_node in _effector_node_array {
                             
-                            // formulate parameter string ...
-                            // we have an OR, which means all the effectors are independent -
-                            local_array.append("0.1")
-                            local_array.append("1.0")
-                            local_array.append("1.0")
+                            // create gain wrapper -
+                            var gain_wrapper = VLEMParameterWrapper()
+                            gain_wrapper.value = "0.1"
+                            gain_wrapper.comment = "OR: Gain -> Actor: \(_effector_node.lexeme!)"
+                            
+                            // create order wrapper -
+                            var order_wrapper = VLEMParameterWrapper()
+                            order_wrapper.value = "1.0"
+                            order_wrapper.comment = "OR: Order -> Actor: \(_effector_node.lexeme!)"
+                            
+                            local_array.append(gain_wrapper)
+                            local_array.append(order_wrapper)
                         }
                         
                         return local_array
@@ -116,11 +128,35 @@ final class VLEMMetabolicRateControlRuleProxyNode:VLEMProxyNode {
                         
                         // formulate parameter string ...
                         // we have an AND, which means all the effectors as a single effector -
-                        var local_array = [String]()
-                        local_array.append("0.1")
-                        local_array.append("1.0")
-                        local_array.append("1.0")
+                        var local_array = [VLEMParameterWrapper]()
+                        
+                        // create comment -
+                        var node_counter = 1
+                        var effector_buffer:String = ""
+                        for _effector_node in _effector_node_array {
+                            
+                            
+                            if (node_counter%2 == 0){
+                                effector_buffer+="*"
+                            }
+                            
+                            effector_buffer+=_effector_node.lexeme!
+                            node_counter++
+                        }
+                        
+                        // create gain wrapper -
+                        var gain_wrapper = VLEMParameterWrapper()
+                        gain_wrapper.value = "0.1"
+                        gain_wrapper.comment = "AND: Gain -> Actor: \(effector_buffer)"
+                        
+                        // create order wrapper -
+                        var order_wrapper = VLEMParameterWrapper()
+                        order_wrapper.value = "1.0"
+                        order_wrapper.comment = "AND: Order -> Actor: \(effector_buffer)"
     
+                        local_array.append(gain_wrapper)
+                        local_array.append(order_wrapper)
+                        
                         return local_array
                     }
                 }
