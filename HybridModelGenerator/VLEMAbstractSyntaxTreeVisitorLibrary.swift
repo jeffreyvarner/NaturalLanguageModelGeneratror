@@ -175,7 +175,7 @@ final class MetabolicControlRulesSyntaxTreeVisitor:SyntaxTreeVisitor {
             if let target_node_collection = _control_action_node.right_child_node as? SyntaxTreeComposite {
                 
                 // remove the right child node (this is to make the tree consistent with gene expression) -
-                _control_action_node.removeChildAtIndex(1)
+                // _control_action_node.removeChildAtIndex(1)
                 
                 // go through the effector list, map to target action -
                 for _child_node in target_node_collection {

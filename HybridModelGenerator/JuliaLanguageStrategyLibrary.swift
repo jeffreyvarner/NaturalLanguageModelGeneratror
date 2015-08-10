@@ -580,7 +580,7 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
         }
         
         buffer+="\n"
-        buffer+="\t# Formulate the gene expression control vector - \n"
+        buffer+="\t# /* ======= Formulate the gene expression control vector ======= */ \n"
         var counter = 0
         if var gene_expression_control_model = JuliaLanguageStrategyLibrary.extractGeneExpressionControlModel(model_root){
             
@@ -591,7 +591,7 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
                     let target_lexeme = (proxy_object as! VLEMSpeciesProxy).state_symbol_string!
                     if let control_tree_array = gene_expression_control_model[target_lexeme] {
                         
-                        buffer+="\t# Control structure for \(target_lexeme)\n"
+                        buffer+="\t# START: Control structure for \(target_lexeme) ============= */ \n"
                         buffer+="\tf_vector = Float64[]\n"
                         
                         for proxy:VLEMControlRelationshipProxy in control_tree_array {
@@ -617,6 +617,7 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
                         }
                         
                         buffer+="\tpush!(control_vector_gene_expression,mean(f_vector));\n"
+                        buffer+="\t# /* END ===================== END ======================== END */ \n"
                         buffer+="\n"
                     }
                 }
@@ -624,8 +625,73 @@ class JuliaControlFileStrategy:CodeGenerationStrategy {
         }
         
         //buffer+="\n"
-        //buffer+="\t# Formulate the metabolic control vector - \n"
-        //buffer+="\n"
+        buffer+="\t# /* ======= Formulate the metabolic control vector ======= */ \n"
+        if let metabolic_reaction_proxy_array = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor: MetabolicSaturationKineticsExpressionSyntaxTreeVisitor()) as? [VLEMMetabolicRateProcessProxyNode],
+            let metabolic_control_dictionary = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor: MetabolicControlRulesSyntaxTreeVisitor()) as? Dictionary<String,Array<VLEMMetabolicRateControlRuleProxyNode>> {
+                
+                var counter = 0
+                
+                // the proxy array has the enzyme symbol. We'll use this symbol to look up all the control
+                // elements for this reaction, and then write the appropriate control law
+                
+                for _metabolic_rate_proxy:VLEMMetabolicRateProcessProxyNode in metabolic_reaction_proxy_array {
+                    
+                    // Get the enzyme symbol from the proxy -
+                    if (_metabolic_rate_proxy.default_enzyme_symbol != VLEMConstants.MISSING_ENZYME_SYMBOL){
+                        
+                        // lookup the control structure -
+                        if let _control_proxy_array = metabolic_control_dictionary[_metabolic_rate_proxy.default_enzyme_symbol] {
+                            
+                            buffer+="\t# START: Metabolic control structure for \(_metabolic_rate_proxy.default_enzyme_symbol) ============= */ \n"
+                            buffer+="\tf_vector = Float64[]\n"
+                            
+                            // ok, we have a control element for this enzyme -
+                            for _metabolic_control_proxy:VLEMMetabolicRateControlRuleProxyNode in _control_proxy_array {
+                                
+                                // get the effector array -
+                                if (_metabolic_control_proxy.token_type == TokenType.ACTIVATES ||
+                                    _metabolic_control_proxy.token_type == TokenType.ACTIVATE){
+                                
+                                        
+                                    if let _effector_lexeme_array = _metabolic_control_proxy.effector_lexeme_array {
+                                            
+                                        for _effector_lexeme in _effector_lexeme_array {
+                                            
+                                            buffer+="\tpush!(f_vector,(m[\(++counter)]*(\(_effector_lexeme))^m[\(++counter)])/(1 + m[\(--counter)]*(\(_effector_lexeme))^m[\(++counter)]));\n"
+                                        }
+                                    }
+                                }
+                                else if (_metabolic_control_proxy.token_type == TokenType.INHIBIT ||
+                                    _metabolic_control_proxy.token_type == TokenType.INHIBITS) {
+                                        
+                                    if let _effector_lexeme_array = _metabolic_control_proxy.effector_lexeme_array {
+                                            
+                                        for _effector_lexeme in _effector_lexeme_array {
+                                            buffer+="\tpush!(f_vector,1.0 - (m[\(++counter)]*(\(_effector_lexeme))^m[\(++counter)])/(1 + m[\(--counter)]*(\(_effector_lexeme))^m[\(++counter)]));\n"
+                                        }
+                                    }
+                                }
+                                else {
+                                    // Throw an error?
+                                }
+                            }
+                        }
+                        else {
+                            
+                            // ok, we have a legit enzyme that has *no* control elements listed in the model.
+                            // this means the control variable is 1
+                            
+                            buffer+="\t# Metabolic control structure for \(_metabolic_rate_proxy.default_enzyme_symbol)  ==== START ========= */ \n"
+                            buffer+="\tf_vector = Float64[]\n"
+                            buffer+="\tpush!(f_vector,1.0);\n"
+                        }
+                        
+                        buffer+="\tpush!(control_vector_metabolism,mean(f_vector));\n"
+                        buffer+="\t# /* END ===================== END ======================== END */ \n"
+                        buffer+="\n"
+                    }
+                }
+        }
         
         buffer+="\t# Return the gene expression and metabolic control vectors - \n"
         buffer+="\treturn (control_vector_gene_expression, control_vector_metabolism)\n"
@@ -1000,7 +1066,6 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
                             else {
                                 action_description = "Inhibit"
                             }
-                            
                             
                             
                             // get parameter string -

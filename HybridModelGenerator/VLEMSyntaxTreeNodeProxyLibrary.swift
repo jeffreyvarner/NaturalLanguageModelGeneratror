@@ -15,6 +15,7 @@ enum GeneExpressionParameterType {
     case NULL
 }
 
+
 protocol VLEMProxyNode {
     
     func isEqualToProxyNode(node:VLEMProxyNode) -> Bool
@@ -22,7 +23,7 @@ protocol VLEMProxyNode {
 
 struct VLEMParameterWrapper {
     var value:String = "0.0"
-    var comment:String = ""
+    var comment:String = "default_comment"
 }
 
 class VLEMSyntaxTreeNodeProxyLibrary: NSObject {
@@ -228,7 +229,7 @@ final class VLEMMetabolicRateProcessProxyNode:VLEMProxyNode {
                 return _name
             }
             else {
-                return "UNKNOWN"
+                return VLEMConstants.MISSING_ENZYME_SYMBOL
             }
         }
     }

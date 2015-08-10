@@ -40,6 +40,8 @@
 		ADC37FF11B22547F00FCD586 /* JuliaLanguageStrategyLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FED1B222A2900FCD586 /* JuliaLanguageStrategyLibrary.swift */; };
 		ADC37FF21B22549600FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FEA1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift */; };
 		ADC37FF51B2281CC00FCD586 /* VLEMCodeEngineTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC37FF41B2281CC00FCD586 /* VLEMCodeEngineTest.swift */; };
+		ADD66BBC1B74E32000E7435E /* VLEMConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADD66BBB1B74E32000E7435E /* VLEMConstants.swift */; };
+		ADD66BBD1B78D6C800E7435E /* VLEMConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADD66BBB1B74E32000E7435E /* VLEMConstants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +81,7 @@
 		ADC37FEA1B2225FA00FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMAbstractSyntaxTreeVisitorLibrary.swift; sourceTree = "<group>"; };
 		ADC37FED1B222A2900FCD586 /* JuliaLanguageStrategyLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JuliaLanguageStrategyLibrary.swift; sourceTree = "<group>"; };
 		ADC37FF41B2281CC00FCD586 /* VLEMCodeEngineTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMCodeEngineTest.swift; sourceTree = "<group>"; };
+		ADD66BBB1B74E32000E7435E /* VLEMConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLEMConstants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +127,7 @@
 				ADC37FEC1B2229F300FCD586 /* strategies */,
 				AD0903E81AE665290078713B /* engine */,
 				AD0903CB1AE6607F0078713B /* AppDelegate.swift */,
+				ADD66BBB1B74E32000E7435E /* VLEMConstants.swift */,
 				AD0903CD1AE6607F0078713B /* ViewController.swift */,
 				AD0903D11AE6607F0078713B /* Main.storyboard */,
 				ADC2FA081AF6C848004C1C8A /* Images.xcassets */,
@@ -325,6 +329,7 @@
 				ADAE53BC1B36D5370013091E /* VLEMMessageBroker.swift in Sources */,
 				AD34E3031B47151800633646 /* VLEMCodeEngine.swift in Sources */,
 				AD0903CE1AE6607F0078713B /* ViewController.swift in Sources */,
+				ADD66BBC1B74E32000E7435E /* VLEMConstants.swift in Sources */,
 				AD01482E1B0E61570093E609 /* VLEMParser.swift in Sources */,
 				AD7E11931B18F408001232EC /* VLEMGrammarLibrary.swift in Sources */,
 				ADAE53B81B2B88190013091E /* VLEMSyntaxTreeNodeProxyLibrary.swift in Sources */,
@@ -342,6 +347,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADD66BBD1B78D6C800E7435E /* VLEMConstants.swift in Sources */,
 				AD34E3041B47190D00633646 /* VLEMCodeEngine.swift in Sources */,
 				ADAE53B91B2B88800013091E /* VLEMSyntaxTreeNodeProxyLibrary.swift in Sources */,
 				ADC37FF21B22549600FCD586 /* VLEMAbstractSyntaxTreeVisitorLibrary.swift in Sources */,
