@@ -503,7 +503,7 @@ class JuliaKineticsFileStrategy:CodeGenerationStrategy {
                 
                 if let _species_proxy_cast = _species_proxy as? VLEMSpeciesProxy {
                     
-                    buffer+="\tsystem_transfer_rate_vector[\(counter)] = system_transfer_paramter_array[\(counter),1] - system_transfer_paramter_array[\(counter),2]*\(_species_proxy_cast.state_symbol_string!);\n"
+                    buffer+="\tsystem_transfer_rate_vector[\(counter)] = system_transfer_paramter_array[\(counter),1] - (system_transfer_paramter_array[\(counter),2] + system_transfer_paramter_array[\(counter),3])*\(_species_proxy_cast.state_symbol_string!);\n"
                     
                 }
                 
@@ -825,6 +825,8 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
                     protein_counter++
                 }
             }
+            
+            
         }
 
         buffer+="\treturn dxdt_vector;\n"
@@ -1090,7 +1092,8 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
         // Setup the system transfer rate parameter vector -
         buffer+="\n"
         buffer+="\t# Setup the system transfer parameter vector - \n"
-        buffer+="\tSYSTEM_TRANSFER_PARAMETER_ARRAY = zeros(Float64,(\(number_of_species),2));\n"
+        buffer+="\tSYSTEM_TRANSFER_PARAMETER_ARRAY = zeros(Float64,(\(number_of_species),3));\n"
+        buffer+="\tSPECIFIC_GROWTH_RATE = 0.0;\n"
         if let system_transfer_dictionary = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor: SystemTransferProcessSpeciesSyntaxTreeVisitor()) as? Dictionary<TokenType,Set<VLEMSpeciesProxy>> {
             
             if let _model_species_array = JuliaLanguageStrategyLibrary.extractSpeciesList(model_root) {
@@ -1111,6 +1114,9 @@ class JuliaDataFileFileStrategy:CodeGenerationStrategy {
                         if (to_set.contains(_species_proxy_cast)){
                             buffer+="\tSYSTEM_TRANSFER_PARAMETER_ARRAY[\(counter),2] = 0.1;\t#\(counter)\t\(_species_proxy_cast.state_symbol_string!) transfer TO SYSTEM \n"
                         }
+                        
+                        // we always have a dilution due to growth term?
+                        buffer+="\tSYSTEM_TRANSFER_PARAMETER_ARRAY[\(counter),3] = SPECIFIC_GROWTH_RATE;\t#\(counter)\t\(_species_proxy_cast.state_symbol_string!) dilution due to growth \n"
                     }
                     
                     counter++

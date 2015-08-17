@@ -245,7 +245,7 @@ final class VLEMMetabolicRateProcessProxyNode:VLEMProxyNode {
             let enzyme_name = self.default_enzyme_symbol
             
             // Rate constant string -
-            var rate_constant_string = "k_\(self.rate_index)_\(enzyme_name)*"
+            let rate_constant_string = "k_\(self.rate_index)_\(enzyme_name)*"
             
             // Saturation term string -
             var saturation_term = ""
