@@ -826,9 +826,64 @@ class JuliaBalanceEquationsFileStrategy:CodeGenerationStrategy {
                 }
             }
             
+            // If we have reaction rates, then we need to process them -else- return balances that are = 0
+            buffer+="\n"
+            buffer+="\t# Metabolite balances - \n"
+            var metabolite_counter = protein_counter
             
+            if let metabolic_reaction_proxy_array = JuliaLanguageStrategyLibrary.dispatchGenericTreeVisitorOnTreeWithTypeDictionary(model_root, treeVisitor: MetabolicSaturationKineticsExpressionSyntaxTreeVisitor()) as? [VLEMMetabolicRateProcessProxyNode] {
+                
+                // ok, we have an array of reactions and an array of metabolites ... link them
+                // I'm going to implement a crazy bad N^2 algo here ...
+                
+                for proxy_object in species_list {
+                    
+                    if ((proxy_object as! VLEMSpeciesProxy).token_type == TokenType.METABOLITE){
+                        
+                        var reaction_rate_counter = 1
+                        
+                        let state_symbol = (proxy_object as! VLEMSpeciesProxy).state_symbol_string!
+                        buffer+="\tdxdt_vector[\(metabolite_counter)] = "
+                        
+                        // ok, iterate through metabolic_reaction_proxy_array -
+                        for metabolic_reaction_proxy in metabolic_reaction_proxy_array {
+                            
+                            // is this species a reactant?
+                            if (metabolic_reaction_proxy.isBiologicalSymbolProxyAReactant(proxy_object)){
+                                buffer+=" - 1.0*metabolic_rate_vector[\(reaction_rate_counter)]"
+                            }
+                            else if (metabolic_reaction_proxy.isBiologicalSymbolProxyAProduct(proxy_object)){
+                                buffer+=" + 1.0*metabolic_rate_vector[\(reaction_rate_counter)]"
+                            }
+                            
+                            reaction_rate_counter++
+                        }
+                        
+                        // write the comment -
+                        buffer+=" + system_transfer_rate_vector[\(global_species_counter++)];\t#\t\(metabolite_counter)\t\(state_symbol)\n"
+                        
+                        // update the metabolite counter -
+                        metabolite_counter++
+                    }
+                }
+            }
+            else {
+                
+                for proxy_object in species_list {
+                    
+                    if ((proxy_object as! VLEMSpeciesProxy).token_type == TokenType.METABOLITE){
+                        
+                        let state_symbol = (proxy_object as! VLEMSpeciesProxy).state_symbol_string!
+                        buffer+="\tdxdt_vector[\(metabolite_counter)] = system_transfer_rate_vector[\(global_species_counter++)];\t#\t\(metabolite_counter)\t\(state_symbol)\n"
+                        
+                        // update the metabolite counter -
+                        metabolite_counter++
+                    }
+                }
+            }
         }
 
+        buffer+="\n"
         buffer+="\treturn dxdt_vector;\n"
         buffer+="end"
         

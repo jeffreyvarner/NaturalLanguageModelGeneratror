@@ -142,7 +142,7 @@ final class VLEMAbstractSyntaxTreeVisitorLibrary: NSObject {
 }
 
 
-
+// MARK: - MetabolicControlRulesSyntaxTreeVisitor -
 final class MetabolicControlRulesSyntaxTreeVisitor:SyntaxTreeVisitor {
 
     // Declarations -
@@ -232,6 +232,7 @@ final class MetabolicControlRulesSyntaxTreeVisitor:SyntaxTreeVisitor {
     }
 }
 
+// MARK: - MetabolicSaturationKineticsExpressionSyntaxTreeVisitor -
 final class MetabolicSaturationKineticsExpressionSyntaxTreeVisitor:SyntaxTreeVisitor {
 
     // Declarations -
@@ -253,6 +254,7 @@ final class MetabolicSaturationKineticsExpressionSyntaxTreeVisitor:SyntaxTreeVis
             
             var _enzyme_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
             var _reactants_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
+            var _products_array:[SyntaxTreeComponent] = [SyntaxTreeComponent]()
             
             if let _catalyze_node = node as? SyntaxTreeComposite {
              
@@ -266,6 +268,14 @@ final class MetabolicSaturationKineticsExpressionSyntaxTreeVisitor:SyntaxTreeVis
                             
                             for _reactant_node in _reactants_node {
                                 _reactants_array.append(_reactant_node)
+                            }
+                        }
+                        
+                        // Get the products -
+                        if let _products_node = (_child_node as? SyntaxTreeComposite)?.getChildAtIndex(1) as? SyntaxTreeComposite {
+                            
+                            for _product_node in _products_node {
+                                _products_array.append(_product_node)
                             }
                         }
                     }
@@ -288,6 +298,7 @@ final class MetabolicSaturationKineticsExpressionSyntaxTreeVisitor:SyntaxTreeVis
                 
                 let _metabolic_proxy = VLEMMetabolicRateProcessProxyNode(node: node)
                 _metabolic_proxy.reactants_array = _reactants_array
+                _metabolic_proxy.products_array = _products_array
                 _metabolic_proxy.enzyme = enzyme_node
                 _metabolic_proxy.rate_index = rate_counter++
                 
@@ -324,6 +335,7 @@ final class MetabolicSaturationKineticsExpressionSyntaxTreeVisitor:SyntaxTreeVis
     }
 }
 
+// MARK: - SystemTransferProcessSpeciesSyntaxTreeVisitor -
 final class SystemTransferProcessSpeciesSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -
@@ -395,6 +407,7 @@ final class SystemTransferProcessSpeciesSyntaxTreeVisitor:SyntaxTreeVisitor {
     }
 }
 
+// MARK: - GeneExpressionControlModelSyntaxTreeVisitor -
 final class GeneExpressionControlModelSyntaxTreeVisitor:SyntaxTreeVisitor {
     
     // Declarations -

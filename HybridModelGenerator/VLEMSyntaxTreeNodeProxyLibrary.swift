@@ -309,6 +309,50 @@ final class VLEMMetabolicRateProcessProxyNode:VLEMProxyNode {
     }
     
     
+    func isBiologicalSymbolProxyAReactant(node:VLEMProxyNode) -> Bool {
+        
+        // get the lexme -
+        if let _species_node = node as? VLEMSpeciesProxy, let _local_reactant_array = reactants_array {
+        
+            // get the lexeme -
+            let species_symbol = _species_node.state_symbol_string!
+            
+            for _reactant_node in _local_reactant_array {
+             
+                // what is the reactant symbol?
+                let _reactant_symbol = _reactant_node.lexeme!
+                
+                if (_reactant_symbol == species_symbol){
+                    return true
+                }
+            }
+        }
+        
+        return false
+    }
+    
+    func isBiologicalSymbolProxyAProduct(node:VLEMProxyNode) -> Bool {
+        
+        
+        // get the lexme -
+        if let _species_node = node as? VLEMSpeciesProxy, let _local_product_array = products_array {
+            
+            // get the lexeme -
+            let species_symbol = _species_node.state_symbol_string!
+            
+            for _product_node in _local_product_array {
+                
+                // what is the reactant symbol?
+                let _product_symbol = _product_node.lexeme!
+                
+                if (_product_symbol == species_symbol){
+                    return true
+                }
+            }
+        }
+        
+        return false
+    }
     
     func isEqualToProxyNode(node:VLEMProxyNode) -> Bool {
         

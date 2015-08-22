@@ -530,7 +530,24 @@ final class MetabolicStoichiometrySyntaxTreeBuilderLogic:ASTBuilder {
             else if (_next_token.token_type == TokenType.BIOLOGICAL_SYMBOL){
                 
                 // ok, we have a biological symbol -
-                if let _local_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.AND) {
+                if node == nil {
+                    
+                    // ok, we have a biological symbol which is *not* in a list and we are at the begining of 
+                    // the statement. Wrap in an OR and go down again -
+                    
+                    // Create the metabolite node -
+                    let metabolite_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
+                    metabolite_node.lexeme = _next_token.lexeme
+                    
+                    // Create the OR node -
+                    let or_subtree = SyntaxTreeComposite(type: TokenType.OR)
+                    or_subtree.addNodeToTree(metabolite_node)
+                    
+                    // ok, pass the OR node into me, and keep going down ...
+                    return recursiveTreeBuilder(scanner, node: or_subtree)
+                    
+                }
+                else if let _local_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.AND) {
                     
                     // ok, we have an AND node passed in, grab the symbol and add to the AND node
                     let metabolite_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
@@ -561,7 +578,7 @@ final class MetabolicStoichiometrySyntaxTreeBuilderLogic:ASTBuilder {
                 }
                 else if let _local_node = node as? SyntaxTreeComposite where (node?.tokenType == TokenType.OR) {
                     
-                    // ok, we have an AND node passed in, grab the symbol and add to the AND node
+                    // ok, we have an OR node passed in, grab the symbol and add to the OR node
                     let metabolite_node = SyntaxTreeComponent(type: TokenType.BIOLOGICAL_SYMBOL)
                     metabolite_node.lexeme = _next_token.lexeme
                     
